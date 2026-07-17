@@ -47,6 +47,9 @@ jobs:
       - name: Setup Pages
         uses: actions/configure-pages@v5
 
+      - name: Add custom domain
+        run: printf 'gmtl.ink\n' > ./dist/client/CNAME
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
