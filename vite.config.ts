@@ -7,13 +7,9 @@
 import { defineConfig } from "@lovable.dev/vite-tanstack-config";
 
 export default defineConfig({
-  // Build as a static site (Nitro `static` preset) so `.output/public/` contains
-  // real index.html files that GitHub Pages can serve directly.
-  nitro: {
-    preset: "static",
-    prerender: {
-      crawlLinks: true,
-      routes: ["/", "/about", "/products", "/contact"],
-    },
+  tanstackStart: {
+    // Redirect TanStack Start's bundled server entry to src/server.ts (our SSR error wrapper).
+    // nitro/vite builds from this
+    server: { entry: "server" },
   },
 });
