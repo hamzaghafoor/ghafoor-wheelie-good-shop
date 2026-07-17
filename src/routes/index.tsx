@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { motion } from "framer-motion";
 import { ArrowRight, ShieldCheck, MessageCircle, MapPin, Sparkles, Wrench, Star, Award, Users } from "lucide-react";
 import { HeroTyreViewer } from "@/components/hero/HeroTyreViewer";
 import catTyres from "@/assets/cat-tyres.jpg";
