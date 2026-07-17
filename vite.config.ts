@@ -7,22 +7,13 @@
 import { defineConfig } from "@lovable.dev/vite-tanstack-config";
 
 export default defineConfig({
-  tanstackStart: {
-    // Prerender all pages to static HTML for GitHub Pages hosting.
-    prerender: {
-      enabled: true,
-      crawlLinks: true,
-    },
-    pages: [
-      { path: "/" },
-      { path: "/about" },
-      { path: "/products" },
-      { path: "/contact" },
-    ],
-  },
   // Build as a static site (Nitro `static` preset) so `.output/public/` contains
   // real index.html files that GitHub Pages can serve directly.
   nitro: {
     preset: "static",
+    prerender: {
+      crawlLinks: true,
+      routes: ["/", "/about", "/products", "/contact"],
+    },
   },
 });
