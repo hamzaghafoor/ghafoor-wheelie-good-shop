@@ -15,6 +15,7 @@ import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { WhatsAppButton } from "@/components/WhatsAppButton";
 import { MobileActionBar } from "@/components/MobileActionBar";
+import { ChatLauncher } from "@/components/chat/ChatLauncher";
 
 
 function NotFoundComponent() {
@@ -98,6 +99,7 @@ function RootComponent() {
         <main className="flex-1 pb-16 md:pb-0"><Outlet /></main>
         <Footer />
         <WhatsAppButton />
+        <ChatLauncher />
         <MobileActionBar />
       </div>
     </QueryClientProvider>
