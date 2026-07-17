@@ -25,6 +25,7 @@ if (typeof handler?.fetch !== "function") {
 
 async function prerender(route) {
   const url = new URL(route, ORIGIN).toString();
+  const req = new Request(url, { method: "GET", headers: { accept: "text/html" } });
   const ctx = { waitUntil() {}, passThroughOnException() {}, context: { waitUntil() {} } };
   const res = await handler.fetch(req, {}, ctx);
   if (!res.ok) {
