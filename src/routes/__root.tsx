@@ -15,7 +15,7 @@ import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { WhatsAppButton } from "@/components/WhatsAppButton";
 import { MobileActionBar } from "@/components/MobileActionBar";
-import { ChatLauncher } from "@/components/chat/ChatLauncher";
+
 
 function NotFoundComponent() {
   return (
@@ -99,7 +99,6 @@ function RootComponent() {
         <Footer />
         <WhatsAppButton />
         <MobileActionBar />
-        <ChatLauncher />
       </div>
     </QueryClientProvider>
   );
