@@ -49,34 +49,36 @@ function HomePage() {
 
 function Hero() {
   return (
-    <section className="bg-ink pt-10 pb-24 text-white md:pt-16 md:pb-32">
-      <div className="container-x grid items-center gap-10 lg:grid-cols-[1.1fr_1fr]">
+    <section className="bg-ink py-10 text-white md:py-14">
+      <div className="container-x grid items-center gap-8 lg:grid-cols-[52fr_48fr]">
         <div>
           <p className="eyebrow text-primary">Tyres • Lubricants • Wheel Care</p>
-          <h1 className="mt-4 font-display text-4xl leading-[1.05] md:text-6xl">
-            The Right Tyres for a<br /><span className="text-primary">Safer, Smoother</span> Drive.
+          <h1
+            className="mt-4 font-display text-white"
+            style={{ fontSize: "clamp(40px, 4.7vw, 76px)", lineHeight: 1.0, maxWidth: "850px" }}
+          >
+            The Right Tyres for a <span className="text-primary">Safer, Smoother</span> Drive.
           </h1>
-          <p className="mt-5 max-w-xl text-base text-white/70 md:text-lg">
+          <p className="mt-5 max-w-[560px] text-base text-white/70 md:text-lg">
             Get genuine tyres, expert recommendations, quality lubricants, and professional wheel-care services at Ghafoor Motors Tyres & Lubricants in PECHS, Karachi.
           </p>
-          <div className="mt-7 flex flex-wrap gap-3">
+          <div className="mt-6 flex flex-wrap gap-3">
             <Link to="/tyres" className="btn-primary text-sm md:text-base">
               Find Tyres for My Car <ArrowRight className="h-4 w-4" />
             </Link>
-            <a href={waLink("Assalam-o-Alaikum, please share today's price for tyres.")} target="_blank" rel="noreferrer" className="btn-outline border-white/20 bg-transparent text-white hover:text-primary">
+            <a
+              href={waLink("Assalam-o-Alaikum, please share today's price for tyres.")}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center gap-2 rounded-full border border-white/25 bg-transparent px-5 py-3 text-sm font-semibold text-white transition hover:border-primary hover:text-primary md:text-base"
+            >
               <MessageCircle className="h-4 w-4" /> WhatsApp for Today's Price
             </a>
           </div>
           <p className="mt-4 text-xs text-white/50">Expert guidance • Professional fitting • Convenient Karachi location</p>
         </div>
-        <div className="relative mx-auto w-full max-w-[520px]">
-          <HeroTyreViewer rotationSpeed={0.15} enableInteraction mobileFallback />
-          <div className="absolute -bottom-6 -left-4 hidden max-w-xs rounded-xl border border-border bg-surface p-4 shadow-xl md:block">
-            <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-primary">
-              <Sparkles className="h-3.5 w-3.5" /> Need help choosing?
-            </div>
-            <p className="mt-1 text-sm text-foreground">Tell us your car model and our team will recommend the right options.</p>
-          </div>
+        <div className="order-last lg:order-none">
+          <HeroTyreViewer />
         </div>
       </div>
     </section>
