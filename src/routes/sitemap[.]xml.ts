@@ -15,8 +15,11 @@ export const Route = createFileRoute("/sitemap.xml")({
       GET: async () => {
         const entries: SitemapEntry[] = [
           { path: "/", changefreq: "weekly", priority: "1.0" },
-          { path: "/products", changefreq: "weekly", priority: "0.9" },
-          { path: "/about", changefreq: "monthly", priority: "0.6" },
+          { path: "/tyres", changefreq: "weekly", priority: "0.9" },
+          { path: "/lubricants", changefreq: "weekly", priority: "0.8" },
+          { path: "/services", changefreq: "monthly", priority: "0.8" },
+          { path: "/tyre-guide", changefreq: "monthly", priority: "0.7" },
+          { path: "/about", changefreq: "monthly", priority: "0.5" },
           { path: "/contact", changefreq: "monthly", priority: "0.6" },
         ];
         const urls = entries.map((e) =>
@@ -28,15 +31,8 @@ export const Route = createFileRoute("/sitemap.xml")({
             `  </url>`,
           ].filter(Boolean).join("\n"),
         );
-        const xml = [
-          `<?xml version="1.0" encoding="UTF-8"?>`,
-          `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">`,
-          ...urls,
-          `</urlset>`,
-        ].join("\n");
-        return new Response(xml, {
-          headers: { "Content-Type": "application/xml", "Cache-Control": "public, max-age=3600" },
-        });
+        const body = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls.join("\n")}\n</urlset>\n`;
+        return new Response(body, { headers: { "content-type": "application/xml; charset=utf-8" } });
       },
     },
   },

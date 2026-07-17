@@ -4,7 +4,7 @@ import { useState } from "react";
 import logo from "@/assets/logo.png";
 import { business, telLink, waLink } from "@/lib/business";
 
-const nav = [
+const nav: { to: string; label: string; exact?: boolean }[] = [
   { to: "/", label: "Home", exact: true },
   { to: "/tyres", label: "Tyres" },
   { to: "/lubricants", label: "Lubricants" },
@@ -12,7 +12,7 @@ const nav = [
   { to: "/tyre-guide", label: "Tyre Guide" },
   { to: "/about", label: "About" },
   { to: "/contact", label: "Contact" },
-] as const;
+];
 
 export function Header() {
   const [open, setOpen] = useState(false);
