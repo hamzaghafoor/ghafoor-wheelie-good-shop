@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowRight, ShieldCheck, MessageCircle, MapPin, Sparkles, Wrench, Star, Award, Users } from "lucide-react";
-import hero from "@/assets/hero-showroom.jpg";
+import { HeroTyreViewer } from "@/components/hero/HeroTyreViewer";
 import catTyres from "@/assets/cat-tyres.jpg";
 import catLubes from "@/assets/cat-lubricants.jpg";
 import svcAlign from "@/assets/svc-alignment.jpg";
@@ -69,10 +69,8 @@ function Hero() {
           </div>
           <p className="mt-4 text-xs text-white/50">Expert guidance • Professional fitting • Convenient Karachi location</p>
         </div>
-        <div className="relative">
-          <div className="overflow-hidden rounded-2xl border border-white/10 shadow-2xl">
-            <img src={hero} alt="Ghafoor Motors tyre showroom" width={1600} height={1200} className="h-full w-full object-cover" />
-          </div>
+        <div className="relative mx-auto w-full max-w-[520px]">
+          <HeroTyreViewer rotationSpeed={0.15} enableInteraction mobileFallback />
           <div className="absolute -bottom-6 -left-4 hidden max-w-xs rounded-xl border border-border bg-surface p-4 shadow-xl md:block">
             <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-primary">
               <Sparkles className="h-3.5 w-3.5" /> Need help choosing?
