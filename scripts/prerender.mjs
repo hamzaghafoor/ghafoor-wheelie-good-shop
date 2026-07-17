@@ -25,8 +25,8 @@ if (typeof handler?.fetch !== "function") {
 
 async function prerender(route) {
   const url = new URL(route, ORIGIN).toString();
-  const req = new Request(url, { method: "GET", headers: { accept: "text/html" } });
-  const res = await handler.fetch(req, {}, {});
+  const ctx = { waitUntil() {}, passThroughOnException() {}, context: { waitUntil() {} } };
+  const res = await handler.fetch(req, {}, ctx);
   if (!res.ok) {
     throw new Error(`Prerender ${route} failed: ${res.status} ${res.statusText}`);
   }
