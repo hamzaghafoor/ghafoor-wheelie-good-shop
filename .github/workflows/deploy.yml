@@ -1,4 +1,4 @@
-name: Deploy static content to Pages
+name: Deploy to GitHub Pages
 
 on:
   push:
@@ -35,16 +35,13 @@ jobs:
       - name: Build
         run: bun run build
 
-      - name: Prerender routes to static HTML
-        run: bun scripts/prerender.mjs
-
       - name: Setup Pages
         uses: actions/configure-pages@v5
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: './dist/client'
+          path: './.output/public'
 
       - name: Deploy to GitHub Pages
         id: deployment
