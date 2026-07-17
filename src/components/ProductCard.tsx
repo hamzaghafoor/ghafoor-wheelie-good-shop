@@ -1,48 +1,41 @@
-import { Plus } from "lucide-react";
-import type { Product } from "@/lib/products";
-import { formatPKR } from "@/lib/products";
-import { useCart } from "@/lib/cart";
+import { MessageCircle, Phone } from "lucide-react";
+import type { Tyre } from "@/lib/tyres";
+import { telLink, waLink } from "@/lib/business";
 
-export function ProductCard({ product }: { product: Product }) {
-  const { add, setOpen } = useCart();
+export function ProductCard({ tyre }: { tyre: Tyre }) {
+  const size = tyre.sizes[0];
+  const askMsg = `Assalam-o-Alaikum, I am checking the availability and current price of ${tyre.brand} ${tyre.model}, size ${size}. Please share suitable options.`;
+
   return (
-    <article className="group relative flex flex-col overflow-hidden rounded-xl border border-border/60 bg-surface transition hover:border-primary/60">
-      <div className="relative aspect-square overflow-hidden bg-background">
-        <img
-          src={product.image}
-          alt={product.name}
-          className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
-          loading="lazy"
-          width={800}
-          height={800}
-        />
-        {product.badge && (
-          <span className="absolute left-3 top-3 rounded-sm bg-primary px-2 py-0.5 text-xs font-bold uppercase tracking-wider text-primary-foreground">
-            {product.badge}
-          </span>
-        )}
-        <span className="absolute right-3 top-3 rounded-sm border border-border/70 bg-background/70 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wider text-muted-foreground backdrop-blur">
-          {product.category}
+    <article className="card-surface group flex flex-col overflow-hidden transition hover:border-primary/50">
+      <div className="relative aspect-square overflow-hidden bg-surface-2">
+        <img src={tyre.image} alt={`${tyre.brand} ${tyre.model}`} loading="lazy" width={800} height={800} className="h-full w-full object-contain p-6 transition duration-500 group-hover:scale-105" />
+        <span className={`absolute left-3 top-3 rounded-full px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider ${tyre.inStock ? "bg-success/10 text-success" : "bg-muted text-muted-foreground"}`}>
+          {tyre.inStock ? "In Stock" : "Check Availability"}
+        </span>
+        <span className="absolute right-3 top-3 rounded-full border border-border bg-surface/90 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-foreground/70">
+          {tyre.category}
         </span>
       </div>
-
       <div className="flex flex-1 flex-col p-4">
-        <div className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
-          {product.brand}
-        </div>
-        <h3 className="mt-1 font-display text-xl leading-tight tracking-wide">{product.name}</h3>
-        {product.size && (
-          <div className="mt-1 text-sm text-muted-foreground">{product.size}</div>
-        )}
-        <p className="mt-2 line-clamp-2 text-sm text-muted-foreground">{product.description}</p>
-        <div className="mt-4 flex items-center justify-between">
-          <div className="font-display text-2xl text-primary">{formatPKR(product.price)}</div>
-          <button
-            onClick={() => { add(product.id, 1); setOpen(true); }}
-            className="inline-flex items-center gap-1.5 rounded-md bg-primary px-3 py-2 text-sm font-bold text-primary-foreground transition hover:brightness-110"
-          >
-            <Plus className="h-4 w-4" /> Add
-          </button>
+        <div className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">{tyre.brand}</div>
+        <h3 className="mt-0.5 font-display text-lg leading-tight text-ink">{tyre.model}</h3>
+        <div className="mt-1 text-sm font-medium text-foreground/80">{tyre.sizes.join(" • ")}</div>
+        <ul className="mt-3 space-y-1 text-xs text-muted-foreground">
+          {tyre.features.slice(0, 3).map((f) => (
+            <li key={f} className="flex items-start gap-1.5">
+              <span className="mt-1 h-1 w-1 flex-none rounded-full bg-primary" />
+              {f}
+            </li>
+          ))}
+        </ul>
+        <div className="mt-4 grid grid-cols-2 gap-2">
+          <a href={waLink(askMsg)} target="_blank" rel="noreferrer" className="btn-primary text-xs">
+            <MessageCircle className="h-3.5 w-3.5" /> Get Price
+          </a>
+          <a href={telLink()} className="btn-outline text-xs">
+            <Phone className="h-3.5 w-3.5" /> Call
+          </a>
         </div>
       </div>
     </article>

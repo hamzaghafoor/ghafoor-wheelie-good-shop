@@ -9,20 +9,38 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as TyresRouteImport } from './routes/tyres'
+import { Route as TyreGuideRouteImport } from './routes/tyre-guide'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
-import { Route as ProductsRouteImport } from './routes/products'
+import { Route as ServicesRouteImport } from './routes/services'
+import { Route as LubricantsRouteImport } from './routes/lubricants'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
 
+const TyresRoute = TyresRouteImport.update({
+  id: '/tyres',
+  path: '/tyres',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TyreGuideRoute = TyreGuideRouteImport.update({
+  id: '/tyre-guide',
+  path: '/tyre-guide',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   id: '/sitemap.xml',
   path: '/sitemap.xml',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ProductsRoute = ProductsRouteImport.update({
-  id: '/products',
-  path: '/products',
+const ServicesRoute = ServicesRouteImport.update({
+  id: '/services',
+  path: '/services',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LubricantsRoute = LubricantsRouteImport.update({
+  id: '/lubricants',
+  path: '/lubricants',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ContactRoute = ContactRouteImport.update({
@@ -45,42 +63,93 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/contact': typeof ContactRoute
-  '/products': typeof ProductsRoute
+  '/lubricants': typeof LubricantsRoute
+  '/services': typeof ServicesRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/tyre-guide': typeof TyreGuideRoute
+  '/tyres': typeof TyresRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/contact': typeof ContactRoute
-  '/products': typeof ProductsRoute
+  '/lubricants': typeof LubricantsRoute
+  '/services': typeof ServicesRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/tyre-guide': typeof TyreGuideRoute
+  '/tyres': typeof TyresRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/contact': typeof ContactRoute
-  '/products': typeof ProductsRoute
+  '/lubricants': typeof LubricantsRoute
+  '/services': typeof ServicesRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/tyre-guide': typeof TyreGuideRoute
+  '/tyres': typeof TyresRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/about' | '/contact' | '/products' | '/sitemap.xml'
+  fullPaths:
+    | '/'
+    | '/about'
+    | '/contact'
+    | '/lubricants'
+    | '/services'
+    | '/sitemap.xml'
+    | '/tyre-guide'
+    | '/tyres'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/about' | '/contact' | '/products' | '/sitemap.xml'
-  id: '__root__' | '/' | '/about' | '/contact' | '/products' | '/sitemap.xml'
+  to:
+    | '/'
+    | '/about'
+    | '/contact'
+    | '/lubricants'
+    | '/services'
+    | '/sitemap.xml'
+    | '/tyre-guide'
+    | '/tyres'
+  id:
+    | '__root__'
+    | '/'
+    | '/about'
+    | '/contact'
+    | '/lubricants'
+    | '/services'
+    | '/sitemap.xml'
+    | '/tyre-guide'
+    | '/tyres'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
   ContactRoute: typeof ContactRoute
-  ProductsRoute: typeof ProductsRoute
+  LubricantsRoute: typeof LubricantsRoute
+  ServicesRoute: typeof ServicesRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
+  TyreGuideRoute: typeof TyreGuideRoute
+  TyresRoute: typeof TyresRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/tyres': {
+      id: '/tyres'
+      path: '/tyres'
+      fullPath: '/tyres'
+      preLoaderRoute: typeof TyresRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/tyre-guide': {
+      id: '/tyre-guide'
+      path: '/tyre-guide'
+      fullPath: '/tyre-guide'
+      preLoaderRoute: typeof TyreGuideRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/sitemap.xml': {
       id: '/sitemap.xml'
       path: '/sitemap.xml'
@@ -88,11 +157,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SitemapDotxmlRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/products': {
-      id: '/products'
-      path: '/products'
-      fullPath: '/products'
-      preLoaderRoute: typeof ProductsRouteImport
+    '/services': {
+      id: '/services'
+      path: '/services'
+      fullPath: '/services'
+      preLoaderRoute: typeof ServicesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/lubricants': {
+      id: '/lubricants'
+      path: '/lubricants'
+      fullPath: '/lubricants'
+      preLoaderRoute: typeof LubricantsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/contact': {
@@ -123,8 +199,11 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
   ContactRoute: ContactRoute,
-  ProductsRoute: ProductsRoute,
+  LubricantsRoute: LubricantsRoute,
+  ServicesRoute: ServicesRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
+  TyreGuideRoute: TyreGuideRoute,
+  TyresRoute: TyresRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

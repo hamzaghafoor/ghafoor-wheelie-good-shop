@@ -1,46 +1,52 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { CheckCircle2 } from "lucide-react";
+import { CTASection } from "@/components/CTASection";
+import { LocationSection } from "@/components/LocationSection";
+import hero from "@/assets/hero-showroom.jpg";
 
 export const Route = createFileRoute("/about")({
   head: () => ({
     meta: [
-      { title: "About Ghafoor Motors — Tyres & Lubricants Since 1998" },
-      { name: "description", content: "Family-run specialist in premium tyres and engine oils, serving Lahore and all of Pakistan since 1998." },
-      { property: "og:title", content: "About Ghafoor Motors" },
-      { property: "og:description", content: "27+ years of trusted service in tyres and lubricants." },
+      { title: "About Ghafoor Motors | Tyres & Lubricants, PECHS Karachi" },
+      { name: "description", content: "Ghafoor Motors is a Karachi tyre, lubricant and wheel-care business serving local vehicle owners from Khalid Bin Waleed Road, PECHS." },
     ],
   }),
-  component: About,
+  component: AboutPage,
 });
 
-function About() {
+function AboutPage() {
   return (
     <>
-      <section className="container-x py-20">
-        <div className="text-xs font-bold uppercase tracking-widest text-primary">About us</div>
-        <h1 className="mt-2 max-w-3xl font-display text-5xl tracking-wide sm:text-6xl">
-          A workshop story that started with a single stack of tyres.
-        </h1>
-        <p className="mt-6 max-w-2xl text-lg text-muted-foreground">
-          Ghafoor Motors was founded in 1998 by Muhammad Ghafoor as a small tyre shop on GT Road. Nearly three decades later,
-          we're one of the region's most trusted names for tyres, engine oils and everything in between — still family-run,
-          still obsessed with the details.
-        </p>
-
-        <div className="mt-14 grid gap-6 md:grid-cols-3">
-          {[
-            { t: "Authorised distributors", d: "We buy directly from brand-authorised distributors. No parallel imports, no fakes." },
-            { t: "Trained fitters", d: "Every technician is trained on modern balancing, alignment and torque specs." },
-            { t: "Honest pricing", d: "Transparent price lists. What you see online is what you pay in-store." },
-          ].map((v) => (
-            <div key={v.t} className="rounded-xl border border-border/60 bg-surface p-6">
-              <CheckCircle2 className="h-5 w-5 text-primary" />
-              <h3 className="mt-3 font-display text-2xl tracking-wide">{v.t}</h3>
-              <p className="mt-2 text-sm text-muted-foreground">{v.d}</p>
-            </div>
-          ))}
+      <section className="bg-ink py-14 text-white md:py-20">
+        <div className="container-x max-w-3xl">
+          <p className="eyebrow text-primary">About</p>
+          <h1 className="mt-3 font-display text-4xl md:text-5xl">Helping Karachi Drivers Make Better Tyre Choices</h1>
+          <p className="mt-4 text-white/70">
+            Ghafoor Motors is a local tyre, lubricant and wheel-care business serving vehicle owners from our Khalid Bin Waleed Road showroom in PECHS, Karachi.
+          </p>
         </div>
       </section>
+
+      <section className="py-16">
+        <div className="container-x grid gap-10 lg:grid-cols-2 lg:items-center">
+          <div className="overflow-hidden rounded-2xl border border-border">
+            <img src={hero} alt="Showroom" loading="lazy" width={1600} height={1200} className="h-full w-full object-cover" />
+          </div>
+          <div>
+            <h2 className="font-display text-3xl text-ink">Straight advice. Suitable products. Professional service.</h2>
+            <p className="mt-4 text-foreground/80">
+              We focus on giving customers honest guidance, sharing multiple suitable options where possible, and taking care of the fitting and wheel-care work that keeps your car safe and comfortable.
+            </p>
+            <ul className="mt-5 grid gap-2 text-sm text-foreground/80">
+              {["Honest guidance", "Suitable product recommendations", "Product quality focus", "Professional service", "Long-term customer relationships", "Road safety and driving comfort"].map((s) => (
+                <li key={s} className="flex gap-2"><span className="mt-2 h-1.5 w-1.5 flex-none rounded-full bg-primary" />{s}</li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <LocationSection />
+      <CTASection />
     </>
   );
 }
