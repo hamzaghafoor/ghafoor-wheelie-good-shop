@@ -32,8 +32,13 @@ jobs:
       - name: Install dependencies
         run: bun install
 
-      - name: Build
-        run: bun run build
+      - name: Build and generate static HTML
+        run: |
+          bun run build
+          bun scripts/prerender.mjs
+
+      - name: Verify static site output
+        run: test -f ./dist/client/index.html
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
@@ -41,7 +46,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: './.output/public'
+          path: './dist/client'
 
       - name: Deploy to GitHub Pages
         id: deployment
