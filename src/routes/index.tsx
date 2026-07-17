@@ -49,21 +49,39 @@ function HomePage() {
 }
 
 function Hero() {
+  const ease = [0.22, 1, 0.36, 1] as const;
   return (
-    <section className="bg-ink py-10 text-white md:py-14">
-      <div className="container-x grid items-center gap-8 lg:grid-cols-[52fr_48fr]">
+    <section className="relative overflow-hidden bg-ink text-white">
+      {/* Ambient atmosphere */}
+      <div aria-hidden className="pointer-events-none absolute inset-0 opacity-70"
+        style={{ background: "radial-gradient(60% 60% at 75% 45%, rgba(244,122,32,0.18), transparent 70%), radial-gradient(50% 60% at 20% 30%, rgba(255,255,255,0.05), transparent 70%)" }}
+      />
+      <div aria-hidden className="pointer-events-none absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-black/60 to-transparent" />
+
+      <div
+        className="container-x relative grid items-center gap-10 lg:grid-cols-[52fr_48fr]"
+        style={{ minHeight: "calc(100vh - 80px)", paddingTop: "clamp(32px, 6vw, 72px)", paddingBottom: "clamp(32px, 6vw, 72px)" }}
+      >
         <div>
-          <p className="eyebrow text-primary">Tyres • Lubricants • Wheel Care</p>
-          <h1
-            className="mt-4 font-display text-white"
-            style={{ fontSize: "clamp(40px, 4.7vw, 76px)", lineHeight: 1.0, maxWidth: "850px" }}
-          >
-            The Right Tyres for a <span className="text-primary">Safer, Smoother</span> Drive.
+          <motion.p initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, ease }} className="eyebrow text-primary">
+            Tyres • Lubricants • Wheel Care
+          </motion.p>
+          <h1 className="mt-4 font-display text-white" style={{ fontSize: "clamp(40px, 4.7vw, 76px)", lineHeight: 1.02, maxWidth: "850px" }}>
+            <motion.span className="block overflow-hidden">
+              <motion.span className="block" initial={{ y: "100%" }} animate={{ y: 0 }} transition={{ duration: 0.6, delay: 0.15, ease }}>
+                The Right Tyres for a
+              </motion.span>
+            </motion.span>
+            <motion.span className="block overflow-hidden">
+              <motion.span className="block" initial={{ y: "100%" }} animate={{ y: 0 }} transition={{ duration: 0.6, delay: 0.28, ease }}>
+                <span className="text-primary">Safer, Smoother</span> Drive.
+              </motion.span>
+            </motion.span>
           </h1>
-          <p className="mt-5 max-w-[560px] text-base text-white/70 md:text-lg">
+          <motion.p initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.5, ease }} className="mt-5 max-w-[560px] text-base text-white/70 md:text-lg">
             Get genuine tyres, expert recommendations, quality lubricants, and professional wheel-care services at Ghafoor Motors Tyres & Lubricants in PECHS, Karachi.
-          </p>
-          <div className="mt-6 flex flex-wrap gap-3">
+          </motion.p>
+          <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.65, ease }} className="mt-6 flex flex-wrap gap-3">
             <Link to="/tyres" className="btn-primary text-sm md:text-base">
               Find Tyres for My Car <ArrowRight className="h-4 w-4" />
             </Link>
@@ -75,8 +93,10 @@ function Hero() {
             >
               <MessageCircle className="h-4 w-4" /> WhatsApp for Today's Price
             </a>
-          </div>
-          <p className="mt-4 text-xs text-white/50">Expert guidance • Professional fitting • Convenient Karachi location</p>
+          </motion.div>
+          <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5, delay: 0.85 }} className="mt-4 text-xs text-white/55">
+            Expert guidance <span className="mx-1.5 text-primary">•</span> Professional fitting <span className="mx-1.5 text-primary">•</span> Convenient Karachi location
+          </motion.p>
         </div>
         <div className="order-last lg:order-none">
           <HeroTyreViewer />
