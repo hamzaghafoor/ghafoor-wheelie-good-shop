@@ -1,87 +1,101 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Phone, Mail, MapPin, Clock } from "lucide-react";
 import { useState } from "react";
+import { LocationSection } from "@/components/LocationSection";
+import { waLink, business, telLink } from "@/lib/business";
+import { Instagram, Facebook, MessageCircle, Phone, CheckCircle2 } from "lucide-react";
 
 export const Route = createFileRoute("/contact")({
   head: () => ({
     meta: [
-      { title: "Contact Ghafoor Motors — Tyres & Lubricants" },
-      { name: "description", content: "Call, email or visit Ghafoor Motors on GT Road, Lahore. Open 6 days a week." },
-      { property: "og:title", content: "Contact Ghafoor Motors" },
-      { property: "og:description", content: "Get in touch with our team for tyre and oil recommendations." },
+      { title: "Contact Ghafoor Motors | Tyres & Lubricants Karachi" },
+      { name: "description", content: "Call, WhatsApp or visit Ghafoor Motors in PECHS, Karachi for tyres, lubricants, wheel alignment, wheel balancing and more." },
     ],
   }),
-  component: Contact,
+  component: ContactPage,
 });
 
-function Contact() {
-  const [sent, setSent] = useState(false);
+const inquiryTypes = ["Tyre Price", "Tyre Availability", "Lubricants", "Wheel Alignment", "Wheel Balancing", "Other"];
+
+function ContactPage() {
+  const [form, setForm] = useState({ name: "", phone: "", type: inquiryTypes[0], vehicle: "", message: "" });
+  const [done, setDone] = useState(false);
+  const upd = (k: string) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => setForm({ ...form, [k]: e.target.value });
+  const submit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const msg = `Assalam-o-Alaikum, inquiry from website.\nName: ${form.name}\nPhone: ${form.phone}\nInquiry: ${form.type}\nVehicle: ${form.vehicle}\nMessage: ${form.message}`;
+    window.open(waLink(msg), "_blank");
+    setDone(true);
+  };
 
   return (
-    <section className="container-x py-20">
-      <div className="text-xs font-bold uppercase tracking-widest text-primary">Contact</div>
-      <h1 className="mt-2 font-display text-5xl tracking-wide sm:text-6xl">Talk to a specialist</h1>
-      <p className="mt-4 max-w-xl text-muted-foreground">
-        Tell us your car make, model and current mileage — we'll get back within an hour on WhatsApp.
-      </p>
+    <>
+      <section className="bg-ink py-14 text-white md:py-20">
+        <div className="container-x max-w-3xl">
+          <p className="eyebrow text-primary">Contact</p>
+          <h1 className="mt-3 font-display text-4xl md:text-5xl">Get in touch with Ghafoor Motors</h1>
+          <p className="mt-3 text-white/70">Call, WhatsApp or visit our showroom in PECHS, Karachi.</p>
+        </div>
+      </section>
 
-      <div className="mt-14 grid gap-10 lg:grid-cols-2">
-        <form
-          onSubmit={(e) => { e.preventDefault(); setSent(true); }}
-          className="space-y-4 rounded-2xl border border-border/60 bg-surface p-6 md:p-8"
-        >
-          {[
-            { name: "name", label: "Name", type: "text" },
-            { name: "phone", label: "Phone / WhatsApp", type: "tel" },
-            { name: "car", label: "Car make, model & year", type: "text" },
-          ].map((f) => (
-            <div key={f.name}>
-              <label className="mb-1.5 block text-xs font-bold uppercase tracking-widest text-muted-foreground">{f.label}</label>
-              <input
-                required
-                type={f.type}
-                name={f.name}
-                className="w-full rounded-md border border-input bg-background px-4 py-3 text-sm outline-none transition focus:border-primary"
-              />
+      <section className="py-14">
+        <div className="container-x grid gap-8 lg:grid-cols-[1fr_1.2fr]">
+          <div className="card-surface h-fit p-6 md:p-8">
+            <h2 className="font-display text-2xl text-ink">Reach us directly</h2>
+            <div className="mt-5 space-y-3">
+              <a href={telLink()} className="btn-dark w-full text-sm"><Phone className="h-4 w-4" /> Call {business.phoneDisplay}</a>
+              <a href={waLink("Assalam-o-Alaikum, I have an inquiry.")} target="_blank" rel="noreferrer" className="btn-primary w-full text-sm"><MessageCircle className="h-4 w-4" /> WhatsApp</a>
+              <a href={business.mapsUrl} target="_blank" rel="noreferrer" className="btn-outline w-full text-sm">Get Directions</a>
             </div>
-          ))}
-          <div>
-            <label className="mb-1.5 block text-xs font-bold uppercase tracking-widest text-muted-foreground">What do you need?</label>
-            <textarea
-              required
-              rows={4}
-              name="message"
-              className="w-full rounded-md border border-input bg-background px-4 py-3 text-sm outline-none transition focus:border-primary"
-            />
-          </div>
-          <button
-            type="submit"
-            disabled={sent}
-            className="w-full rounded-md bg-primary py-3 font-display text-lg tracking-wide text-primary-foreground transition hover:brightness-110 disabled:opacity-60"
-          >
-            {sent ? "Sent — we'll be in touch" : "Send enquiry"}
-          </button>
-        </form>
-
-        <div className="space-y-4">
-          {[
-            { icon: MapPin, t: "Visit", d: "Main GT Road, near Shahdara Bridge, Lahore" },
-            { icon: Phone, t: "Call", d: "+92 300 1234567 · +92 42 3722 0000" },
-            { icon: Mail, t: "Email", d: "sales@ghafoormotors.pk" },
-            { icon: Clock, t: "Hours", d: "Mon–Sat · 9:00 AM – 9:00 PM" },
-          ].map((c) => (
-            <div key={c.t} className="flex items-start gap-4 rounded-xl border border-border/60 bg-surface p-5">
-              <span className="grid h-10 w-10 shrink-0 place-items-center rounded-md bg-primary/15 text-primary">
-                <c.icon className="h-4 w-4" />
-              </span>
-              <div>
-                <div className="text-xs font-bold uppercase tracking-widest text-muted-foreground">{c.t}</div>
-                <div className="mt-1">{c.d}</div>
+            <div className="mt-6 border-t border-border pt-4">
+              <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Follow</p>
+              <div className="mt-2 flex gap-2">
+                <a href={business.social.instagram} target="_blank" rel="noreferrer" aria-label="Instagram" className="grid h-10 w-10 place-items-center rounded-full border border-border hover:border-primary hover:text-primary"><Instagram className="h-4 w-4" /></a>
+                <a href={business.social.facebook} target="_blank" rel="noreferrer" aria-label="Facebook" className="grid h-10 w-10 place-items-center rounded-full border border-border hover:border-primary hover:text-primary"><Facebook className="h-4 w-4" /></a>
               </div>
             </div>
-          ))}
+            <div className="mt-6 border-t border-border pt-4 text-sm text-foreground/80">
+              <p className="font-semibold text-ink">Business hours</p>
+              {business.hours.map((h) => (
+                <p key={h.day} className="mt-1 text-xs text-muted-foreground"><span className="font-semibold text-foreground/80">{h.day}:</span> {h.time}</p>
+              ))}
+            </div>
+          </div>
+
+          {done ? (
+            <div className="card-surface p-10 text-center">
+              <CheckCircle2 className="mx-auto h-12 w-12 text-success" />
+              <h3 className="mt-3 font-display text-2xl text-ink">Thanks — message sent</h3>
+              <p className="mt-2 text-muted-foreground">We'll get back to you on WhatsApp shortly.</p>
+            </div>
+          ) : (
+            <form onSubmit={submit} className="card-surface grid gap-3 p-6 md:grid-cols-2 md:p-8">
+              <F label="Full name"><input required value={form.name} onChange={upd("name")} className="in" /></F>
+              <F label="Mobile / WhatsApp"><input required pattern="^(\+92|0)?3\d{9}$" placeholder="03XX-XXXXXXX" value={form.phone} onChange={upd("phone")} className="in" /></F>
+              <F label="Inquiry type">
+                <select value={form.type} onChange={upd("type")} className="in">{inquiryTypes.map((t) => <option key={t}>{t}</option>)}</select>
+              </F>
+              <F label="Vehicle (make / model / year)"><input value={form.vehicle} onChange={upd("vehicle")} className="in" /></F>
+              <F label="Message" full><textarea rows={4} value={form.message} onChange={upd("message")} className="in min-h-[100px] py-2" /></F>
+              <div className="md:col-span-2">
+                <button className="btn-primary w-full">Send Inquiry</button>
+                <p className="mt-2 text-center text-xs text-muted-foreground">By submitting, you agree that we may contact you regarding your inquiry.</p>
+              </div>
+              <style>{`.in{height:44px;width:100%;border-radius:10px;border:1px solid var(--border);background:var(--surface);padding:0 12px;font-size:14px;} .in:focus{outline:none;border-color:var(--primary);}`}</style>
+            </form>
+          )}
         </div>
-      </div>
-    </section>
+      </section>
+
+      <LocationSection />
+    </>
+  );
+}
+
+function F({ label, children, full }: { label: string; children: React.ReactNode; full?: boolean }) {
+  return (
+    <label className={`block text-sm ${full ? "md:col-span-2" : ""}`}>
+      <span className="mb-1 block font-semibold text-ink">{label}</span>
+      {children}
+    </label>
   );
 }

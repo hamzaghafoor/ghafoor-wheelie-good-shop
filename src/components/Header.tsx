@@ -1,87 +1,104 @@
 import { Link } from "@tanstack/react-router";
-import { ShoppingCart, Menu, Wrench } from "lucide-react";
-import { useCart } from "@/lib/cart";
+import { Phone, Menu, X, ChevronDown } from "lucide-react";
 import { useState } from "react";
+import logo from "@/assets/logo.png";
+import { business, telLink, waLink } from "@/lib/business";
+
+const nav = [
+  { to: "/", label: "Home", exact: true },
+  { to: "/tyres", label: "Tyres" },
+  { to: "/lubricants", label: "Lubricants" },
+  { to: "/services", label: "Services" },
+  { to: "/tyre-guide", label: "Tyre Guide" },
+  { to: "/about", label: "About" },
+  { to: "/contact", label: "Contact" },
+] as const;
 
 export function Header() {
-  const { count, setOpen } = useCart();
-  const [mobile, setMobile] = useState(false);
-
-  const nav = [
-    { to: "/", label: "Home" },
-    { to: "/products", label: "Shop" },
-    { to: "/about", label: "About" },
-    { to: "/contact", label: "Contact" },
-  ] as const;
+  const [open, setOpen] = useState(false);
 
   return (
-    <header className="sticky top-0 z-40 border-b border-border/60 bg-background/85 backdrop-blur">
-      <div className="container-x flex h-16 items-center justify-between gap-6">
-        <Link to="/" className="flex items-center gap-2.5">
-          <span className="grid h-9 w-9 place-items-center rounded-md bg-primary text-primary-foreground">
-            <Wrench className="h-4 w-4" strokeWidth={2.5} />
-          </span>
-          <span className="font-display text-2xl leading-none tracking-wide">
-            GHAFOOR<span className="text-primary"> MOTORS</span>
-          </span>
-        </Link>
-
-        <nav className="hidden items-center gap-8 md:flex">
-          {nav.map((n) => (
-            <Link
-              key={n.to}
-              to={n.to}
-              className="text-sm font-medium text-muted-foreground transition hover:text-foreground"
-              activeProps={{ className: "text-foreground" }}
-              activeOptions={{ exact: n.to === "/" }}
-            >
-              {n.label}
-            </Link>
-          ))}
-        </nav>
-
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => setOpen(true)}
-            className="relative inline-flex items-center gap-2 rounded-md border border-border bg-surface px-3 py-2 text-sm font-medium transition hover:border-primary hover:text-primary"
-            aria-label="Open cart"
-          >
-            <ShoppingCart className="h-4 w-4" />
-            <span className="hidden sm:inline">Cart</span>
-            {count > 0 && (
-              <span className="ml-1 grid h-5 min-w-5 place-items-center rounded-full bg-primary px-1.5 text-xs font-bold text-primary-foreground">
-                {count}
-              </span>
-            )}
-          </button>
-          <button
-            className="grid h-10 w-10 place-items-center rounded-md border border-border md:hidden"
-            onClick={() => setMobile((v) => !v)}
-            aria-label="Menu"
-          >
-            <Menu className="h-4 w-4" />
-          </button>
+    <>
+      {/* Utility bar */}
+      <div className="hidden bg-ink text-white/85 md:block">
+        <div className="container-x flex h-9 items-center justify-between text-xs">
+          <span>Visit us at Khalid Bin Waleed Road, PECHS, Karachi</span>
+          <div className="flex items-center gap-4">
+            <a href={telLink()} className="hover:text-primary">Call: {business.phoneDisplay}</a>
+            <a href={waLink("Assalam-o-Alaikum, I found Ghafoor Motors through your website.")} target="_blank" rel="noreferrer" className="hover:text-primary">WhatsApp</a>
+          </div>
         </div>
       </div>
 
-      {mobile && (
-        <div className="border-t border-border/60 md:hidden">
-          <div className="container-x flex flex-col py-3">
+      <header className="sticky top-0 z-40 border-b border-border bg-surface/95 backdrop-blur">
+        <div className="container-x flex h-16 items-center justify-between gap-4 md:h-20">
+          <Link to="/" className="flex items-center gap-2.5" aria-label="Ghafoor Motors home">
+            <img src={logo} alt="Ghafoor Motors Tyres & Lubricants" className="h-11 w-11 rounded-full object-contain md:h-12 md:w-12" width={48} height={48} />
+            <span className="hidden font-display text-lg leading-none tracking-tight text-ink sm:block">
+              Ghafoor <span className="text-primary">Motors</span>
+            </span>
+          </Link>
+
+          <nav className="hidden items-center gap-7 lg:flex">
             {nav.map((n) => (
               <Link
                 key={n.to}
                 to={n.to}
-                onClick={() => setMobile(false)}
-                className="py-2 text-sm font-medium text-muted-foreground"
-                activeProps={{ className: "text-foreground" }}
-                activeOptions={{ exact: n.to === "/" }}
+                className="text-sm font-medium text-foreground/70 transition hover:text-ink"
+                activeProps={{ className: "text-ink" }}
+                activeOptions={{ exact: n.exact }}
               >
                 {n.label}
+                {n.label === "Tyres" && <ChevronDown className="ml-0.5 inline h-3.5 w-3.5" />}
               </Link>
             ))}
+          </nav>
+
+          <div className="flex items-center gap-2">
+            <a href={telLink()} className="hidden items-center gap-2 text-sm font-semibold text-ink hover:text-primary md:inline-flex">
+              <Phone className="h-4 w-4" /> Call Us
+            </a>
+            <a
+              href={waLink("Assalam-o-Alaikum, please share today's price for tyres suitable for my car.")}
+              target="_blank"
+              rel="noreferrer"
+              className="btn-primary hidden text-sm md:inline-flex"
+            >
+              Get Today's Price
+            </a>
+            <button
+              className="grid h-10 w-10 place-items-center rounded-md border border-border lg:hidden"
+              onClick={() => setOpen((v) => !v)}
+              aria-label="Menu"
+            >
+              {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+            </button>
           </div>
         </div>
-      )}
-    </header>
+
+        {open && (
+          <div className="border-t border-border bg-surface lg:hidden">
+            <div className="container-x flex flex-col py-2">
+              {nav.map((n) => (
+                <Link
+                  key={n.to}
+                  to={n.to}
+                  onClick={() => setOpen(false)}
+                  className="border-b border-border/60 py-3 text-sm font-medium text-foreground/80"
+                  activeProps={{ className: "text-primary" }}
+                  activeOptions={{ exact: n.exact }}
+                >
+                  {n.label}
+                </Link>
+              ))}
+              <div className="flex gap-2 py-3">
+                <a href={telLink()} className="btn-outline flex-1 text-sm">Call</a>
+                <a href={waLink("Assalam-o-Alaikum, I need help with tyres for my car.")} target="_blank" rel="noreferrer" className="btn-primary flex-1 text-sm">WhatsApp</a>
+              </div>
+            </div>
+          </div>
+        )}
+      </header>
+    </>
   );
 }
