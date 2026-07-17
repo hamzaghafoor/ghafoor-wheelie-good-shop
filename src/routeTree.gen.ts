@@ -17,6 +17,7 @@ import { Route as LubricantsRouteImport } from './routes/lubricants'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AdminTestingLabRouteImport } from './routes/admin.testing-lab'
 
 const TyresRoute = TyresRouteImport.update({
   id: '/tyres',
@@ -58,6 +59,11 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminTestingLabRoute = AdminTestingLabRouteImport.update({
+  id: '/admin/testing-lab',
+  path: '/admin/testing-lab',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -68,6 +74,7 @@ export interface FileRoutesByFullPath {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/tyre-guide': typeof TyreGuideRoute
   '/tyres': typeof TyresRoute
+  '/admin/testing-lab': typeof AdminTestingLabRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -78,6 +85,7 @@ export interface FileRoutesByTo {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/tyre-guide': typeof TyreGuideRoute
   '/tyres': typeof TyresRoute
+  '/admin/testing-lab': typeof AdminTestingLabRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -89,6 +97,7 @@ export interface FileRoutesById {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/tyre-guide': typeof TyreGuideRoute
   '/tyres': typeof TyresRoute
+  '/admin/testing-lab': typeof AdminTestingLabRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -101,6 +110,7 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/tyre-guide'
     | '/tyres'
+    | '/admin/testing-lab'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -111,6 +121,7 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/tyre-guide'
     | '/tyres'
+    | '/admin/testing-lab'
   id:
     | '__root__'
     | '/'
@@ -121,6 +132,7 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/tyre-guide'
     | '/tyres'
+    | '/admin/testing-lab'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -132,6 +144,7 @@ export interface RootRouteChildren {
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   TyreGuideRoute: typeof TyreGuideRoute
   TyresRoute: typeof TyresRoute
+  AdminTestingLabRoute: typeof AdminTestingLabRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -192,6 +205,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/testing-lab': {
+      id: '/admin/testing-lab'
+      path: '/admin/testing-lab'
+      fullPath: '/admin/testing-lab'
+      preLoaderRoute: typeof AdminTestingLabRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -204,6 +224,7 @@ const rootRouteChildren: RootRouteChildren = {
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   TyreGuideRoute: TyreGuideRoute,
   TyresRoute: TyresRoute,
+  AdminTestingLabRoute: AdminTestingLabRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
