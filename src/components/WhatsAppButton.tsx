@@ -8,7 +8,7 @@ export function WhatsAppButton() {
       target="_blank"
       rel="noreferrer"
       aria-label="Ask on WhatsApp"
-      className="fixed bottom-6 right-6 z-40 hidden items-center gap-2 rounded-full bg-[#25D366] px-4 py-3 text-sm font-semibold text-white shadow-lg transition hover:brightness-110 md:inline-flex"
+      className="fixed bottom-24 right-6 z-40 hidden items-center gap-2 rounded-full bg-[#25D366] px-4 py-3 text-sm font-semibold text-white shadow-lg transition hover:brightness-110 md:inline-flex"
     >
       <MessageCircle className="h-4 w-4" /> Ask on WhatsApp
     </a>
