@@ -11,11 +11,10 @@ export default defineConfig({
     // Redirect TanStack Start's bundled server entry to src/server.ts (our SSR error wrapper).
     // nitro/vite builds from this
     server: { entry: "server" },
-    // Prerender routes to static HTML so GitHub Pages can serve them.
+    // Prerender all pages to static HTML for GitHub Pages hosting.
     prerender: {
       enabled: true,
       crawlLinks: true,
-      routes: ["/", "/about", "/products", "/contact"],
     },
     pages: [
       { path: "/" },
@@ -23,5 +22,10 @@ export default defineConfig({
       { path: "/products" },
       { path: "/contact" },
     ],
+  },
+  // Build as a static site (Nitro `static` preset) so `.output/public/` contains
+  // real index.html files that GitHub Pages can serve directly.
+  nitro: {
+    preset: "static",
   },
 });
