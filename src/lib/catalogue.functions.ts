@@ -48,7 +48,7 @@ export const listPublishedCatalogue = createServerFn({ method: "GET" }).handler(
   const { data: brandsData } = await sb.from("brands")
     .select("id, name, logo_url").eq("is_active", true).eq("archived", false).eq("status", "published");
   const { data: models } = await sb.from("tyre_models")
-    .select("id, brand_id, name, code, short_desc, vehicle_categories, driving_characteristics, is_featured, images")
+    .select("id, brand_id, name, slug, code, short_desc, vehicle_categories, driving_characteristics, is_featured, tyre_type, images")
     .eq("status", "published").eq("archived", false);
   const { data: variants } = await sb.from("tyre_variants")
     .select("id, model_id, normalized_size, price_mode, price, previous_price, price_note, price_verified_at, availability, availability_verified_at, load_index, speed_rating, tubeless, run_flat, xl_reinforced, public_notes")
