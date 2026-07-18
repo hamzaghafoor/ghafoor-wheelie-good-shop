@@ -4,7 +4,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
 import { listAllTyresAdmin, setTyreStatusAdmin } from "@/lib/tyres.functions";
 
-export const Route = createFileRoute("/_authenticated/admin/tyres")({
+export const Route = createFileRoute("/_authenticated/admin/tyres/")({
   component: TyresList,
 });
 

@@ -23,8 +23,8 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminTestingLabRouteImport } from './routes/admin.testing-lab'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin.index'
-import { Route as AuthenticatedAdminTyresRouteImport } from './routes/_authenticated/admin.tyres'
 import { Route as AuthenticatedAdminChangePasswordRouteImport } from './routes/_authenticated/admin.change-password'
+import { Route as AuthenticatedAdminTyresIndexRouteImport } from './routes/_authenticated/admin.tyres.index'
 import { Route as AuthenticatedAdminTyresNewRouteImport } from './routes/_authenticated/admin.tyres.new'
 import { Route as AuthenticatedAdminTyresIdRouteImport } from './routes/_authenticated/admin.tyres.$id'
 
@@ -97,28 +97,29 @@ const AuthenticatedAdminIndexRoute = AuthenticatedAdminIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AuthenticatedAdminRoute,
 } as any)
-const AuthenticatedAdminTyresRoute = AuthenticatedAdminTyresRouteImport.update({
-  id: '/tyres',
-  path: '/tyres',
-  getParentRoute: () => AuthenticatedAdminRoute,
-} as any)
 const AuthenticatedAdminChangePasswordRoute =
   AuthenticatedAdminChangePasswordRouteImport.update({
     id: '/change-password',
     path: '/change-password',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
+const AuthenticatedAdminTyresIndexRoute =
+  AuthenticatedAdminTyresIndexRouteImport.update({
+    id: '/tyres/',
+    path: '/tyres/',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
 const AuthenticatedAdminTyresNewRoute =
   AuthenticatedAdminTyresNewRouteImport.update({
-    id: '/new',
-    path: '/new',
-    getParentRoute: () => AuthenticatedAdminTyresRoute,
+    id: '/tyres/new',
+    path: '/tyres/new',
+    getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
 const AuthenticatedAdminTyresIdRoute =
   AuthenticatedAdminTyresIdRouteImport.update({
-    id: '/$id',
-    path: '/$id',
-    getParentRoute: () => AuthenticatedAdminTyresRoute,
+    id: '/tyres/$id',
+    path: '/tyres/$id',
+    getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
 
 export interface FileRoutesByFullPath {
@@ -135,10 +136,10 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AuthenticatedAdminRouteWithChildren
   '/admin/testing-lab': typeof AdminTestingLabRoute
   '/admin/change-password': typeof AuthenticatedAdminChangePasswordRoute
-  '/admin/tyres': typeof AuthenticatedAdminTyresRouteWithChildren
   '/admin/': typeof AuthenticatedAdminIndexRoute
   '/admin/tyres/$id': typeof AuthenticatedAdminTyresIdRoute
   '/admin/tyres/new': typeof AuthenticatedAdminTyresNewRoute
+  '/admin/tyres/': typeof AuthenticatedAdminTyresIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -153,10 +154,10 @@ export interface FileRoutesByTo {
   '/tyres': typeof TyresRoute
   '/admin/testing-lab': typeof AdminTestingLabRoute
   '/admin/change-password': typeof AuthenticatedAdminChangePasswordRoute
-  '/admin/tyres': typeof AuthenticatedAdminTyresRouteWithChildren
   '/admin': typeof AuthenticatedAdminIndexRoute
   '/admin/tyres/$id': typeof AuthenticatedAdminTyresIdRoute
   '/admin/tyres/new': typeof AuthenticatedAdminTyresNewRoute
+  '/admin/tyres': typeof AuthenticatedAdminTyresIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -174,10 +175,10 @@ export interface FileRoutesById {
   '/_authenticated/admin': typeof AuthenticatedAdminRouteWithChildren
   '/admin/testing-lab': typeof AdminTestingLabRoute
   '/_authenticated/admin/change-password': typeof AuthenticatedAdminChangePasswordRoute
-  '/_authenticated/admin/tyres': typeof AuthenticatedAdminTyresRouteWithChildren
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
   '/_authenticated/admin/tyres/$id': typeof AuthenticatedAdminTyresIdRoute
   '/_authenticated/admin/tyres/new': typeof AuthenticatedAdminTyresNewRoute
+  '/_authenticated/admin/tyres/': typeof AuthenticatedAdminTyresIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -195,10 +196,10 @@ export interface FileRouteTypes {
     | '/admin'
     | '/admin/testing-lab'
     | '/admin/change-password'
-    | '/admin/tyres'
     | '/admin/'
     | '/admin/tyres/$id'
     | '/admin/tyres/new'
+    | '/admin/tyres/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -213,10 +214,10 @@ export interface FileRouteTypes {
     | '/tyres'
     | '/admin/testing-lab'
     | '/admin/change-password'
-    | '/admin/tyres'
     | '/admin'
     | '/admin/tyres/$id'
     | '/admin/tyres/new'
+    | '/admin/tyres'
   id:
     | '__root__'
     | '/'
@@ -233,10 +234,10 @@ export interface FileRouteTypes {
     | '/_authenticated/admin'
     | '/admin/testing-lab'
     | '/_authenticated/admin/change-password'
-    | '/_authenticated/admin/tyres'
     | '/_authenticated/admin/'
     | '/_authenticated/admin/tyres/$id'
     | '/_authenticated/admin/tyres/new'
+    | '/_authenticated/admin/tyres/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -354,13 +355,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminIndexRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
-    '/_authenticated/admin/tyres': {
-      id: '/_authenticated/admin/tyres'
-      path: '/tyres'
-      fullPath: '/admin/tyres'
-      preLoaderRoute: typeof AuthenticatedAdminTyresRouteImport
-      parentRoute: typeof AuthenticatedAdminRoute
-    }
     '/_authenticated/admin/change-password': {
       id: '/_authenticated/admin/change-password'
       path: '/change-password'
@@ -368,49 +362,44 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminChangePasswordRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
+    '/_authenticated/admin/tyres/': {
+      id: '/_authenticated/admin/tyres/'
+      path: '/tyres'
+      fullPath: '/admin/tyres/'
+      preLoaderRoute: typeof AuthenticatedAdminTyresIndexRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
     '/_authenticated/admin/tyres/new': {
       id: '/_authenticated/admin/tyres/new'
-      path: '/new'
+      path: '/tyres/new'
       fullPath: '/admin/tyres/new'
       preLoaderRoute: typeof AuthenticatedAdminTyresNewRouteImport
-      parentRoute: typeof AuthenticatedAdminTyresRoute
+      parentRoute: typeof AuthenticatedAdminRoute
     }
     '/_authenticated/admin/tyres/$id': {
       id: '/_authenticated/admin/tyres/$id'
-      path: '/$id'
+      path: '/tyres/$id'
       fullPath: '/admin/tyres/$id'
       preLoaderRoute: typeof AuthenticatedAdminTyresIdRouteImport
-      parentRoute: typeof AuthenticatedAdminTyresRoute
+      parentRoute: typeof AuthenticatedAdminRoute
     }
   }
 }
 
-interface AuthenticatedAdminTyresRouteChildren {
-  AuthenticatedAdminTyresIdRoute: typeof AuthenticatedAdminTyresIdRoute
-  AuthenticatedAdminTyresNewRoute: typeof AuthenticatedAdminTyresNewRoute
-}
-
-const AuthenticatedAdminTyresRouteChildren: AuthenticatedAdminTyresRouteChildren =
-  {
-    AuthenticatedAdminTyresIdRoute: AuthenticatedAdminTyresIdRoute,
-    AuthenticatedAdminTyresNewRoute: AuthenticatedAdminTyresNewRoute,
-  }
-
-const AuthenticatedAdminTyresRouteWithChildren =
-  AuthenticatedAdminTyresRoute._addFileChildren(
-    AuthenticatedAdminTyresRouteChildren,
-  )
-
 interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminChangePasswordRoute: typeof AuthenticatedAdminChangePasswordRoute
-  AuthenticatedAdminTyresRoute: typeof AuthenticatedAdminTyresRouteWithChildren
   AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
+  AuthenticatedAdminTyresIdRoute: typeof AuthenticatedAdminTyresIdRoute
+  AuthenticatedAdminTyresNewRoute: typeof AuthenticatedAdminTyresNewRoute
+  AuthenticatedAdminTyresIndexRoute: typeof AuthenticatedAdminTyresIndexRoute
 }
 
 const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
   AuthenticatedAdminChangePasswordRoute: AuthenticatedAdminChangePasswordRoute,
-  AuthenticatedAdminTyresRoute: AuthenticatedAdminTyresRouteWithChildren,
   AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
+  AuthenticatedAdminTyresIdRoute: AuthenticatedAdminTyresIdRoute,
+  AuthenticatedAdminTyresNewRoute: AuthenticatedAdminTyresNewRoute,
+  AuthenticatedAdminTyresIndexRoute: AuthenticatedAdminTyresIndexRoute,
 }
 
 const AuthenticatedAdminRouteWithChildren =
