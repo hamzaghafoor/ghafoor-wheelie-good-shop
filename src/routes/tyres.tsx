@@ -7,7 +7,7 @@ import { CTASection } from "@/components/CTASection";
 import { LeadForm } from "@/components/LeadForm";
 import { listPublishedCatalogue } from "@/lib/catalogue.functions";
 import { listVehiclesPublic } from "@/lib/vehicles.functions";
-import { findModelsByVehicle } from "@/lib/compatibility.functions";
+import { findVariantsByVehicle } from "@/lib/compatibility.functions";
 import { waTyreLink } from "@/lib/whatsapp";
 import { business, telLink, waLink } from "@/lib/business";
 import { track } from "@/lib/analytics";
