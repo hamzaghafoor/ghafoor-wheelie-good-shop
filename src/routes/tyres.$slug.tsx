@@ -149,13 +149,16 @@ function DetailPage() {
 
             {compatVehicles.length > 0 && (
               <div className="mt-6">
-                <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Commonly fitted on</div>
+                <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                  {compatIsVariantLevel ? `This size (${current?.normalized_size}) fits` : "Vehicles this model is commonly fitted on"}
+                </div>
                 <div className="mt-2 flex flex-wrap gap-1.5 text-xs">
                   {compatVehicles.map((v: any, i: number) => <span key={i} className="rounded-full border border-border bg-surface px-2.5 py-1">{[v.make, v.model].filter(Boolean).join(" ")}</span>)}
                 </div>
                 <p className="mt-2 text-[11px] text-muted-foreground italic">Compatibility is guidance only — please confirm the correct size before fitting.</p>
               </div>
             )}
+
           </div>
         </div>
 
