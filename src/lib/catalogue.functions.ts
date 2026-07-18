@@ -95,16 +95,25 @@ const modelSchema = z.object({
   brand_id: z.string().uuid(),
   name: z.string().min(1).max(120),
   code: z.string().max(60).nullable().optional(),
+  slug: z.string().max(160).nullable().optional(),
+  pattern_name: z.string().max(120).nullable().optional(),
+  tyre_type: z.enum(["passenger","suv_4x4","commercial","other"]).nullable().optional(),
+  origin_country: z.string().max(80).nullable().optional(),
+  warranty_text: z.string().max(400).nullable().optional(),
   short_desc: z.string().max(300).nullable().optional(),
   full_desc: z.string().max(2000).nullable().optional(),
   vehicle_categories: z.array(z.string()).default([]),
   driving_characteristics: z.array(z.string()).default([]),
+  recommended_use: z.array(z.string()).default([]),
   warranty: z.string().nullable().optional(),
   is_featured: z.boolean().default(false),
   internal_notes: z.string().nullable().optional(),
   images: z.record(z.any()).default({}),
   status: z.enum(["draft", "published", "archived", "scheduled"]).default("draft"),
 });
+
+function slugify(s: string) { return s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, ""); }
+
 
 export const getModelAdmin = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
