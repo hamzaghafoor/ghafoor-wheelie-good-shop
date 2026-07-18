@@ -1,140 +1,116 @@
 
-# Stage A — Independent Website CMS (no ERP)
+# Stage B — Complete Tyre Catalogue Experience
 
-Extending the existing admin. Everything below is real DB + auth, all publicly-visible data comes from the database. No mocks, no fake toasts.
+Approved Stage A foundations stay untouched (generic products, categories, vehicle registry, brands, media, RLS). This stage completes the tyre journey end-to-end.
 
-## 1. Database (single migration)
+---
 
-**New enums**
-- `price_mode` — `fixed`, `confirm_today`, `on_request`, `starting_from`, `hidden`
-- `availability_status` — `in_stock`, `limited`, `check`, `out_of_stock`, `on_order`, `discontinued`
-- `section_type` — `hero`, `announcement`, `trust_strip`, `tyre_finder`, `featured_brands`, `featured_tyres`, `vehicle_categories`, `services_grid`, `promo_banner`, `image_text`, `why_us`, `reviews`, `articles`, `faq`, `location`, `contact_cta`, `whatsapp_cta`, `custom_text`
-- `content_status` — `draft`, `published`, `scheduled`, `archived`
+## 1. Schema additions (additive migration, one file)
 
-**New tables** (all in `public`, RLS on, GRANTs included)
+New tables (all with RLS + GRANTs, public-read for options, admin-write, `updated_at` trigger):
 
-- `brands` — name (unique-normalized), slug, logo_url, country, description, is_featured, is_active, display_order, status, timestamps, created_by
-- `tyre_models` — brand_id FK, name, code, short_desc, full_desc, vehicle_categories text[], driving_characteristics text[], warranty, is_featured, internal_notes, images jsonb (main/tread/sidewall/extra with alt), status, timestamps
-- `tyre_variants` — model_id FK, width int, profile int, rim numeric, size_format text default 'metric', normalized_size text (generated `195/65 R15`), price_mode, price numeric, previous_price numeric, price_note, price_verified_at, price_verified_by, availability, availability_verified_at, availability_verified_by, load_index, speed_rating, tubeless, run_flat, xl_reinforced, ply_rating, manufacturing_country, warranty, public_notes, private_notes, status, timestamps, `unique(model_id, normalized_size)`
-- `media_assets` — path, url, category, alt_text, filename, mime, size_bytes, uploaded_by, archived, timestamps
-- `homepage_sections` — type section_type, name (internal), config jsonb (safe, schema-validated per type), display_order, is_visible, status, start_at, end_at, updated_by, timestamps
-- `section_revisions` — section_id FK, config jsonb, status, saved_by, created_at
-- `business_info` — singleton row (id fixed uuid), name, logo_url, phone, whatsapp, email, address, maps_url, hours jsonb, holiday_hours jsonb, temp_closure, facebook, instagram, google_review_url, currency, timezone, updated_by
-- `activity_log` — user_id, action, entity_type, entity_id, before jsonb, after jsonb, created_at
+- `tyre_size_options` — `dimension` enum (`width`|`profile`|`rim`), `value` int, `label` text, `archived` bool. Seeded with widths 145–335, profiles 25–85, rims 12–24.
+- `leads` — `name`, `phone`, `message`, `preferred_contact` (`whatsapp`|`call`|`either`), `tyre_size`, `vehicle_make`, `vehicle_model`, `vehicle_year`, `source_page`, `search_context` jsonb, `variant_id` fk nullable, `model_id` fk nullable, `status` enum (`new`|`contacted`|`qualified`|`closed`|`lost`), `admin_notes`, `created_at`. Insert allowed to `anon` + `authenticated`; select/update admin only.
+- `analytics_events` — `event_name`, `payload` jsonb, `session_id`, `page`, `created_at`. Insert allowed to `anon`; select admin only. (Central store for future GA/Meta forwarding.)
 
-**RLS**
-- Public SELECT (`TO anon, authenticated`): `brands` where `is_active AND status='published' AND NOT archived`; `tyre_models` where `status='published'`; `tyre_variants` where `status='published'`; `homepage_sections` where `is_visible AND status='published' AND (start_at IS NULL OR now()>=start_at) AND (end_at IS NULL OR now()<=end_at)`; `business_info` full row; `media_assets` NO anon (served via signed URLs referenced from published rows only).
-- Admin full CRUD via `is_admin(auth.uid())`.
-- `activity_log`, `section_revisions`: admin read; inserts via triggers/server fns.
+Additive columns:
 
-**Triggers**
-- `set_updated_at` on all editable tables.
-- Log inserts/updates on `brands`, `tyre_variants` (price/availability), `homepage_sections`, `business_info` into `activity_log`.
-- On `homepage_sections` UPDATE with status change → insert into `section_revisions`.
+- `tyre_models`: `pattern_name`, `tyre_type` enum (`passenger`|`suv_4x4`|`commercial`|`other`), `origin_country`, `warranty_text`, `recommended_use` text[], `is_featured` bool.
+- `tyre_variants`: `width` int, `profile` int, `rim` int, `tube_type` enum (`tubeless`|`tube_type`|`unspecified`), `availability_note`.
+  Backfill `width/profile/rim` by parsing existing `normalized_size`. Add unique index on `(model_id, width, profile, rim, load_index, speed_rating)` — partial where not archived.
+- `brands`: unique lowercased name index to block accidental duplicates.
 
-**Storage bucket**
-- Reuse `tyre-images` (rename purpose to shared) OR add `media` (private, admin write, signed URLs). Prefer adding `media` bucket for clarity.
+Compatibility already covered by existing `tyre_model_vehicle_compat`; add a matching `tyre_variant_vehicle_compat` table for variant-level overrides (same shape, RLS parity).
 
-**Seed**
-- One `business_info` row.
-- Default `homepage_sections` matching current hard-coded homepage (hero, trust strip, tyre finder, featured brands, featured tyres, services grid, location, contact cta) in `published` status — so public site keeps rendering the same content the moment we swap to DB-driven.
+---
 
-## 2. Server functions
+## 2. Admin — Tyre Wizard rebuild
 
-`src/lib/brands.functions.ts`
-- `listBrandsAdmin`, `upsertBrand`, `setBrandActive`, `setBrandFeatured`, `reorderBrands`, `archiveBrand`
-- `listBrandsPublic` (publishable key, safe cols)
+`src/components/admin/TyreWizard.tsx` becomes a stepper:
 
-`src/lib/tyres.functions.ts` (extend)
-- `listTyresAdmin` with brand/model tree, `getTyreVariantAdmin`, `upsertTyreModel`, `upsertTyreVariant`, `duplicateVariant`, `quickUpdatePrice`, `priceStillCorrect`, `quickUpdateAvailability`, `setVariantStatus`, `archiveVariant`
-- `checkDuplicateVariant({ brandId, modelName, normalizedSize })`
-- Public: `listPublishedTyres` returns brand+model+variants (fresh price/availability with derived `freshness` flag)
+1. **Brand** — searchable select of tyres-category brands; inline "+ New brand" popover; duplicate check by normalized name.
+2. **Model** — name, pattern, tyre_type, origin, warranty, short_desc, features (chips), recommended_use (chips), featured toggle. Duplicate check `(brand_id, name)`.
+3. **Variants** — repeater with structured Width/Profile/Rim comboboxes (searchable, driven by `tyre_size_options`, with "Add missing value" inline). Load index, speed rating, XL, run-flat, tube type, price, price_display, availability, availability_note. Auto-computes normalized_size. Duplicate check per row.
+4. **Compatibility** — Make → Model → Years multiselect; bulk assign to model or specific variants; year-range shortcut; chips list with remove. Disclaimer banner: "Guidance only — please confirm before fitting."
+5. **Media** — primary image + gallery, drag-reorder (dnd-kit), alt text, replace/remove, client-side compression via `browser-image-compression`, upload through existing signed URL flow to `tyre-images`.
+6. **Public info** — review short description, features, warranty; SEO title/desc override (optional).
+7. **Preview** — renders the actual public detail-page component with current draft data.
+8. **Publish** — validation gate (see §6). Save Draft always allowed; Publish requires all checks green.
 
-`src/lib/sections.functions.ts`
-- `listSectionsAdmin`, `getSectionAdmin`, `upsertSection`, `reorderSections`, `duplicateSection`, `setSectionVisible`, `setSectionStatus`, `scheduleSection`, `archiveSection`, `restoreSectionRevision`
-- Public: `listPublishedHomepageSections`
+Cross-cutting: autosave draft every 15s + on step change; `beforeunload` warning on dirty state; per-field inline errors; **Duplicate Model** and **Duplicate Variant** actions in list view; archive-with-confirm; list page preserves filters in URL search params.
 
-`src/lib/media.functions.ts`
-- `listMediaAdmin`, `upsertMediaMetadata`, `archiveMedia`, `signedUrlFor(path)`
+---
 
-`src/lib/business.functions.ts`
-- `getBusinessInfo` (public), `updateBusinessInfo` (admin)
+## 3. Public tyre finder (`/tyres`)
 
-All admin fns use `requireSupabaseAuth` + `is_admin` check. Public fns use server publishable client with the anon SELECT policies above. All mutations write to `activity_log` (via DB trigger primarily).
+Two tabs above results:
 
-## 3. Admin UI
+- **By Size** — Width → Profile → Rim cascading selects (only shows values that have live variants).
+- **By Vehicle** — Make → Model → Year cascading selects.
 
-**Layout** — replace top nav with a sidebar (`components/admin/AdminSidebar.tsx`):
+Sidebar filters: Brand, Availability, Tyre type, Run-flat, Price range (only rendered if ≥1 result has visible price). Active filter chips + Reset. URL-synced via `validateSearch`.
 
-```
-Overview
-Catalogue
-  Tyres
-  Brands
-  Media Library
-Website
-  Homepage Sections
-  Website Pages           (Phase 2 stub card)
-  Navigation              (Phase 2 stub)
-  Announcement Bar        (Phase 2 stub)
-  Footer                  (Phase 2 stub)
-  SEO                     (Phase 2 stub)
-Customer Activity         (all Phase 2 stubs)
-Settings
-  Business Information
-  Users & Roles           (Phase 2 stub)
-  Integrations            (Phase 2 stub)
-  Activity Log            (read-only list, real data)
-```
+Zero-results state: friendly "Let our tyre expert find it for you" card with prefilled WhatsApp deep link and inline lead form.
 
-Phase 2 items render a friendly "Coming in a later phase" card — no fake controls.
+---
 
-**Routes added**
-- `_authenticated/admin/brands.index.tsx`, `brands.new.tsx`, `brands.$id.tsx`
-- `_authenticated/admin/tyres.index.tsx` (rewrite: brand→model→variant tree with quick-action drawer)
-- `_authenticated/admin/tyres.new.tsx` (7-step wizard)
-- `_authenticated/admin/tyres.$id.tsx` (edit variant; access wizard steps as tabs)
-- `_authenticated/admin/media.index.tsx`
-- `_authenticated/admin/sections.index.tsx` (cards + drag reorder + up/down)
-- `_authenticated/admin/sections.$id.tsx` (per-type editor)
-- `_authenticated/admin/business.tsx`
-- `_authenticated/admin/activity.tsx`
-- Preview surface: `_authenticated/admin/preview.home.tsx?draft=<id>` — renders `Home` component using draft section list.
+## 4. Tyre detail page (`/tyres/$modelSlug`)
 
-**Wizard** (`components/admin/tyre-wizard/`)
-- Stepper: Brand → Model → Size → Price/Availability → Specs → Images → Preview
-- Persists a `draft` variant row on every "Save & Continue"; resume by opening draft.
-- Unsaved-changes guard using router `useBlocker`.
-- Size selector: three dropdowns (width/profile/rim) built from `data/tyre-sizes.ts` + free-search input that normalizes any of the accepted formats to `NNN/NN RNN`. "Add missing value" prompts free entry after confirmation. Duplicate check on blur.
+New route. Gallery (thumbnails + main), brand/model, size selector chips (switching updates price/availability/specs client-side via state, no reload), specs table, compatible vehicles list, features, availability badge, price per display setting, sticky Call + WhatsApp CTAs, compatibility disclaimer.
 
-**Quick drawer** (`components/admin/QuickVariantDrawer.tsx`)
-- Update Price, Price Still Correct, Change Availability, Add Another Size, Preview, Publish/Unpublish, Duplicate, Archive.
-- All operations optimistic + invalidate queries.
+---
 
-**Section editor** (`components/admin/sections/`)
-- One React component per section type, each rendering safe fields only (no raw HTML/CSS). Rich-text sections use a limited toolbar (tiptap StarterKit restricted to bold/italic/link/lists).
-- Approved background/layout/spacing selects with fixed options.
-- Save Draft / Preview / Publish / Schedule / Archive.
-- Reorder list with dnd-kit + up/down buttons.
+## 5. WhatsApp helper
 
-## 4. Public site
+`src/lib/whatsapp.ts` — `buildTyreMessage({brand, model, size, vehicle?, url})` used everywhere. Never emits a bare "Hi".
 
-- Home page becomes a renderer over `listPublishedHomepageSections()` — one React component per section type mapping to existing designs. Loader-fed for SSR/SEO. If a section is missing, skip.
-- `/tyres` reads from `listPublishedTyres()` grouped by brand→model. Price display honours `price_mode` and freshness (>14 days → force "Confirm Today's Price" + WhatsApp CTA). Availability >14 days → "Check Availability".
-- Featured Brands / Featured Tyres sections read from DB via their config filters.
-- Draft/archived/scheduled-not-active content never leaks (enforced by RLS + freshness logic in the public server fn).
+---
 
-## 5. Verification (Stage A acceptance)
+## 6. Validation rules (published tyres)
 
-Walk through the 25-step demo end-to-end after implementation, using real DB rows and page refreshes.
+Enforced in wizard + server function:
+- Brand assigned, model name, tyre_type, short_desc.
+- ≥1 variant with valid width/profile/rim.
+- Primary image present.
+- Availability set on every variant.
+- No duplicate variants.
+
+Draft may skip any of the above.
+
+---
+
+## 7. Leads
+
+- `/admin/leads` — table (New/Contacted/Qualified/Closed/Lost tabs), row drawer with search context, product link, notes, status change, WhatsApp/Call buttons.
+- Public lead form component reused on: no-results state, detail page "Ask expert", chatbot fallback (already wired — repoint its storage to this table).
+
+---
+
+## 8. Analytics helper
+
+`src/lib/analytics.ts` — single `track(event, payload)` that writes to `analytics_events` and (later) forwards to GA/Meta when IDs are set in `business_info`. Events fired: `tyre_size_search`, `vehicle_search`, `tyre_view`, `whatsapp_click`, `call_click`, `lead_submitted`, `no_results`.
+
+---
 
 ## Technical notes
 
-- All new server fns follow `.middleware([requireSupabaseAuth])` pattern for admin; public ones use the publishable-key server client with the `fetch` shim already in the codebase.
-- All `CREATE TABLE` statements include GRANTs to `authenticated` + `service_role`, plus `anon` only for public-safe tables.
-- `supabaseAdmin` is only used inside handler bodies, never for reads.
-- No changes to `client.ts`, `client.server.ts`, `auth-middleware.ts`, `auth-attacher.ts`, `types.ts`, or `.env`.
-- Design tokens unchanged — sidebar and editors use existing `card-surface`, `btn-primary`, `btn-outline` classes.
-- Adds dependencies: `@dnd-kit/core`, `@dnd-kit/sortable`, `@tiptap/react`, `@tiptap/starter-kit`, `@tiptap/extension-link`.
+- New server-fn files in `src/lib/`: `tyre-options.functions.ts`, `leads.functions.ts`, `analytics.functions.ts`, extend `catalogue.functions.ts` with `getTyreModelPublic(slug)` and compatibility upserts.
+- Image compression: `bun add browser-image-compression @dnd-kit/core @dnd-kit/sortable`.
+- Storage bucket `tyre-images` stays private; continue serving via signed URLs (existing pattern).
+- All admin routes stay under `_authenticated/`; `/admin/leads` gated by admin role check inside handler.
+- Additive only; no data loss; existing variants keep working (backfilled width/profile/rim).
 
-This is roughly 25–30 files of new code plus one migration. I'll build it in the order in the "Implementation order" section of your brief and stop for approval at the end of Stage A.
+---
+
+## Build order
+
+1. Migration (schema + seeds + backfill).
+2. Tyre-size options admin + wizard rebuild.
+3. Compatibility step + variant-level compat table wiring.
+4. Media step (compression + reorder).
+5. Public finder rebuild + detail page + WhatsApp helper.
+6. Leads table + `/admin/leads` + lead form component.
+7. Analytics helper + event wiring.
+8. End-to-end journey test on desktop + mobile viewports.
+
+Approve and I'll run the migration first, then build in the order above.

@@ -47,6 +47,33 @@ export type Database = {
         }
         Relationships: []
       }
+      analytics_events: {
+        Row: {
+          created_at: string
+          event_name: string
+          id: string
+          page: string | null
+          payload: Json | null
+          session_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          event_name: string
+          id?: string
+          page?: string | null
+          payload?: Json | null
+          session_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          event_name?: string
+          id?: string
+          page?: string | null
+          payload?: Json | null
+          session_id?: string | null
+        }
+        Relationships: []
+      }
       brands: {
         Row: {
           archived: boolean
@@ -214,6 +241,81 @@ export type Database = {
           updated_by?: string | null
         }
         Relationships: []
+      }
+      leads: {
+        Row: {
+          admin_notes: string | null
+          created_at: string
+          id: string
+          message: string | null
+          model_id: string | null
+          name: string
+          phone: string
+          preferred_contact: Database["public"]["Enums"]["lead_contact_method"]
+          search_context: Json | null
+          source_page: string | null
+          status: Database["public"]["Enums"]["lead_status"]
+          tyre_size: string | null
+          updated_at: string
+          variant_id: string | null
+          vehicle_make: string | null
+          vehicle_model: string | null
+          vehicle_year: string | null
+        }
+        Insert: {
+          admin_notes?: string | null
+          created_at?: string
+          id?: string
+          message?: string | null
+          model_id?: string | null
+          name: string
+          phone: string
+          preferred_contact?: Database["public"]["Enums"]["lead_contact_method"]
+          search_context?: Json | null
+          source_page?: string | null
+          status?: Database["public"]["Enums"]["lead_status"]
+          tyre_size?: string | null
+          updated_at?: string
+          variant_id?: string | null
+          vehicle_make?: string | null
+          vehicle_model?: string | null
+          vehicle_year?: string | null
+        }
+        Update: {
+          admin_notes?: string | null
+          created_at?: string
+          id?: string
+          message?: string | null
+          model_id?: string | null
+          name?: string
+          phone?: string
+          preferred_contact?: Database["public"]["Enums"]["lead_contact_method"]
+          search_context?: Json | null
+          source_page?: string | null
+          status?: Database["public"]["Enums"]["lead_status"]
+          tyre_size?: string | null
+          updated_at?: string
+          variant_id?: string | null
+          vehicle_make?: string | null
+          vehicle_model?: string | null
+          vehicle_year?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "leads_model_id_fkey"
+            columns: ["model_id"]
+            isOneToOne: false
+            referencedRelation: "tyre_models"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "leads_variant_id_fkey"
+            columns: ["variant_id"]
+            isOneToOne: false
+            referencedRelation: "tyre_variants"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       media_assets: {
         Row: {
@@ -533,11 +635,17 @@ export type Database = {
           internal_notes: string | null
           is_featured: boolean
           name: string
+          origin_country: string | null
+          pattern_name: string | null
+          recommended_use: string[] | null
           short_desc: string | null
+          slug: string | null
           status: Database["public"]["Enums"]["content_status"]
+          tyre_type: Database["public"]["Enums"]["tyre_type"] | null
           updated_at: string
           vehicle_categories: string[]
           warranty: string | null
+          warranty_text: string | null
         }
         Insert: {
           archived?: boolean
@@ -552,11 +660,17 @@ export type Database = {
           internal_notes?: string | null
           is_featured?: boolean
           name: string
+          origin_country?: string | null
+          pattern_name?: string | null
+          recommended_use?: string[] | null
           short_desc?: string | null
+          slug?: string | null
           status?: Database["public"]["Enums"]["content_status"]
+          tyre_type?: Database["public"]["Enums"]["tyre_type"] | null
           updated_at?: string
           vehicle_categories?: string[]
           warranty?: string | null
+          warranty_text?: string | null
         }
         Update: {
           archived?: boolean
@@ -571,11 +685,17 @@ export type Database = {
           internal_notes?: string | null
           is_featured?: boolean
           name?: string
+          origin_country?: string | null
+          pattern_name?: string | null
+          recommended_use?: string[] | null
           short_desc?: string | null
+          slug?: string | null
           status?: Database["public"]["Enums"]["content_status"]
+          tyre_type?: Database["public"]["Enums"]["tyre_type"] | null
           updated_at?: string
           vehicle_categories?: string[]
           warranty?: string | null
+          warranty_text?: string | null
         }
         Relationships: [
           {
@@ -644,10 +764,103 @@ export type Database = {
         }
         Relationships: []
       }
+      tyre_size_options: {
+        Row: {
+          archived: boolean
+          created_at: string
+          dimension: Database["public"]["Enums"]["tyre_size_dimension"]
+          id: string
+          label: string | null
+          updated_at: string
+          value: number
+        }
+        Insert: {
+          archived?: boolean
+          created_at?: string
+          dimension: Database["public"]["Enums"]["tyre_size_dimension"]
+          id?: string
+          label?: string | null
+          updated_at?: string
+          value: number
+        }
+        Update: {
+          archived?: boolean
+          created_at?: string
+          dimension?: Database["public"]["Enums"]["tyre_size_dimension"]
+          id?: string
+          label?: string | null
+          updated_at?: string
+          value?: number
+        }
+        Relationships: []
+      }
+      tyre_variant_vehicle_compat: {
+        Row: {
+          created_at: string
+          id: string
+          make_id: string | null
+          model_id: string | null
+          note: string | null
+          updated_at: string
+          variant_id: string
+          year_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          make_id?: string | null
+          model_id?: string | null
+          note?: string | null
+          updated_at?: string
+          variant_id: string
+          year_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          make_id?: string | null
+          model_id?: string | null
+          note?: string | null
+          updated_at?: string
+          variant_id?: string
+          year_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tyre_variant_vehicle_compat_make_id_fkey"
+            columns: ["make_id"]
+            isOneToOne: false
+            referencedRelation: "vehicle_makes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tyre_variant_vehicle_compat_model_id_fkey"
+            columns: ["model_id"]
+            isOneToOne: false
+            referencedRelation: "vehicle_models"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tyre_variant_vehicle_compat_variant_id_fkey"
+            columns: ["variant_id"]
+            isOneToOne: false
+            referencedRelation: "tyre_variants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tyre_variant_vehicle_compat_year_id_fkey"
+            columns: ["year_id"]
+            isOneToOne: false
+            referencedRelation: "vehicle_years"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       tyre_variants: {
         Row: {
           archived: boolean
           availability: Database["public"]["Enums"]["availability_status"]
+          availability_note: string | null
           availability_verified_at: string | null
           availability_verified_by: string | null
           created_at: string
@@ -672,6 +885,7 @@ export type Database = {
           size_format: string
           speed_rating: string | null
           status: Database["public"]["Enums"]["content_status"]
+          tube_type: Database["public"]["Enums"]["tube_type"]
           tubeless: boolean
           updated_at: string
           warranty: string | null
@@ -681,6 +895,7 @@ export type Database = {
         Insert: {
           archived?: boolean
           availability?: Database["public"]["Enums"]["availability_status"]
+          availability_note?: string | null
           availability_verified_at?: string | null
           availability_verified_by?: string | null
           created_at?: string
@@ -705,6 +920,7 @@ export type Database = {
           size_format?: string
           speed_rating?: string | null
           status?: Database["public"]["Enums"]["content_status"]
+          tube_type?: Database["public"]["Enums"]["tube_type"]
           tubeless?: boolean
           updated_at?: string
           warranty?: string | null
@@ -714,6 +930,7 @@ export type Database = {
         Update: {
           archived?: boolean
           availability?: Database["public"]["Enums"]["availability_status"]
+          availability_note?: string | null
           availability_verified_at?: string | null
           availability_verified_by?: string | null
           created_at?: string
@@ -738,6 +955,7 @@ export type Database = {
           size_format?: string
           speed_rating?: string | null
           status?: Database["public"]["Enums"]["content_status"]
+          tube_type?: Database["public"]["Enums"]["tube_type"]
           tubeless?: boolean
           updated_at?: string
           warranty?: string | null
@@ -952,6 +1170,8 @@ export type Database = {
         | "on_order"
         | "discontinued"
       content_status: "draft" | "published" | "scheduled" | "archived"
+      lead_contact_method: "whatsapp" | "call" | "either"
+      lead_status: "new" | "contacted" | "qualified" | "closed" | "lost"
       price_mode:
         | "fixed"
         | "confirm_today"
@@ -987,6 +1207,9 @@ export type Database = {
         | "contact_cta"
         | "whatsapp_cta"
         | "custom_text"
+      tube_type: "tubeless" | "tube_type" | "unspecified"
+      tyre_size_dimension: "width" | "profile" | "rim"
+      tyre_type: "passenger" | "suv_4x4" | "commercial" | "other"
       vehicle_body_type:
         | "hatchback"
         | "sedan"
@@ -1134,6 +1357,8 @@ export const Constants = {
         "discontinued",
       ],
       content_status: ["draft", "published", "scheduled", "archived"],
+      lead_contact_method: ["whatsapp", "call", "either"],
+      lead_status: ["new", "contacted", "qualified", "closed", "lost"],
       price_mode: [
         "fixed",
         "confirm_today",
@@ -1172,6 +1397,9 @@ export const Constants = {
         "whatsapp_cta",
         "custom_text",
       ],
+      tube_type: ["tubeless", "tube_type", "unspecified"],
+      tyre_size_dimension: ["width", "profile", "rim"],
+      tyre_type: ["passenger", "suv_4x4", "commercial", "other"],
       vehicle_body_type: [
         "hatchback",
         "sedan",
