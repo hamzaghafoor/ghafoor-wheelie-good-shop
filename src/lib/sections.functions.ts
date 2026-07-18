@@ -82,11 +82,11 @@ export const upsertSection = createServerFn({ method: "POST" })
     if (data.id) {
       const { data: row, error } = await context.supabase.from("homepage_sections").update(payload).eq("id", data.id).select().maybeSingle();
       if (error) throw new Error(error.message);
-      return { ok: true as const, id: row.id };
+      if (!row) throw new Error("No row returned"); return { ok: true as const, id: (row as any).id };
     }
     const { data: row, error } = await context.supabase.from("homepage_sections").insert(payload).select().maybeSingle();
     if (error) throw new Error(error.message);
-    return { ok: true as const, id: row.id };
+    if (!row) throw new Error("No row returned"); return { ok: true as const, id: (row as any).id };
   });
 
 export const setSectionVisible = createServerFn({ method: "POST" })
@@ -137,5 +137,5 @@ export const duplicateSection = createServerFn({ method: "POST" })
       .insert({ ...rest, name: `${rest.name} (copy)`, status: "draft", display_order: (rest.display_order ?? 0) + 1, updated_by: context.userId })
       .select().maybeSingle();
     if (e2) throw new Error(e2.message);
-    return { ok: true as const, id: row.id };
+    if (!row) throw new Error("No row returned"); return { ok: true as const, id: (row as any).id };
   });

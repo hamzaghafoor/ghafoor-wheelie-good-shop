@@ -127,11 +127,11 @@ export const upsertModel = createServerFn({ method: "POST" })
     if (data.id) {
       const { data: row, error } = await context.supabase.from("tyre_models").update(payload).eq("id", data.id).select().maybeSingle();
       if (error) throw new Error(error.message);
-      return { ok: true as const, id: row.id };
+      if (!row) throw new Error("No row returned"); return { ok: true as const, id: (row as any).id };
     }
     const { data: row, error } = await context.supabase.from("tyre_models").insert(payload).select().maybeSingle();
     if (error) throw new Error(error.message);
-    return { ok: true as const, id: row.id };
+    if (!row) throw new Error("No row returned"); return { ok: true as const, id: (row as any).id };
   });
 
 export const setModelStatus = createServerFn({ method: "POST" })
@@ -197,11 +197,11 @@ export const upsertVariant = createServerFn({ method: "POST" })
     if (data.id) {
       const { data: row, error } = await context.supabase.from("tyre_variants").update(payload).eq("id", data.id).select().maybeSingle();
       if (error) throw new Error(error.message);
-      return { ok: true as const, id: row.id };
+      if (!row) throw new Error("No row returned"); return { ok: true as const, id: (row as any).id };
     }
     const { data: row, error } = await context.supabase.from("tyre_variants").insert(payload).select().maybeSingle();
     if (error) throw new Error(error.message);
-    return { ok: true as const, id: row.id };
+    if (!row) throw new Error("No row returned"); return { ok: true as const, id: (row as any).id };
   });
 
 export const setVariantStatus = createServerFn({ method: "POST" })
@@ -274,5 +274,5 @@ export const duplicateVariant = createServerFn({ method: "POST" })
     const { data: row, error: e2 } = await context.supabase.from("tyre_variants")
       .insert({ ...rest, normalized_size: data.new_size, status: "draft", created_by: context.userId }).select().maybeSingle();
     if (e2) throw new Error(e2.message);
-    return { ok: true as const, id: row.id };
+    if (!row) throw new Error("No row returned"); return { ok: true as const, id: (row as any).id };
   });

@@ -93,11 +93,11 @@ export const upsertBrand = createServerFn({ method: "POST" })
     if (data.id) {
       const { data: row, error } = await context.supabase.from("brands").update(payload).eq("id", data.id).select().maybeSingle();
       if (error) throw new Error(error.message);
-      return { ok: true as const, id: row.id };
+      if (!row) throw new Error("No row returned"); return { ok: true as const, id: (row as any).id };
     }
     const { data: row, error } = await context.supabase.from("brands").insert(payload).select().maybeSingle();
     if (error) throw new Error(error.message);
-    return { ok: true as const, id: row.id };
+    if (!row) throw new Error("No row returned"); return { ok: true as const, id: (row as any).id };
   });
 
 export const archiveBrand = createServerFn({ method: "POST" })
