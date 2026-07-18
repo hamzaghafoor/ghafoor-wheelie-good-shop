@@ -26,14 +26,15 @@ async function assertAdmin(ctx: { supabase: any; userId: string }) {
   if (!data) throw new Error("Forbidden");
 }
 
+// Model-level compat uses existing table: tyre_model_id + vehicle_model_id + optional year_from/year_to
 export const listModelCompat = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d: { model_id: string }) => z.object({ model_id: z.string().uuid() }).parse(d))
   .handler(async ({ data, context }) => {
     await assertAdmin(context);
-    const { data: rows } = await context.supabase
+    const { data: rows } = await (context.supabase as any)
       .from("tyre_model_vehicle_compat")
-      .select("id, make_id, model_id, year_id")
+      .select("id, vehicle_model_id, year_from, year_to, notes")
       .eq("tyre_model_id", data.model_id);
     return rows ?? [];
   });
@@ -43,15 +44,16 @@ export const addModelCompat = createServerFn({ method: "POST" })
   .inputValidator((d: unknown) => z.object({
     tyre_model_id: z.string().uuid(),
     entries: z.array(z.object({
-      make_id: z.string().uuid().nullable().optional(),
-      model_id: z.string().uuid().nullable().optional(),
-      year_id: z.string().uuid().nullable().optional(),
+      vehicle_model_id: z.string().uuid(),
+      year_from: z.number().int().nullable().optional(),
+      year_to: z.number().int().nullable().optional(),
+      notes: z.string().max(200).nullable().optional(),
     })).min(1),
   }).parse(d))
   .handler(async ({ data, context }) => {
     await assertAdmin(context);
     const rows = data.entries.map(e => ({ tyre_model_id: data.tyre_model_id, ...e }));
-    const { error } = await context.supabase.from("tyre_model_vehicle_compat").insert(rows);
+    const { error } = await (context.supabase as any).from("tyre_model_vehicle_compat").insert(rows);
     if (error) throw new Error(error.message);
     return { ok: true as const, added: rows.length };
   });
@@ -63,31 +65,31 @@ export const removeCompat = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     await assertAdmin(context);
     const table = data.kind === "model" ? "tyre_model_vehicle_compat" : "tyre_variant_vehicle_compat";
-    const { error } = await context.supabase.from(table).delete().eq("id", data.id);
+    const { error } = await (context.supabase as any).from(table).delete().eq("id", data.id);
     if (error) throw new Error(error.message);
     return { ok: true as const };
   });
 
-// Public: fetch tyre models compatible with a given vehicle (any level)
 export const findModelsByVehicle = createServerFn({ method: "POST" })
   .inputValidator((d: unknown) => z.object({
-    make_id: z.string().uuid().optional(),
-    model_id: z.string().uuid().optional(),
-    year_id: z.string().uuid().optional(),
+    vehicle_model_id: z.string().uuid().optional(),
+    year: z.number().int().optional(),
   }).parse(d))
   .handler(async ({ data }) => {
     const sb = publicClient();
-    let q = sb.from("tyre_model_vehicle_compat").select("tyre_model_id");
-    if (data.year_id) q = q.eq("year_id", data.year_id);
-    else if (data.model_id) q = q.eq("model_id", data.model_id);
-    else if (data.make_id) q = q.eq("make_id", data.make_id);
+    let q = (sb as any).from("tyre_model_vehicle_compat").select("tyre_model_id, year_from, year_to");
+    if (data.vehicle_model_id) q = q.eq("vehicle_model_id", data.vehicle_model_id);
     const { data: rows, error } = await q;
     if (error) throw new Error(error.message);
-    const ids = Array.from(new Set((rows ?? []).map((r: any) => r.tyre_model_id).filter(Boolean)));
-    return ids;
+    let filtered = rows ?? [];
+    if (data.year != null) {
+      filtered = filtered.filter((r: any) =>
+        (r.year_from == null || data.year! >= r.year_from) && (r.year_to == null || data.year! <= r.year_to)
+      );
+    }
+    return Array.from(new Set(filtered.map((r: any) => r.tyre_model_id)));
   });
 
-// Public: fetch tyre model by slug for detail page (with all variants + brand + compat)
 export const getTyreModelBySlug = createServerFn({ method: "GET" })
   .inputValidator((d: { slug: string }) => z.object({ slug: z.string().min(1) }).parse(d))
   .handler(async ({ data }) => {
@@ -100,9 +102,8 @@ export const getTyreModelBySlug = createServerFn({ method: "GET" })
     const [{ data: brand }, { data: variants }, { data: compat }] = await Promise.all([
       sb.from("brands").select("id, name, logo_url, country").eq("id", (model as any).brand_id).maybeSingle(),
       sb.from("tyre_variants").select("*").eq("model_id", (model as any).id).eq("status","published").eq("archived", false),
-      sb.from("tyre_model_vehicle_compat").select("make_id, model_id, year_id").eq("tyre_model_id", (model as any).id),
+      (sb as any).from("tyre_model_vehicle_compat").select("vehicle_model_id, year_from, year_to").eq("tyre_model_id", (model as any).id),
     ]);
-    // Sign images
     const signedImages: any = {};
     for (const [k, v] of Object.entries(((model as any).images ?? {}) as Record<string, any>)) {
       const path = typeof v === "string" ? v : v?.path;
