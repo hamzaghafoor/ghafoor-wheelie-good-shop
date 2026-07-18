@@ -1,10 +1,12 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
-import { tyres, tyreBrands, tyreCategories, tyrePriorities, type TyreCategory, type TyrePriority } from "@/lib/tyres";
-import { tyreRims } from "@/lib/vehicles";
-import { ProductCard } from "@/components/ProductCard";
+import { useQuery } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
+import { MessageCircle, Phone } from "lucide-react";
 import { TyreFinder } from "@/components/TyreFinder";
 import { CTASection } from "@/components/CTASection";
+import { listPublishedTyres } from "@/lib/tyres.functions";
+import { business, telLink, waLink } from "@/lib/business";
 
 export const Route = createFileRoute("/tyres")({
   head: () => ({
@@ -16,26 +18,32 @@ export const Route = createFileRoute("/tyres")({
   component: TyresPage,
 });
 
-function TyresPage() {
-  const [cat, setCat] = useState<TyreCategory | "All">("All");
-  const [brand, setBrand] = useState<string>("All");
-  const [rim, setRim] = useState<string>("All");
-  const [priority, setPriority] = useState<TyrePriority | "All">("All");
-  const [availOnly, setAvailOnly] = useState(false);
-  const [sort, setSort] = useState<"recommended" | "brand" | "size">("recommended");
+type PublicTyre = {
+  id: string; brand: string; model: string; size: string; category: string;
+  price: number | null; currency: string; in_stock: boolean;
+  image_url: string | null; image_signed_url: string | null;
+  description: string | null; features: string[]; vehicles: string[];
+};
 
-  const filtered = useMemo(() => {
-    let out = tyres.filter((t) =>
-      (cat === "All" || t.category === cat) &&
-      (brand === "All" || t.brand === brand) &&
-      (rim === "All" || t.sizes.some((s) => s.endsWith(`R${rim}`))) &&
-      (priority === "All" || t.priorities.includes(priority)) &&
-      (!availOnly || t.inStock)
-    );
-    if (sort === "brand") out = [...out].sort((a, b) => a.brand.localeCompare(b.brand));
-    if (sort === "size") out = [...out].sort((a, b) => a.sizes[0].localeCompare(b.sizes[0]));
-    return out;
-  }, [cat, brand, rim, priority, availOnly, sort]);
+function TyresPage() {
+  const fetchTyres = useServerFn(listPublishedTyres);
+  const { data, isLoading } = useQuery<PublicTyre[]>({
+    queryKey: ["public-tyres"],
+    queryFn: () => fetchTyres() as any,
+  });
+
+  const [cat, setCat] = useState<string>("All");
+  const [brand, setBrand] = useState<string>("All");
+  const [availOnly, setAvailOnly] = useState(false);
+
+  const all = data ?? [];
+  const brands = useMemo(() => Array.from(new Set(all.map((t) => t.brand))), [all]);
+  const categories = useMemo(() => Array.from(new Set(all.map((t) => t.category))), [all]);
+  const filtered = useMemo(() => all.filter((t) =>
+    (cat === "All" || t.category === cat) &&
+    (brand === "All" || t.brand === brand) &&
+    (!availOnly || t.in_stock)
+  ), [all, cat, brand, availOnly]);
 
   return (
     <>
@@ -52,54 +60,113 @@ function TyresPage() {
       </div>
 
       <section className="py-14">
-        <div className="container-x grid gap-8 lg:grid-cols-[260px_1fr]">
-          <aside className="card-surface h-fit p-5">
-            <h3 className="font-display text-lg text-ink">Filters</h3>
-            <FilterGroup label="Vehicle category">
-              <Chips options={["All", ...tyreCategories]} value={cat} onChange={(v) => setCat(v as any)} />
-            </FilterGroup>
-            <FilterGroup label="Brand">
-              <SelectPlain value={brand} onChange={setBrand} options={["All", ...tyreBrands]} />
-            </FilterGroup>
-            <FilterGroup label="Rim size">
-              <Chips options={["All", ...tyreRims]} value={rim} onChange={setRim} />
-            </FilterGroup>
-            <FilterGroup label="Driving priority">
-              <Chips options={["All", ...tyrePriorities]} value={priority} onChange={(v) => setPriority(v as any)} />
-            </FilterGroup>
-            <label className="mt-4 flex items-center gap-2 text-sm">
-              <input type="checkbox" checked={availOnly} onChange={(e) => setAvailOnly(e.target.checked)} className="accent-primary" />
-              In stock only
-            </label>
-          </aside>
+        <div className="container-x">
+          {isLoading ? (
+            <div className="card-surface p-10 text-center text-sm text-muted-foreground">Loading tyre catalogue…</div>
+          ) : all.length === 0 ? (
+            <EmptyCatalogue />
+          ) : (
+            <div className="grid gap-8 lg:grid-cols-[260px_1fr]">
+              <aside className="card-surface h-fit p-5">
+                <h3 className="font-display text-lg text-ink">Filters</h3>
+                <FilterGroup label="Vehicle category">
+                  <Chips options={["All", ...categories]} value={cat} onChange={setCat} />
+                </FilterGroup>
+                <FilterGroup label="Brand">
+                  <select value={brand} onChange={(e) => setBrand(e.target.value)}
+                    className="h-10 w-full rounded-md border border-border bg-surface px-2 text-sm">
+                    {["All", ...brands].map((o) => <option key={o}>{o}</option>)}
+                  </select>
+                </FilterGroup>
+                <label className="mt-4 flex items-center gap-2 text-sm">
+                  <input type="checkbox" checked={availOnly} onChange={(e) => setAvailOnly(e.target.checked)} className="accent-primary" />
+                  In stock only
+                </label>
+              </aside>
 
-          <div>
-            <div className="mb-4 flex items-center justify-between">
-              <p className="text-sm text-muted-foreground">{filtered.length} option{filtered.length === 1 ? "" : "s"}</p>
-              <label className="text-sm">
-                <span className="mr-2 text-muted-foreground">Sort:</span>
-                <select value={sort} onChange={(e) => setSort(e.target.value as any)} className="rounded-md border border-border bg-surface px-2 py-1.5 text-sm">
-                  <option value="recommended">Recommended</option>
-                  <option value="brand">Brand A–Z</option>
-                  <option value="size">Size</option>
-                </select>
-              </label>
+              <div>
+                <p className="mb-4 text-sm text-muted-foreground">{filtered.length} option{filtered.length === 1 ? "" : "s"}</p>
+                {filtered.length === 0 ? (
+                  <div className="card-surface p-10 text-center">
+                    <h3 className="font-display text-2xl text-ink">No matching tyres.</h3>
+                    <p className="mt-2 text-muted-foreground">Contact us with your vehicle or tyre size and we'll suggest suitable alternatives.</p>
+                  </div>
+                ) : (
+                  <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
+                    {filtered.map((t) => <TyreDbCard key={t.id} t={t} />)}
+                  </div>
+                )}
+              </div>
             </div>
-            {filtered.length === 0 ? (
-              <div className="card-surface p-10 text-center">
-                <h3 className="font-display text-2xl text-ink">We'll help you find the right option.</h3>
-                <p className="mt-2 text-muted-foreground">Contact us with your vehicle or tyre size and we'll suggest suitable alternatives.</p>
-              </div>
-            ) : (
-              <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
-                {filtered.map((t) => <ProductCard key={t.id} tyre={t} />)}
-              </div>
-            )}
-          </div>
+          )}
         </div>
       </section>
       <CTASection />
     </>
+  );
+}
+
+function EmptyCatalogue() {
+  return (
+    <div className="card-surface p-10 text-center">
+      <h2 className="font-display text-2xl md:text-3xl text-ink">Our online catalogue is being updated.</h2>
+      <p className="mt-3 max-w-xl mx-auto text-muted-foreground">
+        Our team stocks a wide range of tyres for sedans, hatchbacks, SUVs and commercial vehicles.
+        Share your vehicle and tyre size with us on WhatsApp — we'll suggest suitable options and today's price.
+      </p>
+      <div className="mt-5 flex flex-wrap justify-center gap-2">
+        <a href={waLink("Assalam-o-Alaikum, please suggest suitable tyres for my vehicle.")} target="_blank" rel="noreferrer" className="btn-primary text-sm">
+          <MessageCircle className="h-4 w-4" /> Ask on WhatsApp
+        </a>
+        <a href={telLink()} className="btn-outline text-sm">
+          <Phone className="h-4 w-4" /> Call {business.phoneDisplay}
+        </a>
+        <Link to="/contact" className="btn-outline text-sm">Contact us</Link>
+      </div>
+    </div>
+  );
+}
+
+function TyreDbCard({ t }: { t: PublicTyre }) {
+  const ask = `Assalam-o-Alaikum, I am checking price and availability of ${t.brand} ${t.model}, size ${t.size}. Kindly share details.`;
+  return (
+    <article className="card-surface group flex flex-col overflow-hidden transition hover:border-primary/50">
+      <div className="relative aspect-square overflow-hidden bg-surface-2">
+        {t.image_signed_url ? (
+          <img src={t.image_signed_url} alt={`${t.brand} ${t.model}`} loading="lazy"
+            className="h-full w-full object-contain p-6 transition duration-500 group-hover:scale-105" />
+        ) : (
+          <div className="grid h-full w-full place-items-center text-xs text-muted-foreground">No image</div>
+        )}
+        <span className={`absolute left-3 top-3 rounded-full px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider ${t.in_stock ? "bg-success/10 text-success" : "bg-muted text-muted-foreground"}`}>
+          {t.in_stock ? "In Stock" : "Check Availability"}
+        </span>
+        <span className="absolute right-3 top-3 rounded-full border border-border bg-surface/90 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-foreground/70">{t.category}</span>
+      </div>
+      <div className="flex flex-1 flex-col p-4">
+        <div className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">{t.brand}</div>
+        <h3 className="mt-0.5 font-display text-lg leading-tight text-ink">{t.model}</h3>
+        <div className="mt-1 text-sm font-medium text-foreground/80">{t.size}</div>
+        {t.price != null && <div className="mt-1 text-sm text-primary font-semibold">{t.currency} {t.price.toLocaleString()}</div>}
+        {t.features.length > 0 && (
+          <ul className="mt-3 space-y-1 text-xs text-muted-foreground">
+            {t.features.slice(0, 3).map((f) => (
+              <li key={f} className="flex items-start gap-1.5">
+                <span className="mt-1 h-1 w-1 flex-none rounded-full bg-primary" />{f}
+              </li>
+            ))}
+          </ul>
+        )}
+        <div className="mt-4 grid grid-cols-2 gap-2">
+          <a href={waLink(ask)} target="_blank" rel="noreferrer" className="btn-primary text-xs">
+            <MessageCircle className="h-3.5 w-3.5" /> Get Price
+          </a>
+          <a href={telLink()} className="btn-outline text-xs">
+            <Phone className="h-3.5 w-3.5" /> Call
+          </a>
+        </div>
+      </div>
+    </article>
   );
 }
 
@@ -118,12 +185,5 @@ function Chips({ options, value, onChange }: { options: string[]; value: string;
         <button key={o} onClick={() => onChange(o)} className={`rounded-full border px-2.5 py-1 text-xs font-medium ${value === o ? "border-ink bg-ink text-white" : "border-border bg-surface text-foreground/70 hover:border-primary hover:text-primary"}`}>{o}</button>
       ))}
     </div>
-  );
-}
-function SelectPlain({ value, onChange, options }: { value: string; onChange: (v: string) => void; options: string[] }) {
-  return (
-    <select value={value} onChange={(e) => onChange(e.target.value)} className="h-10 w-full rounded-md border border-border bg-surface px-2 text-sm">
-      {options.map((o) => <option key={o} value={o}>{o}</option>)}
-    </select>
   );
 }
