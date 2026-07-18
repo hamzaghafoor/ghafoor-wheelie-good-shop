@@ -50,6 +50,7 @@ export type Database = {
       brands: {
         Row: {
           archived: boolean
+          categories: Database["public"]["Enums"]["product_category"][]
           country: string | null
           created_at: string
           created_by: string | null
@@ -67,6 +68,7 @@ export type Database = {
         }
         Insert: {
           archived?: boolean
+          categories?: Database["public"]["Enums"]["product_category"][]
           country?: string | null
           created_at?: string
           created_by?: string | null
@@ -84,6 +86,7 @@ export type Database = {
         }
         Update: {
           archived?: boolean
+          categories?: Database["public"]["Enums"]["product_category"][]
           country?: string | null
           created_at?: string
           created_by?: string | null
@@ -257,6 +260,155 @@ export type Database = {
         }
         Relationships: []
       }
+      product_vehicle_compat: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          id: string
+          notes: string | null
+          product_id: string
+          vehicle_model_id: string
+          year_from: number | null
+          year_to: number | null
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          notes?: string | null
+          product_id: string
+          vehicle_model_id: string
+          year_from?: number | null
+          year_to?: number | null
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          notes?: string | null
+          product_id?: string
+          vehicle_model_id?: string
+          year_from?: number | null
+          year_to?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_vehicle_compat_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "product_vehicle_compat_vehicle_model_id_fkey"
+            columns: ["vehicle_model_id"]
+            isOneToOne: false
+            referencedRelation: "vehicle_models"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      products: {
+        Row: {
+          archived: boolean
+          availability: Database["public"]["Enums"]["availability_status"]
+          availability_verified_at: string | null
+          availability_verified_by: string | null
+          brand_id: string | null
+          category: Database["public"]["Enums"]["product_category"]
+          created_at: string
+          created_by: string | null
+          full_desc: string | null
+          id: string
+          images: Json
+          is_featured: boolean
+          name: string
+          part_number: string | null
+          previous_price: number | null
+          price: number | null
+          price_mode: Database["public"]["Enums"]["price_mode"]
+          price_note: string | null
+          price_verified_at: string | null
+          price_verified_by: string | null
+          private_notes: string | null
+          public_notes: string | null
+          short_desc: string | null
+          sku: string | null
+          slug: string
+          specs: Json
+          status: Database["public"]["Enums"]["content_status"]
+          updated_at: string
+        }
+        Insert: {
+          archived?: boolean
+          availability?: Database["public"]["Enums"]["availability_status"]
+          availability_verified_at?: string | null
+          availability_verified_by?: string | null
+          brand_id?: string | null
+          category: Database["public"]["Enums"]["product_category"]
+          created_at?: string
+          created_by?: string | null
+          full_desc?: string | null
+          id?: string
+          images?: Json
+          is_featured?: boolean
+          name: string
+          part_number?: string | null
+          previous_price?: number | null
+          price?: number | null
+          price_mode?: Database["public"]["Enums"]["price_mode"]
+          price_note?: string | null
+          price_verified_at?: string | null
+          price_verified_by?: string | null
+          private_notes?: string | null
+          public_notes?: string | null
+          short_desc?: string | null
+          sku?: string | null
+          slug: string
+          specs?: Json
+          status?: Database["public"]["Enums"]["content_status"]
+          updated_at?: string
+        }
+        Update: {
+          archived?: boolean
+          availability?: Database["public"]["Enums"]["availability_status"]
+          availability_verified_at?: string | null
+          availability_verified_by?: string | null
+          brand_id?: string | null
+          category?: Database["public"]["Enums"]["product_category"]
+          created_at?: string
+          created_by?: string | null
+          full_desc?: string | null
+          id?: string
+          images?: Json
+          is_featured?: boolean
+          name?: string
+          part_number?: string | null
+          previous_price?: number | null
+          price?: number | null
+          price_mode?: Database["public"]["Enums"]["price_mode"]
+          price_note?: string | null
+          price_verified_at?: string | null
+          price_verified_by?: string | null
+          private_notes?: string | null
+          public_notes?: string | null
+          short_desc?: string | null
+          sku?: string | null
+          slug?: string
+          specs?: Json
+          status?: Database["public"]["Enums"]["content_status"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "products_brand_id_fkey"
+            columns: ["brand_id"]
+            isOneToOne: false
+            referencedRelation: "brands"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           created_at: string
@@ -315,6 +467,54 @@ export type Database = {
             columns: ["section_id"]
             isOneToOne: false
             referencedRelation: "homepage_sections"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tyre_model_vehicle_compat: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          id: string
+          notes: string | null
+          tyre_model_id: string
+          vehicle_model_id: string
+          year_from: number | null
+          year_to: number | null
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          notes?: string | null
+          tyre_model_id: string
+          vehicle_model_id: string
+          year_from?: number | null
+          year_to?: number | null
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          notes?: string | null
+          tyre_model_id?: string
+          vehicle_model_id?: string
+          year_from?: number | null
+          year_to?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tyre_model_vehicle_compat_tyre_model_id_fkey"
+            columns: ["tyre_model_id"]
+            isOneToOne: false
+            referencedRelation: "tyre_models"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tyre_model_vehicle_compat_vehicle_model_id_fkey"
+            columns: ["vehicle_model_id"]
+            isOneToOne: false
+            referencedRelation: "vehicle_models"
             referencedColumns: ["id"]
           },
         ]
@@ -575,9 +775,162 @@ export type Database = {
         }
         Relationships: []
       }
+      vehicle_makes: {
+        Row: {
+          archived: boolean
+          created_at: string
+          created_by: string | null
+          display_order: number
+          id: string
+          is_active: boolean
+          logo_url: string | null
+          name: string
+          slug: string
+          updated_at: string
+        }
+        Insert: {
+          archived?: boolean
+          created_at?: string
+          created_by?: string | null
+          display_order?: number
+          id?: string
+          is_active?: boolean
+          logo_url?: string | null
+          name: string
+          slug: string
+          updated_at?: string
+        }
+        Update: {
+          archived?: boolean
+          created_at?: string
+          created_by?: string | null
+          display_order?: number
+          id?: string
+          is_active?: boolean
+          logo_url?: string | null
+          name?: string
+          slug?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      vehicle_models: {
+        Row: {
+          archived: boolean
+          body_type: Database["public"]["Enums"]["vehicle_body_type"]
+          created_at: string
+          created_by: string | null
+          id: string
+          is_active: boolean
+          is_popular: boolean
+          make_id: string
+          name: string
+          slug: string
+          updated_at: string
+        }
+        Insert: {
+          archived?: boolean
+          body_type?: Database["public"]["Enums"]["vehicle_body_type"]
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          is_active?: boolean
+          is_popular?: boolean
+          make_id: string
+          name: string
+          slug: string
+          updated_at?: string
+        }
+        Update: {
+          archived?: boolean
+          body_type?: Database["public"]["Enums"]["vehicle_body_type"]
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          is_active?: boolean
+          is_popular?: boolean
+          make_id?: string
+          name?: string
+          slug?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "vehicle_models_make_id_fkey"
+            columns: ["make_id"]
+            isOneToOne: false
+            referencedRelation: "vehicle_makes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      vehicle_years: {
+        Row: {
+          archived: boolean
+          created_at: string
+          created_by: string | null
+          id: string
+          is_active: boolean
+          model_id: string
+          updated_at: string
+          variant_note: string | null
+          year_from: number
+          year_to: number | null
+        }
+        Insert: {
+          archived?: boolean
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          is_active?: boolean
+          model_id: string
+          updated_at?: string
+          variant_note?: string | null
+          year_from: number
+          year_to?: number | null
+        }
+        Update: {
+          archived?: boolean
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          is_active?: boolean
+          model_id?: string
+          updated_at?: string
+          variant_note?: string | null
+          year_from?: number
+          year_to?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "vehicle_years_model_id_fkey"
+            columns: ["model_id"]
+            isOneToOne: false
+            referencedRelation: "vehicle_models"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
-      [_ in never]: never
+      catalogue_search: {
+        Row: {
+          archived: boolean | null
+          brand_id: string | null
+          brand_name: string | null
+          category: Database["public"]["Enums"]["product_category"] | null
+          id: string | null
+          images: Json | null
+          kind: string | null
+          part_number: string | null
+          short_desc: string | null
+          size_or_spec: string | null
+          status: Database["public"]["Enums"]["content_status"] | null
+          title: string | null
+          tsv: unknown
+        }
+        Relationships: []
+      }
     }
     Functions: {
       has_role: {
@@ -605,6 +958,15 @@ export type Database = {
         | "on_request"
         | "starting_from"
         | "hidden"
+      product_category:
+        | "tyres"
+        | "lubricants"
+        | "filters"
+        | "maintenance_parts"
+        | "car_care"
+        | "additives"
+        | "accessories"
+        | "services"
       product_status: "draft" | "published" | "archived"
       section_type:
         | "hero"
@@ -625,6 +987,16 @@ export type Database = {
         | "contact_cta"
         | "whatsapp_cta"
         | "custom_text"
+      vehicle_body_type:
+        | "hatchback"
+        | "sedan"
+        | "suv"
+        | "crossover"
+        | "pickup"
+        | "van"
+        | "commercial"
+        | "motorcycle"
+        | "other"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -769,6 +1141,16 @@ export const Constants = {
         "starting_from",
         "hidden",
       ],
+      product_category: [
+        "tyres",
+        "lubricants",
+        "filters",
+        "maintenance_parts",
+        "car_care",
+        "additives",
+        "accessories",
+        "services",
+      ],
       product_status: ["draft", "published", "archived"],
       section_type: [
         "hero",
@@ -789,6 +1171,17 @@ export const Constants = {
         "contact_cta",
         "whatsapp_cta",
         "custom_text",
+      ],
+      vehicle_body_type: [
+        "hatchback",
+        "sedan",
+        "suv",
+        "crossover",
+        "pickup",
+        "van",
+        "commercial",
+        "motorcycle",
+        "other",
       ],
     },
   },
