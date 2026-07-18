@@ -47,6 +47,7 @@ import { Route as AuthenticatedAdminTyresIdRouteImport } from './routes/_authent
 import { Route as AuthenticatedAdminSectionsIdRouteImport } from './routes/_authenticated/admin.sections.$id'
 import { Route as AuthenticatedAdminBrandsNewRouteImport } from './routes/_authenticated/admin.brands.new'
 import { Route as AuthenticatedAdminBrandsIdRouteImport } from './routes/_authenticated/admin.brands.$id'
+import { Route as AuthenticatedAdminTyresIdCompatRouteImport } from './routes/_authenticated/admin.tyres.$id.compat'
 
 const TyresRoute = TyresRouteImport.update({
   id: '/tyres',
@@ -251,6 +252,12 @@ const AuthenticatedAdminBrandsIdRoute =
     path: '/$id',
     getParentRoute: () => AuthenticatedAdminBrandsRoute,
   } as any)
+const AuthenticatedAdminTyresIdCompatRoute =
+  AuthenticatedAdminTyresIdCompatRouteImport.update({
+    id: '/compat',
+    path: '/compat',
+    getParentRoute: () => AuthenticatedAdminTyresIdRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -285,11 +292,12 @@ export interface FileRoutesByFullPath {
   '/admin/brands/$id': typeof AuthenticatedAdminBrandsIdRoute
   '/admin/brands/new': typeof AuthenticatedAdminBrandsNewRoute
   '/admin/sections/$id': typeof AuthenticatedAdminSectionsIdRoute
-  '/admin/tyres/$id': typeof AuthenticatedAdminTyresIdRoute
+  '/admin/tyres/$id': typeof AuthenticatedAdminTyresIdRouteWithChildren
   '/admin/tyres/new': typeof AuthenticatedAdminTyresNewRoute
   '/admin/brands/': typeof AuthenticatedAdminBrandsIndexRoute
   '/admin/sections/': typeof AuthenticatedAdminSectionsIndexRoute
   '/admin/tyres/': typeof AuthenticatedAdminTyresIndexRoute
+  '/admin/tyres/$id/compat': typeof AuthenticatedAdminTyresIdCompatRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -320,11 +328,12 @@ export interface FileRoutesByTo {
   '/admin/brands/$id': typeof AuthenticatedAdminBrandsIdRoute
   '/admin/brands/new': typeof AuthenticatedAdminBrandsNewRoute
   '/admin/sections/$id': typeof AuthenticatedAdminSectionsIdRoute
-  '/admin/tyres/$id': typeof AuthenticatedAdminTyresIdRoute
+  '/admin/tyres/$id': typeof AuthenticatedAdminTyresIdRouteWithChildren
   '/admin/tyres/new': typeof AuthenticatedAdminTyresNewRoute
   '/admin/brands': typeof AuthenticatedAdminBrandsIndexRoute
   '/admin/sections': typeof AuthenticatedAdminSectionsIndexRoute
   '/admin/tyres': typeof AuthenticatedAdminTyresIndexRoute
+  '/admin/tyres/$id/compat': typeof AuthenticatedAdminTyresIdCompatRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -361,11 +370,12 @@ export interface FileRoutesById {
   '/_authenticated/admin/brands/$id': typeof AuthenticatedAdminBrandsIdRoute
   '/_authenticated/admin/brands/new': typeof AuthenticatedAdminBrandsNewRoute
   '/_authenticated/admin/sections/$id': typeof AuthenticatedAdminSectionsIdRoute
-  '/_authenticated/admin/tyres/$id': typeof AuthenticatedAdminTyresIdRoute
+  '/_authenticated/admin/tyres/$id': typeof AuthenticatedAdminTyresIdRouteWithChildren
   '/_authenticated/admin/tyres/new': typeof AuthenticatedAdminTyresNewRoute
   '/_authenticated/admin/brands/': typeof AuthenticatedAdminBrandsIndexRoute
   '/_authenticated/admin/sections/': typeof AuthenticatedAdminSectionsIndexRoute
   '/_authenticated/admin/tyres/': typeof AuthenticatedAdminTyresIndexRoute
+  '/_authenticated/admin/tyres/$id/compat': typeof AuthenticatedAdminTyresIdCompatRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -407,6 +417,7 @@ export interface FileRouteTypes {
     | '/admin/brands/'
     | '/admin/sections/'
     | '/admin/tyres/'
+    | '/admin/tyres/$id/compat'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -442,6 +453,7 @@ export interface FileRouteTypes {
     | '/admin/brands'
     | '/admin/sections'
     | '/admin/tyres'
+    | '/admin/tyres/$id/compat'
   id:
     | '__root__'
     | '/'
@@ -482,6 +494,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/brands/'
     | '/_authenticated/admin/sections/'
     | '/_authenticated/admin/tyres/'
+    | '/_authenticated/admin/tyres/$id/compat'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -773,6 +786,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminBrandsIdRouteImport
       parentRoute: typeof AuthenticatedAdminBrandsRoute
     }
+    '/_authenticated/admin/tyres/$id/compat': {
+      id: '/_authenticated/admin/tyres/$id/compat'
+      path: '/compat'
+      fullPath: '/admin/tyres/$id/compat'
+      preLoaderRoute: typeof AuthenticatedAdminTyresIdCompatRouteImport
+      parentRoute: typeof AuthenticatedAdminTyresIdRoute
+    }
   }
 }
 
@@ -810,15 +830,29 @@ const AuthenticatedAdminSectionsRouteWithChildren =
     AuthenticatedAdminSectionsRouteChildren,
   )
 
+interface AuthenticatedAdminTyresIdRouteChildren {
+  AuthenticatedAdminTyresIdCompatRoute: typeof AuthenticatedAdminTyresIdCompatRoute
+}
+
+const AuthenticatedAdminTyresIdRouteChildren: AuthenticatedAdminTyresIdRouteChildren =
+  {
+    AuthenticatedAdminTyresIdCompatRoute: AuthenticatedAdminTyresIdCompatRoute,
+  }
+
+const AuthenticatedAdminTyresIdRouteWithChildren =
+  AuthenticatedAdminTyresIdRoute._addFileChildren(
+    AuthenticatedAdminTyresIdRouteChildren,
+  )
+
 interface AuthenticatedAdminTyresRouteChildren {
-  AuthenticatedAdminTyresIdRoute: typeof AuthenticatedAdminTyresIdRoute
+  AuthenticatedAdminTyresIdRoute: typeof AuthenticatedAdminTyresIdRouteWithChildren
   AuthenticatedAdminTyresNewRoute: typeof AuthenticatedAdminTyresNewRoute
   AuthenticatedAdminTyresIndexRoute: typeof AuthenticatedAdminTyresIndexRoute
 }
 
 const AuthenticatedAdminTyresRouteChildren: AuthenticatedAdminTyresRouteChildren =
   {
-    AuthenticatedAdminTyresIdRoute: AuthenticatedAdminTyresIdRoute,
+    AuthenticatedAdminTyresIdRoute: AuthenticatedAdminTyresIdRouteWithChildren,
     AuthenticatedAdminTyresNewRoute: AuthenticatedAdminTyresNewRoute,
     AuthenticatedAdminTyresIndexRoute: AuthenticatedAdminTyresIndexRoute,
   }
