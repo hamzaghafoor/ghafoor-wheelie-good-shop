@@ -1,6 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { TyreEditor } from "@/components/admin/TyreEditor";
-
+import { TyreWizard } from "@/components/admin/TyreWizard";
 export const Route = createFileRoute("/_authenticated/admin/tyres/new")({
-  component: () => <TyreEditor />,
+  component: () => <TyreWizard />,
 });
