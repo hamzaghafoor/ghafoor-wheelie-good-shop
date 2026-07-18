@@ -122,9 +122,9 @@ function VehiclesAdmin() {
         </div>
       )}
 
-      {showMake && <MakeForm onCancel={() => setShowMake(false)} onSave={(d) => mSave.mutate(d)} busy={mSave.isPending} />}
-      {modelFor && <ModelForm makeId={modelFor} onCancel={() => setModelFor(null)} onSave={(d) => mdSave.mutate(d)} busy={mdSave.isPending} />}
-      {yearFor && <YearForm modelId={yearFor} onCancel={() => setYearFor(null)} onSave={(d) => ySave.mutate(d)} busy={ySave.isPending} />}
+      {showMake && <MakeForm onCancel={() => setShowMake(false)} onSave={(d: any) => mSave.mutate(d)} busy={mSave.isPending} />}
+      {modelFor && <ModelForm makeId={modelFor} onCancel={() => setModelFor(null)} onSave={(d: any) => mdSave.mutate(d)} busy={mdSave.isPending} />}
+      {yearFor && <YearForm modelId={yearFor} onCancel={() => setYearFor(null)} onSave={(d: any) => ySave.mutate(d)} busy={ySave.isPending} />}
     </div>
   );
 }
