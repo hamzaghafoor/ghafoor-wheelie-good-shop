@@ -21,7 +21,7 @@ const groups: Group[] = [
     { to: "/admin/seo", label: "SEO", icon: Search, soon: true },
   ]},
   { label: "Customer Activity", items: [
-    { to: "/admin/leads", label: "Leads", icon: Users, soon: true },
+    { to: "/admin/leads", label: "Leads", icon: Users },
     { to: "/admin/price-requests", label: "Price Requests", icon: DollarSign, soon: true },
     { to: "/admin/appointments", label: "Appointment Requests", icon: Calendar, soon: true },
     { to: "/admin/chatbot", label: "Chatbot Inquiries", icon: MessageSquare, soon: true },
