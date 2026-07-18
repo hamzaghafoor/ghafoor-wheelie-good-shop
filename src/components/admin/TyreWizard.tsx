@@ -49,13 +49,25 @@ export function TyreWizard() {
   function updateSize(patch: Partial<typeof size>) {
     const next = { ...size, ...patch };
     setSize(next);
-    if (next.format === "metric" && next.width && next.profile && next.rim) {
-      setNormalized(buildMetricSize(next.width, next.profile, next.rim));
-    } else if (next.format === "custom") {
+    setDupWarning(null);
+    if (next.format === "metric") {
+      if (next.width && next.profile && next.rim) {
+        setNormalized(buildMetricSize(next.width, next.profile, next.rim));
+      } else {
+        setNormalized("");
+      }
+    } else {
       const norm = normalizeMetricSize(next.custom);
       setNormalized(norm ?? next.custom.trim());
     }
   }
+
+  function switchFormat(format: "metric" | "custom") {
+    setSize({ width: "", profile: "", rim: "", custom: "", format });
+    setNormalized("");
+    setDupWarning(null);
+  }
+
 
   async function checkDup() {
     if (!modelId || !normalized) return;
