@@ -28,7 +28,7 @@ export function TyreWizard() {
   const [brandId, setBrandId] = useState<string>("");
   const [modelId, setModelId] = useState<string>("");
   const [modelName, setModelName] = useState("");
-  const [modelData, setModelData] = useState<any>({ vehicle_categories: [], driving_characteristics: [], short_desc: "", full_desc: "", warranty: "", is_featured: false, internal_notes: "" });
+  const [modelData, setModelData] = useState<any>({ vehicle_categories: [], driving_characteristics: [], short_desc: "", full_desc: "", warranty: "", is_featured: false, internal_notes: "", tyre_type: "passenger", pattern_name: "", origin_country: "", warranty_text: "" });
   const [size, setSize] = useState({ width: "", profile: "", rim: "", format: "metric" as "metric" | "custom", custom: "" });
   const [normalized, setNormalized] = useState("");
   const [dupWarning, setDupWarning] = useState<string | null>(null);
@@ -199,9 +199,24 @@ export function TyreWizard() {
                 </div>
               </div>
             )}
-            <Field label="Model name *"><input value={modelName} onChange={(e) => setModelName(e.target.value)} className={inp} /></Field>
+            <Field label="Model name *"><input value={modelName} onChange={(e) => setModelName(e.target.value)} className={inp} placeholder="e.g. Turanza T005" /></Field>
+            <div className="grid grid-cols-2 gap-3">
+              <Field label="Pattern / tread name">
+                <input value={modelData.pattern_name} onChange={(e) => setModelData({ ...modelData, pattern_name: e.target.value })} className={inp} />
+              </Field>
+              <Field label="Tyre type *">
+                <select value={modelData.tyre_type} onChange={(e) => setModelData({ ...modelData, tyre_type: e.target.value })} className={inp}>
+                  <option value="passenger">Passenger</option>
+                  <option value="suv_4x4">SUV / 4x4</option>
+                  <option value="commercial">Commercial</option>
+                  <option value="other">Other</option>
+                </select>
+              </Field>
+              <Field label="Origin / country"><input value={modelData.origin_country} onChange={(e) => setModelData({ ...modelData, origin_country: e.target.value })} className={inp} placeholder="e.g. Japan" /></Field>
+              <Field label="Warranty (short)"><input value={modelData.warranty_text} onChange={(e) => setModelData({ ...modelData, warranty_text: e.target.value })} className={inp} placeholder="e.g. 5 years" /></Field>
+            </div>
             <Field label="Short description">
-              <input value={modelData.short_desc} onChange={(e) => setModelData({ ...modelData, short_desc: e.target.value })} className={inp} />
+              <input value={modelData.short_desc} onChange={(e) => setModelData({ ...modelData, short_desc: e.target.value })} className={inp} placeholder="One sentence customers will read" />
             </Field>
             <Field label="Vehicle categories">
               <MultiPick options={VEHICLE_CATEGORIES} values={modelData.vehicle_categories} onChange={(v) => setModelData({ ...modelData, vehicle_categories: v })} />

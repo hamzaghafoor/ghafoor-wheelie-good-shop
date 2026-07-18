@@ -48,7 +48,7 @@ export const listPublishedCatalogue = createServerFn({ method: "GET" }).handler(
   const { data: brandsData } = await sb.from("brands")
     .select("id, name, logo_url").eq("is_active", true).eq("archived", false).eq("status", "published");
   const { data: models } = await sb.from("tyre_models")
-    .select("id, brand_id, name, code, short_desc, vehicle_categories, driving_characteristics, is_featured, images")
+    .select("id, brand_id, name, slug, code, short_desc, vehicle_categories, driving_characteristics, is_featured, tyre_type, images")
     .eq("status", "published").eq("archived", false);
   const { data: variants } = await sb.from("tyre_variants")
     .select("id, model_id, normalized_size, price_mode, price, previous_price, price_note, price_verified_at, availability, availability_verified_at, load_index, speed_rating, tubeless, run_flat, xl_reinforced, public_notes")
@@ -95,16 +95,25 @@ const modelSchema = z.object({
   brand_id: z.string().uuid(),
   name: z.string().min(1).max(120),
   code: z.string().max(60).nullable().optional(),
+  slug: z.string().max(160).nullable().optional(),
+  pattern_name: z.string().max(120).nullable().optional(),
+  tyre_type: z.enum(["passenger","suv_4x4","commercial","other"]).nullable().optional(),
+  origin_country: z.string().max(80).nullable().optional(),
+  warranty_text: z.string().max(400).nullable().optional(),
   short_desc: z.string().max(300).nullable().optional(),
   full_desc: z.string().max(2000).nullable().optional(),
   vehicle_categories: z.array(z.string()).default([]),
   driving_characteristics: z.array(z.string()).default([]),
+  recommended_use: z.array(z.string()).default([]),
   warranty: z.string().nullable().optional(),
   is_featured: z.boolean().default(false),
   internal_notes: z.string().nullable().optional(),
   images: z.record(z.any()).default({}),
   status: z.enum(["draft", "published", "archived", "scheduled"]).default("draft"),
 });
+
+function slugify(s: string) { return s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, ""); }
+
 
 export const getModelAdmin = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
@@ -124,6 +133,8 @@ export const upsertModel = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     await assertAdmin(context);
     const payload: any = { ...data, created_by: context.userId };
+    if (!payload.slug && payload.name) payload.slug = slugify(payload.name);
+
     if (data.id) {
       const { data: row, error } = await context.supabase.from("tyre_models").update(payload).eq("id", data.id).select().maybeSingle();
       if (error) throw new Error(error.message);

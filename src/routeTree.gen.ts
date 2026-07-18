@@ -26,6 +26,7 @@ import { Route as AccessoriesRouteImport } from './routes/accessories'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as TyresSlugRouteImport } from './routes/tyres.$slug'
 import { Route as AdminTestingLabRouteImport } from './routes/admin.testing-lab'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin.index'
@@ -33,6 +34,7 @@ import { Route as AuthenticatedAdminVehiclesRouteImport } from './routes/_authen
 import { Route as AuthenticatedAdminTyresRouteImport } from './routes/_authenticated/admin.tyres'
 import { Route as AuthenticatedAdminSectionsRouteImport } from './routes/_authenticated/admin.sections'
 import { Route as AuthenticatedAdminMediaRouteImport } from './routes/_authenticated/admin.media'
+import { Route as AuthenticatedAdminLeadsRouteImport } from './routes/_authenticated/admin.leads'
 import { Route as AuthenticatedAdminChangePasswordRouteImport } from './routes/_authenticated/admin.change-password'
 import { Route as AuthenticatedAdminBusinessRouteImport } from './routes/_authenticated/admin.business'
 import { Route as AuthenticatedAdminBrandsRouteImport } from './routes/_authenticated/admin.brands'
@@ -45,6 +47,7 @@ import { Route as AuthenticatedAdminTyresIdRouteImport } from './routes/_authent
 import { Route as AuthenticatedAdminSectionsIdRouteImport } from './routes/_authenticated/admin.sections.$id'
 import { Route as AuthenticatedAdminBrandsNewRouteImport } from './routes/_authenticated/admin.brands.new'
 import { Route as AuthenticatedAdminBrandsIdRouteImport } from './routes/_authenticated/admin.brands.$id'
+import { Route as AuthenticatedAdminTyresIdCompatRouteImport } from './routes/_authenticated/admin.tyres.$id.compat'
 
 const TyresRoute = TyresRouteImport.update({
   id: '/tyres',
@@ -130,6 +133,11 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const TyresSlugRoute = TyresSlugRouteImport.update({
+  id: '/$slug',
+  path: '/$slug',
+  getParentRoute: () => TyresRoute,
+} as any)
 const AdminTestingLabRoute = AdminTestingLabRouteImport.update({
   id: '/admin/testing-lab',
   path: '/admin/testing-lab',
@@ -165,6 +173,11 @@ const AuthenticatedAdminSectionsRoute =
 const AuthenticatedAdminMediaRoute = AuthenticatedAdminMediaRouteImport.update({
   id: '/media',
   path: '/media',
+  getParentRoute: () => AuthenticatedAdminRoute,
+} as any)
+const AuthenticatedAdminLeadsRoute = AuthenticatedAdminLeadsRouteImport.update({
+  id: '/leads',
+  path: '/leads',
   getParentRoute: () => AuthenticatedAdminRoute,
 } as any)
 const AuthenticatedAdminChangePasswordRoute =
@@ -239,6 +252,12 @@ const AuthenticatedAdminBrandsIdRoute =
     path: '/$id',
     getParentRoute: () => AuthenticatedAdminBrandsRoute,
   } as any)
+const AuthenticatedAdminTyresIdCompatRoute =
+  AuthenticatedAdminTyresIdCompatRouteImport.update({
+    id: '/compat',
+    path: '/compat',
+    getParentRoute: () => AuthenticatedAdminTyresIdRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -256,13 +275,15 @@ export interface FileRoutesByFullPath {
   '/services': typeof ServicesRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/tyre-guide': typeof TyreGuideRoute
-  '/tyres': typeof TyresRoute
+  '/tyres': typeof TyresRouteWithChildren
   '/admin': typeof AuthenticatedAdminRouteWithChildren
   '/admin/testing-lab': typeof AdminTestingLabRoute
+  '/tyres/$slug': typeof TyresSlugRoute
   '/admin/activity': typeof AuthenticatedAdminActivityRoute
   '/admin/brands': typeof AuthenticatedAdminBrandsRouteWithChildren
   '/admin/business': typeof AuthenticatedAdminBusinessRoute
   '/admin/change-password': typeof AuthenticatedAdminChangePasswordRoute
+  '/admin/leads': typeof AuthenticatedAdminLeadsRoute
   '/admin/media': typeof AuthenticatedAdminMediaRoute
   '/admin/sections': typeof AuthenticatedAdminSectionsRouteWithChildren
   '/admin/tyres': typeof AuthenticatedAdminTyresRouteWithChildren
@@ -271,11 +292,12 @@ export interface FileRoutesByFullPath {
   '/admin/brands/$id': typeof AuthenticatedAdminBrandsIdRoute
   '/admin/brands/new': typeof AuthenticatedAdminBrandsNewRoute
   '/admin/sections/$id': typeof AuthenticatedAdminSectionsIdRoute
-  '/admin/tyres/$id': typeof AuthenticatedAdminTyresIdRoute
+  '/admin/tyres/$id': typeof AuthenticatedAdminTyresIdRouteWithChildren
   '/admin/tyres/new': typeof AuthenticatedAdminTyresNewRoute
   '/admin/brands/': typeof AuthenticatedAdminBrandsIndexRoute
   '/admin/sections/': typeof AuthenticatedAdminSectionsIndexRoute
   '/admin/tyres/': typeof AuthenticatedAdminTyresIndexRoute
+  '/admin/tyres/$id/compat': typeof AuthenticatedAdminTyresIdCompatRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -293,22 +315,25 @@ export interface FileRoutesByTo {
   '/services': typeof ServicesRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/tyre-guide': typeof TyreGuideRoute
-  '/tyres': typeof TyresRoute
+  '/tyres': typeof TyresRouteWithChildren
   '/admin/testing-lab': typeof AdminTestingLabRoute
+  '/tyres/$slug': typeof TyresSlugRoute
   '/admin/activity': typeof AuthenticatedAdminActivityRoute
   '/admin/business': typeof AuthenticatedAdminBusinessRoute
   '/admin/change-password': typeof AuthenticatedAdminChangePasswordRoute
+  '/admin/leads': typeof AuthenticatedAdminLeadsRoute
   '/admin/media': typeof AuthenticatedAdminMediaRoute
   '/admin/vehicles': typeof AuthenticatedAdminVehiclesRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
   '/admin/brands/$id': typeof AuthenticatedAdminBrandsIdRoute
   '/admin/brands/new': typeof AuthenticatedAdminBrandsNewRoute
   '/admin/sections/$id': typeof AuthenticatedAdminSectionsIdRoute
-  '/admin/tyres/$id': typeof AuthenticatedAdminTyresIdRoute
+  '/admin/tyres/$id': typeof AuthenticatedAdminTyresIdRouteWithChildren
   '/admin/tyres/new': typeof AuthenticatedAdminTyresNewRoute
   '/admin/brands': typeof AuthenticatedAdminBrandsIndexRoute
   '/admin/sections': typeof AuthenticatedAdminSectionsIndexRoute
   '/admin/tyres': typeof AuthenticatedAdminTyresIndexRoute
+  '/admin/tyres/$id/compat': typeof AuthenticatedAdminTyresIdCompatRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -328,13 +353,15 @@ export interface FileRoutesById {
   '/services': typeof ServicesRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/tyre-guide': typeof TyreGuideRoute
-  '/tyres': typeof TyresRoute
+  '/tyres': typeof TyresRouteWithChildren
   '/_authenticated/admin': typeof AuthenticatedAdminRouteWithChildren
   '/admin/testing-lab': typeof AdminTestingLabRoute
+  '/tyres/$slug': typeof TyresSlugRoute
   '/_authenticated/admin/activity': typeof AuthenticatedAdminActivityRoute
   '/_authenticated/admin/brands': typeof AuthenticatedAdminBrandsRouteWithChildren
   '/_authenticated/admin/business': typeof AuthenticatedAdminBusinessRoute
   '/_authenticated/admin/change-password': typeof AuthenticatedAdminChangePasswordRoute
+  '/_authenticated/admin/leads': typeof AuthenticatedAdminLeadsRoute
   '/_authenticated/admin/media': typeof AuthenticatedAdminMediaRoute
   '/_authenticated/admin/sections': typeof AuthenticatedAdminSectionsRouteWithChildren
   '/_authenticated/admin/tyres': typeof AuthenticatedAdminTyresRouteWithChildren
@@ -343,11 +370,12 @@ export interface FileRoutesById {
   '/_authenticated/admin/brands/$id': typeof AuthenticatedAdminBrandsIdRoute
   '/_authenticated/admin/brands/new': typeof AuthenticatedAdminBrandsNewRoute
   '/_authenticated/admin/sections/$id': typeof AuthenticatedAdminSectionsIdRoute
-  '/_authenticated/admin/tyres/$id': typeof AuthenticatedAdminTyresIdRoute
+  '/_authenticated/admin/tyres/$id': typeof AuthenticatedAdminTyresIdRouteWithChildren
   '/_authenticated/admin/tyres/new': typeof AuthenticatedAdminTyresNewRoute
   '/_authenticated/admin/brands/': typeof AuthenticatedAdminBrandsIndexRoute
   '/_authenticated/admin/sections/': typeof AuthenticatedAdminSectionsIndexRoute
   '/_authenticated/admin/tyres/': typeof AuthenticatedAdminTyresIndexRoute
+  '/_authenticated/admin/tyres/$id/compat': typeof AuthenticatedAdminTyresIdCompatRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -370,10 +398,12 @@ export interface FileRouteTypes {
     | '/tyres'
     | '/admin'
     | '/admin/testing-lab'
+    | '/tyres/$slug'
     | '/admin/activity'
     | '/admin/brands'
     | '/admin/business'
     | '/admin/change-password'
+    | '/admin/leads'
     | '/admin/media'
     | '/admin/sections'
     | '/admin/tyres'
@@ -387,6 +417,7 @@ export interface FileRouteTypes {
     | '/admin/brands/'
     | '/admin/sections/'
     | '/admin/tyres/'
+    | '/admin/tyres/$id/compat'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -406,9 +437,11 @@ export interface FileRouteTypes {
     | '/tyre-guide'
     | '/tyres'
     | '/admin/testing-lab'
+    | '/tyres/$slug'
     | '/admin/activity'
     | '/admin/business'
     | '/admin/change-password'
+    | '/admin/leads'
     | '/admin/media'
     | '/admin/vehicles'
     | '/admin'
@@ -420,6 +453,7 @@ export interface FileRouteTypes {
     | '/admin/brands'
     | '/admin/sections'
     | '/admin/tyres'
+    | '/admin/tyres/$id/compat'
   id:
     | '__root__'
     | '/'
@@ -441,10 +475,12 @@ export interface FileRouteTypes {
     | '/tyres'
     | '/_authenticated/admin'
     | '/admin/testing-lab'
+    | '/tyres/$slug'
     | '/_authenticated/admin/activity'
     | '/_authenticated/admin/brands'
     | '/_authenticated/admin/business'
     | '/_authenticated/admin/change-password'
+    | '/_authenticated/admin/leads'
     | '/_authenticated/admin/media'
     | '/_authenticated/admin/sections'
     | '/_authenticated/admin/tyres'
@@ -458,6 +494,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/brands/'
     | '/_authenticated/admin/sections/'
     | '/_authenticated/admin/tyres/'
+    | '/_authenticated/admin/tyres/$id/compat'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -477,7 +514,7 @@ export interface RootRouteChildren {
   ServicesRoute: typeof ServicesRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   TyreGuideRoute: typeof TyreGuideRoute
-  TyresRoute: typeof TyresRoute
+  TyresRoute: typeof TyresRouteWithChildren
   AdminTestingLabRoute: typeof AdminTestingLabRoute
 }
 
@@ -602,6 +639,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/tyres/$slug': {
+      id: '/tyres/$slug'
+      path: '/$slug'
+      fullPath: '/tyres/$slug'
+      preLoaderRoute: typeof TyresSlugRouteImport
+      parentRoute: typeof TyresRoute
+    }
     '/admin/testing-lab': {
       id: '/admin/testing-lab'
       path: '/admin/testing-lab'
@@ -649,6 +693,13 @@ declare module '@tanstack/react-router' {
       path: '/media'
       fullPath: '/admin/media'
       preLoaderRoute: typeof AuthenticatedAdminMediaRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/leads': {
+      id: '/_authenticated/admin/leads'
+      path: '/leads'
+      fullPath: '/admin/leads'
+      preLoaderRoute: typeof AuthenticatedAdminLeadsRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
     '/_authenticated/admin/change-password': {
@@ -735,6 +786,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminBrandsIdRouteImport
       parentRoute: typeof AuthenticatedAdminBrandsRoute
     }
+    '/_authenticated/admin/tyres/$id/compat': {
+      id: '/_authenticated/admin/tyres/$id/compat'
+      path: '/compat'
+      fullPath: '/admin/tyres/$id/compat'
+      preLoaderRoute: typeof AuthenticatedAdminTyresIdCompatRouteImport
+      parentRoute: typeof AuthenticatedAdminTyresIdRoute
+    }
   }
 }
 
@@ -772,15 +830,29 @@ const AuthenticatedAdminSectionsRouteWithChildren =
     AuthenticatedAdminSectionsRouteChildren,
   )
 
+interface AuthenticatedAdminTyresIdRouteChildren {
+  AuthenticatedAdminTyresIdCompatRoute: typeof AuthenticatedAdminTyresIdCompatRoute
+}
+
+const AuthenticatedAdminTyresIdRouteChildren: AuthenticatedAdminTyresIdRouteChildren =
+  {
+    AuthenticatedAdminTyresIdCompatRoute: AuthenticatedAdminTyresIdCompatRoute,
+  }
+
+const AuthenticatedAdminTyresIdRouteWithChildren =
+  AuthenticatedAdminTyresIdRoute._addFileChildren(
+    AuthenticatedAdminTyresIdRouteChildren,
+  )
+
 interface AuthenticatedAdminTyresRouteChildren {
-  AuthenticatedAdminTyresIdRoute: typeof AuthenticatedAdminTyresIdRoute
+  AuthenticatedAdminTyresIdRoute: typeof AuthenticatedAdminTyresIdRouteWithChildren
   AuthenticatedAdminTyresNewRoute: typeof AuthenticatedAdminTyresNewRoute
   AuthenticatedAdminTyresIndexRoute: typeof AuthenticatedAdminTyresIndexRoute
 }
 
 const AuthenticatedAdminTyresRouteChildren: AuthenticatedAdminTyresRouteChildren =
   {
-    AuthenticatedAdminTyresIdRoute: AuthenticatedAdminTyresIdRoute,
+    AuthenticatedAdminTyresIdRoute: AuthenticatedAdminTyresIdRouteWithChildren,
     AuthenticatedAdminTyresNewRoute: AuthenticatedAdminTyresNewRoute,
     AuthenticatedAdminTyresIndexRoute: AuthenticatedAdminTyresIndexRoute,
   }
@@ -795,6 +867,7 @@ interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminBrandsRoute: typeof AuthenticatedAdminBrandsRouteWithChildren
   AuthenticatedAdminBusinessRoute: typeof AuthenticatedAdminBusinessRoute
   AuthenticatedAdminChangePasswordRoute: typeof AuthenticatedAdminChangePasswordRoute
+  AuthenticatedAdminLeadsRoute: typeof AuthenticatedAdminLeadsRoute
   AuthenticatedAdminMediaRoute: typeof AuthenticatedAdminMediaRoute
   AuthenticatedAdminSectionsRoute: typeof AuthenticatedAdminSectionsRouteWithChildren
   AuthenticatedAdminTyresRoute: typeof AuthenticatedAdminTyresRouteWithChildren
@@ -807,6 +880,7 @@ const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
   AuthenticatedAdminBrandsRoute: AuthenticatedAdminBrandsRouteWithChildren,
   AuthenticatedAdminBusinessRoute: AuthenticatedAdminBusinessRoute,
   AuthenticatedAdminChangePasswordRoute: AuthenticatedAdminChangePasswordRoute,
+  AuthenticatedAdminLeadsRoute: AuthenticatedAdminLeadsRoute,
   AuthenticatedAdminMediaRoute: AuthenticatedAdminMediaRoute,
   AuthenticatedAdminSectionsRoute: AuthenticatedAdminSectionsRouteWithChildren,
   AuthenticatedAdminTyresRoute: AuthenticatedAdminTyresRouteWithChildren,
@@ -828,6 +902,16 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
 const AuthenticatedRouteRouteWithChildren =
   AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
 
+interface TyresRouteChildren {
+  TyresSlugRoute: typeof TyresSlugRoute
+}
+
+const TyresRouteChildren: TyresRouteChildren = {
+  TyresSlugRoute: TyresSlugRoute,
+}
+
+const TyresRouteWithChildren = TyresRoute._addFileChildren(TyresRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
@@ -845,7 +929,7 @@ const rootRouteChildren: RootRouteChildren = {
   ServicesRoute: ServicesRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   TyreGuideRoute: TyreGuideRoute,
-  TyresRoute: TyresRoute,
+  TyresRoute: TyresRouteWithChildren,
   AdminTestingLabRoute: AdminTestingLabRoute,
 }
 export const routeTree = rootRouteImport
