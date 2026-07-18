@@ -9,6 +9,7 @@ const groups: Group[] = [
   { label: "Catalogue", items: [
     { to: "/admin/tyres", label: "Tyres", icon: Package },
     { to: "/admin/brands", label: "Brands", icon: Tag },
+    { to: "/admin/vehicles", label: "Vehicles", icon: Navigation },
     { to: "/admin/media", label: "Media Library", icon: Image },
   ]},
   { label: "Website", items: [

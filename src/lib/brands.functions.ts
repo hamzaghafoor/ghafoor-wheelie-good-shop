@@ -43,7 +43,7 @@ async function signLogos(rows: any[]) {
 export const listBrandsPublic = createServerFn({ method: "GET" }).handler(async () => {
   const sb = publicClient();
   const { data, error } = await sb.from("brands")
-    .select("id, name, slug, logo_url, country, description, is_featured, display_order")
+    .select("id, name, slug, logo_url, country, description, is_featured, display_order, categories")
     .eq("is_active", true).eq("archived", false).eq("status", "published")
     .order("display_order", { ascending: true }).order("name");
   if (error) throw new Error(error.message);
@@ -72,6 +72,7 @@ export const getBrandAdmin = createServerFn({ method: "GET" })
     return signed;
   });
 
+const CATEGORY_ENUM = ["tyres","lubricants","filters","maintenance_parts","car_care","additives","accessories","services"] as const;
 const brandSchema = z.object({
   id: z.string().uuid().optional(),
   name: z.string().min(1).max(80),
@@ -82,6 +83,7 @@ const brandSchema = z.object({
   is_featured: z.boolean().default(false),
   is_active: z.boolean().default(true),
   display_order: z.number().int().default(0),
+  categories: z.array(z.enum(CATEGORY_ENUM)).default([]),
 });
 
 export const upsertBrand = createServerFn({ method: "POST" })
