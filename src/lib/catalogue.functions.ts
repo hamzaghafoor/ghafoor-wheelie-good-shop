@@ -133,6 +133,8 @@ export const upsertModel = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     await assertAdmin(context);
     const payload: any = { ...data, created_by: context.userId };
+    if (!payload.slug && payload.name) payload.slug = slugify(payload.name);
+
     if (data.id) {
       const { data: row, error } = await context.supabase.from("tyre_models").update(payload).eq("id", data.id).select().maybeSingle();
       if (error) throw new Error(error.message);
