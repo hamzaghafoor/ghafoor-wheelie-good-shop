@@ -1,0 +1,1 @@
+ALTER VIEW public.catalogue_search SET (security_invoker = on);

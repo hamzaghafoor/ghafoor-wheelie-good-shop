@@ -9,7 +9,19 @@ type Initial = {
   id?: string; name?: string; logo_url?: string | null; logo_signed_url?: string | null;
   country?: string | null; description?: string | null;
   is_featured?: boolean; is_active?: boolean; display_order?: number;
+  categories?: string[];
 };
+
+const CATEGORY_OPTIONS = [
+  { value: "tyres", label: "Tyres" },
+  { value: "lubricants", label: "Lubricants" },
+  { value: "filters", label: "Filters" },
+  { value: "maintenance_parts", label: "Maintenance Parts" },
+  { value: "car_care", label: "Car Care" },
+  { value: "additives", label: "Additives" },
+  { value: "accessories", label: "Accessories" },
+  { value: "services", label: "Services" },
+];
 
 export function BrandEditor({ initial }: { initial?: Initial }) {
   const navigate = useNavigate();
@@ -22,10 +34,13 @@ export function BrandEditor({ initial }: { initial?: Initial }) {
   const [isFeatured, setIsFeatured] = useState(initial?.is_featured ?? false);
   const [isActive, setIsActive] = useState(initial?.is_active ?? true);
   const [order, setOrder] = useState(initial?.display_order ?? 0);
+  const [categories, setCategories] = useState<string[]>(initial?.categories ?? []);
   const [logoPath, setLogoPath] = useState<string | null>(initial?.logo_url ?? null);
   const [preview, setPreview] = useState<string | null>(initial?.logo_signed_url ?? null);
   const [uploading, setUploading] = useState(false);
   const [msg, setMsg] = useState<{ ok?: string; err?: string }>({});
+
+  const toggleCat = (v: string) => setCategories((cs) => cs.includes(v) ? cs.filter((c) => c !== v) : [...cs, v]);
 
   async function onUpload(file: File) {
     setUploading(true); setMsg({});
@@ -38,8 +53,8 @@ export function BrandEditor({ initial }: { initial?: Initial }) {
   }
 
   const save = useMutation({
-    mutationFn: () => upsert({ data: { id: initial?.id, name: name.trim(), country: country || null, description: description || null, is_featured: isFeatured, is_active: isActive, display_order: Number(order) || 0, logo_url: logoPath } }),
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ["adm-brands"] }); setMsg({ ok: "Saved." }); setTimeout(() => navigate({ to: "/admin/brands" }), 500); },
+    mutationFn: () => upsert({ data: { id: initial?.id, name: name.trim(), country: country || null, description: description || null, is_featured: isFeatured, is_active: isActive, display_order: Number(order) || 0, logo_url: logoPath, categories: categories as any } }),
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ["adm-brands"] }); qc.invalidateQueries({ queryKey: ["public-brands"] }); setMsg({ ok: "Saved." }); setTimeout(() => navigate({ to: "/admin/brands" }), 500); },
     onError: (e: any) => setMsg({ err: e.message }),
   });
 
@@ -52,6 +67,19 @@ export function BrandEditor({ initial }: { initial?: Initial }) {
         <Field label="Short description (optional)">
           <textarea rows={3} value={description ?? ""} onChange={(e) => setDescription(e.target.value)} className={inp} />
         </Field>
+
+        <Field label="Categories this brand supplies">
+          <div className="mt-1 flex flex-wrap gap-2">
+            {CATEGORY_OPTIONS.map((c) => (
+              <button type="button" key={c.value} onClick={() => toggleCat(c.value)}
+                className={`rounded-full border px-3 py-1 text-xs font-semibold ${categories.includes(c.value) ? "border-primary bg-primary/10 text-primary" : "border-border bg-white text-foreground/70"}`}>
+                {c.label}
+              </button>
+            ))}
+          </div>
+          <span className="mt-1 block text-xs text-muted-foreground">Determines which category pages show this brand.</span>
+        </Field>
+
         <Field label="Logo">
           <div className="flex items-center gap-4">
             {preview ? <img src={preview} className="h-16 w-16 rounded object-contain bg-muted" /> : <div className="grid h-16 w-16 place-items-center rounded bg-muted text-[10px] text-muted-foreground">No logo</div>}

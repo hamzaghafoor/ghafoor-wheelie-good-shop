@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { Phone, Menu, X, ChevronDown } from "lucide-react";
+import { Phone, Menu, X, Search } from "lucide-react";
 import { useState } from "react";
 import logo from "@/assets/logo.png";
 import { business, telLink, waLink } from "@/lib/business";
@@ -8,10 +8,18 @@ const nav: { to: string; label: string; exact?: boolean }[] = [
   { to: "/", label: "Home", exact: true },
   { to: "/tyres", label: "Tyres" },
   { to: "/lubricants", label: "Lubricants" },
+  { to: "/filters", label: "Filters" },
+  { to: "/accessories", label: "Accessories" },
   { to: "/services", label: "Services" },
+  { to: "/contact", label: "Contact" },
+];
+
+const moreNav = [
+  { to: "/maintenance-parts", label: "Maintenance Parts" },
+  { to: "/car-care", label: "Car Care" },
+  { to: "/additives", label: "Additives" },
   { to: "/tyre-guide", label: "Tyre Guide" },
   { to: "/about", label: "About" },
-  { to: "/contact", label: "Contact" },
 ];
 
 export function Header() {
@@ -39,7 +47,7 @@ export function Header() {
             </span>
           </Link>
 
-          <nav className="hidden items-center gap-7 lg:flex">
+          <nav className="hidden items-center gap-5 lg:flex">
             {nav.map((n) => (
               <Link
                 key={n.to}
@@ -49,12 +57,20 @@ export function Header() {
                 activeOptions={{ exact: n.exact }}
               >
                 {n.label}
-                {n.label === "Tyres" && <ChevronDown className="ml-0.5 inline h-3.5 w-3.5" />}
               </Link>
             ))}
+            <div className="group relative">
+              <button className="text-sm font-medium text-foreground/70 hover:text-ink">More</button>
+              <div className="absolute right-0 top-full hidden min-w-[200px] rounded-lg border border-border bg-white p-1 shadow-lg group-hover:block">
+                {moreNav.map((n) => (
+                  <Link key={n.to} to={n.to} className="block rounded px-3 py-2 text-sm text-foreground/70 hover:bg-muted hover:text-ink">{n.label}</Link>
+                ))}
+              </div>
+            </div>
           </nav>
 
           <div className="flex items-center gap-2">
+            <Link to="/search" className="hidden h-10 w-10 place-items-center rounded-md border border-border text-foreground/70 hover:text-ink md:grid" aria-label="Search"><Search className="h-4 w-4" /></Link>
             <a href={telLink()} className="hidden items-center gap-2 text-sm font-semibold text-ink hover:text-primary md:inline-flex">
               <Phone className="h-4 w-4" /> Call Us
             </a>
@@ -79,7 +95,7 @@ export function Header() {
         {open && (
           <div className="border-t border-border bg-surface lg:hidden">
             <div className="container-x flex flex-col py-2">
-              {nav.map((n) => (
+              {[...nav, ...moreNav].map((n: any) => (
                 <Link
                   key={n.to}
                   to={n.to}
@@ -91,6 +107,7 @@ export function Header() {
                   {n.label}
                 </Link>
               ))}
+              <Link to="/search" onClick={() => setOpen(false)} className="border-b border-border/60 py-3 text-sm font-medium text-foreground/80">Search</Link>
               <div className="flex gap-2 py-3">
                 <a href={telLink()} className="btn-outline flex-1 text-sm">Call</a>
                 <a href={waLink("Assalam-o-Alaikum, I need help with tyres for my car.")} target="_blank" rel="noreferrer" className="btn-primary flex-1 text-sm">WhatsApp</a>
