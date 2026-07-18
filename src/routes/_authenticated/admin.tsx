@@ -1,10 +1,11 @@
-import { createFileRoute, Outlet, Link, redirect, useNavigate, useLocation } from "@tanstack/react-router";
+import { createFileRoute, Outlet, Link, useNavigate, useLocation } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { LogOut } from "lucide-react";
 import { getMyAuthStatus } from "@/lib/auth.functions";
 import { supabase } from "@/integrations/supabase/client";
 import { useEffect } from "react";
+import { AdminSidebar } from "@/components/admin/AdminSidebar";
 
 export const Route = createFileRoute("/_authenticated/admin")({
   head: () => ({
@@ -28,10 +29,7 @@ function AdminLayout() {
 
   useEffect(() => {
     if (!data) return;
-    if (!data.isAdmin) {
-      navigate({ to: "/" });
-      return;
-    }
+    if (!data.isAdmin) { navigate({ to: "/" }); return; }
     if (data.profile?.must_change_password && !location.pathname.endsWith("/change-password")) {
       navigate({ to: "/admin/change-password" as any });
     }
@@ -49,24 +47,22 @@ function AdminLayout() {
   return (
     <div className="min-h-screen bg-surface">
       <div className="border-b border-border bg-white">
-        <div className="container-x flex items-center justify-between py-3">
-          <div className="flex items-center gap-6">
-            <Link to="/admin" className="font-display text-lg text-ink">GMTL Admin</Link>
-            <nav className="hidden gap-4 text-sm md:flex">
-              <Link to="/admin" activeOptions={{ exact: true }} className="text-muted-foreground hover:text-ink" activeProps={{ className: "text-ink font-semibold" }}>Dashboard</Link>
-              <Link to="/admin/tyres" className="text-muted-foreground hover:text-ink" activeProps={{ className: "text-ink font-semibold" }}>Tyres</Link>
-            </nav>
-          </div>
+        <div className="flex items-center justify-between px-4 py-3">
+          <Link to="/admin" className="font-display text-lg text-ink">GMTL Admin</Link>
           <div className="flex items-center gap-3 text-xs text-muted-foreground">
-            <span>{data.profile?.email}</span>
+            <span className="hidden sm:inline">{data.profile?.email}</span>
+            <Link to="/" className="hover:text-primary">View site</Link>
             <button onClick={signOut} className="inline-flex items-center gap-1 rounded-md border border-border px-2 py-1 hover:border-primary hover:text-primary">
               <LogOut className="h-3.5 w-3.5" /> Sign out
             </button>
           </div>
         </div>
       </div>
-      <div className="container-x py-6">
-        <Outlet />
+      <div className="flex">
+        <AdminSidebar />
+        <main className="flex-1 p-4 md:p-6 max-w-full overflow-x-auto">
+          <Outlet />
+        </main>
       </div>
     </div>
   );
