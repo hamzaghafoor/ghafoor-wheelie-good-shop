@@ -41,13 +41,24 @@ function DetailPage() {
   const current = variants.find(v => v.id === variantId) ?? variants[0];
 
   const compatVehicles = useMemo(() => {
-    if (!data?.compat || !veh) return [];
+    if (!veh) return [] as { make?: string; model?: string }[];
     const makes = new Map(veh.makes.map(m => [m.id, m.name]));
     const models = new Map(veh.models.map(m => [m.id, m.name]));
-    return data.compat.map((c: any) => ({
-      make: makes.get(c.make_id), model: models.get(c.model_id),
-    })).filter((x: any) => x.make || x.model);
-  }, [data, veh]);
+    // Prefer variant-level compat for the currently selected variant.
+    const vc = (data?.variantCompat ?? []).filter((c: any) => c.variant_id === current?.id);
+    if (vc.length) {
+      const seen = new Set<string>();
+      return vc.map((c: any) => ({ make: makes.get(c.make_id), model: models.get(c.model_id) }))
+        .filter((x: any) => (x.make || x.model) && !seen.has(`${x.make}|${x.model}`) && seen.add(`${x.make}|${x.model}`));
+    }
+    // Fallback: model-level compat is guidance only.
+    return (data?.compat ?? []).map((c: any) => ({ model: models.get(c.vehicle_model_id) })).filter((x: any) => x.model);
+  }, [data, veh, current?.id]);
+  const compatIsVariantLevel = useMemo(
+    () => (data?.variantCompat ?? []).some((c: any) => c.variant_id === current?.id),
+    [data, current?.id],
+  );
+
 
   const mainImg = (model?.images?.main?.url) || (model?.images?.gallery?.url);
   const gallery = model ? Object.values(model.images ?? {}).filter((x: any) => x?.url) : [];
@@ -138,13 +149,16 @@ function DetailPage() {
 
             {compatVehicles.length > 0 && (
               <div className="mt-6">
-                <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Commonly fitted on</div>
+                <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                  {compatIsVariantLevel ? `This size (${current?.normalized_size}) fits` : "Vehicles this model is commonly fitted on"}
+                </div>
                 <div className="mt-2 flex flex-wrap gap-1.5 text-xs">
                   {compatVehicles.map((v: any, i: number) => <span key={i} className="rounded-full border border-border bg-surface px-2.5 py-1">{[v.make, v.model].filter(Boolean).join(" ")}</span>)}
                 </div>
                 <p className="mt-2 text-[11px] text-muted-foreground italic">Compatibility is guidance only — please confirm the correct size before fitting.</p>
               </div>
             )}
+
           </div>
         </div>
 

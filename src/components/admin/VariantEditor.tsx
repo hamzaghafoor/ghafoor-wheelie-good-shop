@@ -4,6 +4,8 @@ import { useServerFn } from "@tanstack/react-start";
 import { useNavigate } from "@tanstack/react-router";
 import { upsertVariant, upsertModel } from "@/lib/catalogue.functions";
 import { AVAILABILITY_STATUSES, PRICE_MODES } from "@/lib/tyre-sizes";
+import { VariantCompatManager } from "./VariantCompatManager";
+
 
 export function VariantEditor({ variant, model, brand }: { variant: any; model: any; brand: any }) {
   const navigate = useNavigate();
@@ -58,9 +60,12 @@ export function VariantEditor({ variant, model, brand }: { variant: any; model: 
           <button onClick={() => navigate({ to: "/admin/tyres" })} className="ml-auto text-xs text-muted-foreground hover:text-ink">Cancel</button>
         </div>
       </div>
+
+      {v.id && <VariantCompatManager variantId={v.id} variantSize={v.normalized_size} />}
     </div>
   );
 }
+
 
 const inp = "h-10 w-full rounded-md border border-border bg-white px-3 text-sm";
 function Field({ label, children }: { label: string; children: React.ReactNode }) {

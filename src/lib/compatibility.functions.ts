@@ -70,24 +70,73 @@ export const removeCompat = createServerFn({ method: "POST" })
     return { ok: true as const };
   });
 
-export const findModelsByVehicle = createServerFn({ method: "POST" })
+// ============= VARIANT-LEVEL COMPAT =============
+export const listVariantCompat = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: { variant_id: string }) => z.object({ variant_id: z.string().uuid() }).parse(d))
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context);
+    const { data: rows, error } = await (context.supabase as any)
+      .from("tyre_variant_vehicle_compat")
+      .select("id, make_id, model_id, year_id, note")
+      .eq("variant_id", data.variant_id);
+    if (error) throw new Error(error.message);
+    return rows ?? [];
+  });
+
+export const addVariantCompat = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) => z.object({
+    variant_id: z.string().uuid(),
+    make_id: z.string().uuid(),
+    vehicle_model_ids: z.array(z.string().uuid()).min(1),
+    year_id: z.string().uuid().nullable().optional(),
+    note: z.string().max(200).nullable().optional(),
+  }).parse(d))
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context);
+    const rows = data.vehicle_model_ids.map((mid) => ({
+      variant_id: data.variant_id,
+      make_id: data.make_id,
+      model_id: mid,
+      year_id: data.year_id ?? null,
+      note: data.note ?? null,
+    }));
+    const { error } = await (context.supabase as any).from("tyre_variant_vehicle_compat").insert(rows);
+    if (error) throw new Error(error.message);
+    return { ok: true as const, added: rows.length };
+  });
+
+// Public: find matching VARIANT ids for a vehicle (variant-level compat only).
+export const findVariantsByVehicle = createServerFn({ method: "POST" })
   .inputValidator((d: unknown) => z.object({
     vehicle_model_id: z.string().uuid().optional(),
+    make_id: z.string().uuid().optional(),
     year: z.number().int().optional(),
   }).parse(d))
   .handler(async ({ data }) => {
     const sb = publicClient();
-    let q = (sb as any).from("tyre_model_vehicle_compat").select("tyre_model_id, year_from, year_to");
-    if (data.vehicle_model_id) q = q.eq("vehicle_model_id", data.vehicle_model_id);
+    let q: any = (sb as any).from("tyre_variant_vehicle_compat").select("variant_id, model_id, make_id, year_id");
+    if (data.vehicle_model_id) q = q.eq("model_id", data.vehicle_model_id);
+    else if (data.make_id) q = q.eq("make_id", data.make_id);
     const { data: rows, error } = await q;
     if (error) throw new Error(error.message);
-    let filtered = rows ?? [];
-    if (data.year != null) {
-      filtered = filtered.filter((r: any) =>
-        (r.year_from == null || data.year! >= r.year_from) && (r.year_to == null || data.year! <= r.year_to)
-      );
+    let matched = rows ?? [];
+    if (data.year != null && matched.length) {
+      const yearIds = Array.from(new Set(matched.map((r: any) => r.year_id).filter(Boolean)));
+      let yearsMap = new Map<string, { year_from: number; year_to: number | null }>();
+      if (yearIds.length) {
+        const { data: yrows } = await (sb as any).from("vehicle_years").select("id, year_from, year_to").in("id", yearIds);
+        yearsMap = new Map((yrows ?? []).map((y: any) => [y.id, y]));
+      }
+      matched = matched.filter((r: any) => {
+        if (!r.year_id) return true;
+        const y = yearsMap.get(r.year_id);
+        if (!y) return false;
+        return data.year! >= y.year_from && (y.year_to == null || data.year! <= y.year_to);
+      });
     }
-    return Array.from(new Set(filtered.map((r: any) => r.tyre_model_id))) as string[];
+    return Array.from(new Set(matched.map((r: any) => r.variant_id))) as string[];
   });
 
 export const getTyreModelBySlug = createServerFn({ method: "GET" })
@@ -99,11 +148,18 @@ export const getTyreModelBySlug = createServerFn({ method: "GET" })
       .eq("slug", data.slug).eq("status", "published").eq("archived", false).maybeSingle();
     if (error) throw new Error(error.message);
     if (!model) throw new Error("Not found");
-    const [{ data: brand }, { data: variants }, { data: compat }] = await Promise.all([
+    const [{ data: brand }, { data: variants }, { data: modelCompat }] = await Promise.all([
       sb.from("brands").select("id, name, logo_url, country").eq("id", (model as any).brand_id).maybeSingle(),
       sb.from("tyre_variants").select("*").eq("model_id", (model as any).id).eq("status","published").eq("archived", false),
       (sb as any).from("tyre_model_vehicle_compat").select("vehicle_model_id, year_from, year_to").eq("tyre_model_id", (model as any).id),
     ]);
+    const variantIds = (variants ?? []).map((v: any) => v.id);
+    let variantCompat: any[] = [];
+    if (variantIds.length) {
+      const { data: vc } = await (sb as any).from("tyre_variant_vehicle_compat")
+        .select("variant_id, make_id, model_id, year_id").in("variant_id", variantIds);
+      variantCompat = vc ?? [];
+    }
     const signedImages: any = {};
     for (const [k, v] of Object.entries(((model as any).images ?? {}) as Record<string, any>)) {
       const path = typeof v === "string" ? v : v?.path;
@@ -120,6 +176,8 @@ export const getTyreModelBySlug = createServerFn({ method: "GET" })
       model: { ...(model as any), images: signedImages },
       brand: brand ? { ...(brand as any), logo_signed_url: brandLogo } : null,
       variants: variants ?? [],
-      compat: compat ?? [],
+      compat: modelCompat ?? [],
+      variantCompat,
     };
   });
+
