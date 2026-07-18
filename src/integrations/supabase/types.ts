@@ -242,6 +242,119 @@ export type Database = {
         }
         Relationships: []
       }
+      import_batch_rows: {
+        Row: {
+          action: Database["public"]["Enums"]["import_row_action"] | null
+          after_snapshot: Json | null
+          batch_id: string
+          before_snapshot: Json | null
+          created_at: string
+          error_message: string | null
+          id: string
+          row_number: number
+          source_payload: Json | null
+          source_payload_purged_at: string | null
+          status: Database["public"]["Enums"]["import_row_status"]
+          target_id: string | null
+          target_table: string | null
+          target_updated_at_after_import: string | null
+          updated_at: string
+        }
+        Insert: {
+          action?: Database["public"]["Enums"]["import_row_action"] | null
+          after_snapshot?: Json | null
+          batch_id: string
+          before_snapshot?: Json | null
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          row_number: number
+          source_payload?: Json | null
+          source_payload_purged_at?: string | null
+          status?: Database["public"]["Enums"]["import_row_status"]
+          target_id?: string | null
+          target_table?: string | null
+          target_updated_at_after_import?: string | null
+          updated_at?: string
+        }
+        Update: {
+          action?: Database["public"]["Enums"]["import_row_action"] | null
+          after_snapshot?: Json | null
+          batch_id?: string
+          before_snapshot?: Json | null
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          row_number?: number
+          source_payload?: Json | null
+          source_payload_purged_at?: string | null
+          status?: Database["public"]["Enums"]["import_row_status"]
+          target_id?: string | null
+          target_table?: string | null
+          target_updated_at_after_import?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "import_batch_rows_batch_id_fkey"
+            columns: ["batch_id"]
+            isOneToOne: false
+            referencedRelation: "import_batches"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      import_batches: {
+        Row: {
+          allow_partial: boolean
+          committed_at: string | null
+          conflict_strategy: Database["public"]["Enums"]["import_conflict_strategy"]
+          created_at: string
+          error_summary: string | null
+          filename: string | null
+          id: string
+          kind: Database["public"]["Enums"]["import_kind"]
+          rollback_expires_at: string | null
+          rolled_back_at: string | null
+          status: Database["public"]["Enums"]["import_batch_status"]
+          totals: Json
+          updated_at: string
+          uploader: string | null
+        }
+        Insert: {
+          allow_partial?: boolean
+          committed_at?: string | null
+          conflict_strategy?: Database["public"]["Enums"]["import_conflict_strategy"]
+          created_at?: string
+          error_summary?: string | null
+          filename?: string | null
+          id?: string
+          kind: Database["public"]["Enums"]["import_kind"]
+          rollback_expires_at?: string | null
+          rolled_back_at?: string | null
+          status?: Database["public"]["Enums"]["import_batch_status"]
+          totals?: Json
+          updated_at?: string
+          uploader?: string | null
+        }
+        Update: {
+          allow_partial?: boolean
+          committed_at?: string | null
+          conflict_strategy?: Database["public"]["Enums"]["import_conflict_strategy"]
+          created_at?: string
+          error_summary?: string | null
+          filename?: string | null
+          id?: string
+          kind?: Database["public"]["Enums"]["import_kind"]
+          rollback_expires_at?: string | null
+          rolled_back_at?: string | null
+          status?: Database["public"]["Enums"]["import_batch_status"]
+          totals?: Json
+          updated_at?: string
+          uploader?: string | null
+        }
+        Relationships: []
+      }
       leads: {
         Row: {
           admin_notes: string | null
@@ -993,6 +1106,152 @@ export type Database = {
         }
         Relationships: []
       }
+      vehicle_configurations: {
+        Row: {
+          admin_notes: string | null
+          body_type: string | null
+          chassis_code: string | null
+          created_at: string
+          created_by: string | null
+          drivetrain: string | null
+          engine_capacity_cc: number | null
+          engine_code: string | null
+          engine_name: string | null
+          fuel_type: Database["public"]["Enums"]["fuel_type"] | null
+          id: string
+          market: Database["public"]["Enums"]["market_type"]
+          model_id: string
+          pk_year_from: number | null
+          pk_year_to: number | null
+          production_year_from: number | null
+          production_year_to: number | null
+          source_notes: string | null
+          source_type: Database["public"]["Enums"]["spec_source_type"] | null
+          source_url: string | null
+          transmission: string | null
+          trim_name: string | null
+          updated_at: string
+          updated_by: string | null
+          verification_status: Database["public"]["Enums"]["spec_verification_status"]
+          verified_at: string | null
+          verified_by: string | null
+        }
+        Insert: {
+          admin_notes?: string | null
+          body_type?: string | null
+          chassis_code?: string | null
+          created_at?: string
+          created_by?: string | null
+          drivetrain?: string | null
+          engine_capacity_cc?: number | null
+          engine_code?: string | null
+          engine_name?: string | null
+          fuel_type?: Database["public"]["Enums"]["fuel_type"] | null
+          id?: string
+          market?: Database["public"]["Enums"]["market_type"]
+          model_id: string
+          pk_year_from?: number | null
+          pk_year_to?: number | null
+          production_year_from?: number | null
+          production_year_to?: number | null
+          source_notes?: string | null
+          source_type?: Database["public"]["Enums"]["spec_source_type"] | null
+          source_url?: string | null
+          transmission?: string | null
+          trim_name?: string | null
+          updated_at?: string
+          updated_by?: string | null
+          verification_status?: Database["public"]["Enums"]["spec_verification_status"]
+          verified_at?: string | null
+          verified_by?: string | null
+        }
+        Update: {
+          admin_notes?: string | null
+          body_type?: string | null
+          chassis_code?: string | null
+          created_at?: string
+          created_by?: string | null
+          drivetrain?: string | null
+          engine_capacity_cc?: number | null
+          engine_code?: string | null
+          engine_name?: string | null
+          fuel_type?: Database["public"]["Enums"]["fuel_type"] | null
+          id?: string
+          market?: Database["public"]["Enums"]["market_type"]
+          model_id?: string
+          pk_year_from?: number | null
+          pk_year_to?: number | null
+          production_year_from?: number | null
+          production_year_to?: number | null
+          source_notes?: string | null
+          source_type?: Database["public"]["Enums"]["spec_source_type"] | null
+          source_url?: string | null
+          transmission?: string | null
+          trim_name?: string | null
+          updated_at?: string
+          updated_by?: string | null
+          verification_status?: Database["public"]["Enums"]["spec_verification_status"]
+          verified_at?: string | null
+          verified_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "vehicle_configurations_model_id_fkey"
+            columns: ["model_id"]
+            isOneToOne: false
+            referencedRelation: "vehicle_models"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      vehicle_lubricant_matches: {
+        Row: {
+          admin_notes: string | null
+          created_at: string
+          created_by: string | null
+          id: string
+          match_quality: string
+          oil_spec_id: string
+          product_id: string
+          updated_at: string
+        }
+        Insert: {
+          admin_notes?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          match_quality?: string
+          oil_spec_id: string
+          product_id: string
+          updated_at?: string
+        }
+        Update: {
+          admin_notes?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          match_quality?: string
+          oil_spec_id?: string
+          product_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "vehicle_lubricant_matches_oil_spec_id_fkey"
+            columns: ["oil_spec_id"]
+            isOneToOne: false
+            referencedRelation: "vehicle_oem_oil_specs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "vehicle_lubricant_matches_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       vehicle_makes: {
         Row: {
           archived: boolean
@@ -1082,6 +1341,193 @@ export type Database = {
           },
         ]
       }
+      vehicle_oem_oil_specs: {
+        Row: {
+          acea_standard: string | null
+          admin_notes: string | null
+          api_standard: string | null
+          capacity_with_filter_l: number | null
+          capacity_without_filter_l: number | null
+          change_interval_km: number | null
+          change_interval_months: number | null
+          configuration_id: string
+          created_at: string
+          created_by: string | null
+          id: string
+          ilsac_standard: string | null
+          is_primary: boolean
+          jaso_standard: string | null
+          oem_approvals: string[] | null
+          sae_grade: string
+          source_notes: string | null
+          source_type: Database["public"]["Enums"]["spec_source_type"] | null
+          source_url: string | null
+          updated_at: string
+          updated_by: string | null
+          verification_status: Database["public"]["Enums"]["spec_verification_status"]
+          verified_at: string | null
+          verified_by: string | null
+        }
+        Insert: {
+          acea_standard?: string | null
+          admin_notes?: string | null
+          api_standard?: string | null
+          capacity_with_filter_l?: number | null
+          capacity_without_filter_l?: number | null
+          change_interval_km?: number | null
+          change_interval_months?: number | null
+          configuration_id: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          ilsac_standard?: string | null
+          is_primary?: boolean
+          jaso_standard?: string | null
+          oem_approvals?: string[] | null
+          sae_grade: string
+          source_notes?: string | null
+          source_type?: Database["public"]["Enums"]["spec_source_type"] | null
+          source_url?: string | null
+          updated_at?: string
+          updated_by?: string | null
+          verification_status?: Database["public"]["Enums"]["spec_verification_status"]
+          verified_at?: string | null
+          verified_by?: string | null
+        }
+        Update: {
+          acea_standard?: string | null
+          admin_notes?: string | null
+          api_standard?: string | null
+          capacity_with_filter_l?: number | null
+          capacity_without_filter_l?: number | null
+          change_interval_km?: number | null
+          change_interval_months?: number | null
+          configuration_id?: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          ilsac_standard?: string | null
+          is_primary?: boolean
+          jaso_standard?: string | null
+          oem_approvals?: string[] | null
+          sae_grade?: string
+          source_notes?: string | null
+          source_type?: Database["public"]["Enums"]["spec_source_type"] | null
+          source_url?: string | null
+          updated_at?: string
+          updated_by?: string | null
+          verification_status?: Database["public"]["Enums"]["spec_verification_status"]
+          verified_at?: string | null
+          verified_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "vehicle_oem_oil_specs_configuration_id_fkey"
+            columns: ["configuration_id"]
+            isOneToOne: false
+            referencedRelation: "vehicle_configurations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      vehicle_oem_tyre_specs: {
+        Row: {
+          admin_notes: string | null
+          configuration_id: string
+          created_at: string
+          created_by: string | null
+          front_load_index: number | null
+          front_profile: number
+          front_rim: number
+          front_size_label: string | null
+          front_speed_rating: string | null
+          front_width: number
+          id: string
+          is_primary: boolean
+          layout: Database["public"]["Enums"]["tyre_layout_type"]
+          rear_load_index: number | null
+          rear_profile: number | null
+          rear_rim: number | null
+          rear_size_label: string | null
+          rear_speed_rating: string | null
+          rear_width: number | null
+          source_notes: string | null
+          source_type: Database["public"]["Enums"]["spec_source_type"] | null
+          source_url: string | null
+          updated_at: string
+          updated_by: string | null
+          verification_status: Database["public"]["Enums"]["spec_verification_status"]
+          verified_at: string | null
+          verified_by: string | null
+        }
+        Insert: {
+          admin_notes?: string | null
+          configuration_id: string
+          created_at?: string
+          created_by?: string | null
+          front_load_index?: number | null
+          front_profile: number
+          front_rim: number
+          front_size_label?: string | null
+          front_speed_rating?: string | null
+          front_width: number
+          id?: string
+          is_primary?: boolean
+          layout?: Database["public"]["Enums"]["tyre_layout_type"]
+          rear_load_index?: number | null
+          rear_profile?: number | null
+          rear_rim?: number | null
+          rear_size_label?: string | null
+          rear_speed_rating?: string | null
+          rear_width?: number | null
+          source_notes?: string | null
+          source_type?: Database["public"]["Enums"]["spec_source_type"] | null
+          source_url?: string | null
+          updated_at?: string
+          updated_by?: string | null
+          verification_status?: Database["public"]["Enums"]["spec_verification_status"]
+          verified_at?: string | null
+          verified_by?: string | null
+        }
+        Update: {
+          admin_notes?: string | null
+          configuration_id?: string
+          created_at?: string
+          created_by?: string | null
+          front_load_index?: number | null
+          front_profile?: number
+          front_rim?: number
+          front_size_label?: string | null
+          front_speed_rating?: string | null
+          front_width?: number
+          id?: string
+          is_primary?: boolean
+          layout?: Database["public"]["Enums"]["tyre_layout_type"]
+          rear_load_index?: number | null
+          rear_profile?: number | null
+          rear_rim?: number | null
+          rear_size_label?: string | null
+          rear_speed_rating?: string | null
+          rear_width?: number | null
+          source_notes?: string | null
+          source_type?: Database["public"]["Enums"]["spec_source_type"] | null
+          source_url?: string | null
+          updated_at?: string
+          updated_by?: string | null
+          verification_status?: Database["public"]["Enums"]["spec_verification_status"]
+          verified_at?: string | null
+          verified_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "vehicle_oem_tyre_specs_configuration_id_fkey"
+            columns: ["configuration_id"]
+            isOneToOne: false
+            referencedRelation: "vehicle_configurations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       vehicle_years: {
         Row: {
           archived: boolean
@@ -1151,6 +1597,66 @@ export type Database = {
       }
     }
     Functions: {
+      get_vehicle_configurations: {
+        Args: { _model_id: string }
+        Returns: {
+          body_type: string
+          chassis_code: string
+          drivetrain: string
+          engine_capacity_cc: number
+          engine_code: string
+          engine_name: string
+          fuel_type: string
+          id: string
+          market: string
+          pk_year_from: number
+          pk_year_to: number
+          production_year_from: number
+          production_year_to: number
+          transmission: string
+          trim_name: string
+          verification_status: string
+        }[]
+      }
+      get_vehicle_oem_oil_specs: {
+        Args: { _configuration_id: string }
+        Returns: {
+          acea_standard: string
+          api_standard: string
+          capacity_with_filter_l: number
+          capacity_without_filter_l: number
+          change_interval_km: number
+          change_interval_months: number
+          id: string
+          ilsac_standard: string
+          is_primary: boolean
+          jaso_standard: string
+          oem_approvals: string[]
+          sae_grade: string
+          verification_status: string
+        }[]
+      }
+      get_vehicle_oem_tyre_specs: {
+        Args: { _configuration_id: string }
+        Returns: {
+          front_load_index: number
+          front_profile: number
+          front_rim: number
+          front_size_label: string
+          front_speed_rating: string
+          front_width: number
+          id: string
+          is_primary: boolean
+          layout: string
+          rear_load_index: number
+          rear_profile: number
+          rear_rim: number
+          rear_size_label: string
+          rear_speed_rating: string
+          rear_width: number
+          verification_status: string
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -1170,8 +1676,33 @@ export type Database = {
         | "on_order"
         | "discontinued"
       content_status: "draft" | "published" | "scheduled" | "archived"
+      fuel_type: "petrol" | "diesel" | "hybrid" | "phev" | "ev" | "cng" | "lpg"
+      import_batch_status:
+        | "draft"
+        | "validating"
+        | "previewed"
+        | "committing"
+        | "succeeded"
+        | "failed"
+        | "cancelled"
+        | "rollback_in_progress"
+        | "rolled_back"
+        | "partially_rolled_back"
+        | "rollback_failed"
+      import_conflict_strategy: "skip" | "update" | "error"
+      import_kind: "vehicle_spec"
+      import_row_action: "insert" | "update" | "skip" | "error"
+      import_row_status:
+        | "pending"
+        | "ok"
+        | "skipped"
+        | "error"
+        | "rolled_back"
+        | "rollback_skipped"
+        | "rollback_failed"
       lead_contact_method: "whatsapp" | "call" | "either"
       lead_status: "new" | "contacted" | "qualified" | "closed" | "lost"
+      market_type: "PK" | "GLOBAL" | "JP_IMPORT" | "OTHER_IMPORT"
       price_mode:
         | "fixed"
         | "confirm_today"
@@ -1207,7 +1738,20 @@ export type Database = {
         | "contact_cta"
         | "whatsapp_cta"
         | "custom_text"
+      spec_source_type:
+        | "manufacturer"
+        | "owner_manual"
+        | "official_dealer"
+        | "trusted_publication"
+        | "community"
+        | "other"
+      spec_verification_status:
+        | "needs_verification"
+        | "partial"
+        | "verified"
+        | "disputed"
       tube_type: "tubeless" | "tube_type" | "unspecified"
+      tyre_layout_type: "same" | "staggered"
       tyre_size_dimension: "width" | "profile" | "rim"
       tyre_type: "passenger" | "suv_4x4" | "commercial" | "other"
       vehicle_body_type:
@@ -1357,8 +1901,35 @@ export const Constants = {
         "discontinued",
       ],
       content_status: ["draft", "published", "scheduled", "archived"],
+      fuel_type: ["petrol", "diesel", "hybrid", "phev", "ev", "cng", "lpg"],
+      import_batch_status: [
+        "draft",
+        "validating",
+        "previewed",
+        "committing",
+        "succeeded",
+        "failed",
+        "cancelled",
+        "rollback_in_progress",
+        "rolled_back",
+        "partially_rolled_back",
+        "rollback_failed",
+      ],
+      import_conflict_strategy: ["skip", "update", "error"],
+      import_kind: ["vehicle_spec"],
+      import_row_action: ["insert", "update", "skip", "error"],
+      import_row_status: [
+        "pending",
+        "ok",
+        "skipped",
+        "error",
+        "rolled_back",
+        "rollback_skipped",
+        "rollback_failed",
+      ],
       lead_contact_method: ["whatsapp", "call", "either"],
       lead_status: ["new", "contacted", "qualified", "closed", "lost"],
+      market_type: ["PK", "GLOBAL", "JP_IMPORT", "OTHER_IMPORT"],
       price_mode: [
         "fixed",
         "confirm_today",
@@ -1397,7 +1968,22 @@ export const Constants = {
         "whatsapp_cta",
         "custom_text",
       ],
+      spec_source_type: [
+        "manufacturer",
+        "owner_manual",
+        "official_dealer",
+        "trusted_publication",
+        "community",
+        "other",
+      ],
+      spec_verification_status: [
+        "needs_verification",
+        "partial",
+        "verified",
+        "disputed",
+      ],
       tube_type: ["tubeless", "tube_type", "unspecified"],
+      tyre_layout_type: ["same", "staggered"],
       tyre_size_dimension: ["width", "profile", "rim"],
       tyre_type: ["passenger", "suv_4x4", "commercial", "other"],
       vehicle_body_type: [
