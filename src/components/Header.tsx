@@ -95,7 +95,7 @@ export function Header() {
         {open && (
           <div className="border-t border-border bg-surface lg:hidden">
             <div className="container-x flex flex-col py-2">
-              {nav.map((n) => (
+              {[...nav, ...moreNav].map((n: any) => (
                 <Link
                   key={n.to}
                   to={n.to}
@@ -107,6 +107,7 @@ export function Header() {
                   {n.label}
                 </Link>
               ))}
+              <Link to="/search" onClick={() => setOpen(false)} className="border-b border-border/60 py-3 text-sm font-medium text-foreground/80">Search</Link>
               <div className="flex gap-2 py-3">
                 <a href={telLink()} className="btn-outline flex-1 text-sm">Call</a>
                 <a href={waLink("Assalam-o-Alaikum, I need help with tyres for my car.")} target="_blank" rel="noreferrer" className="btn-primary flex-1 text-sm">WhatsApp</a>
