@@ -245,37 +245,46 @@ export function TyreWizard() {
           <div className="space-y-4">
             <h2 className="font-display text-lg">Tyre size</h2>
             <div className="flex gap-2 text-xs">
-              <button onClick={() => setSize({ ...size, format: "metric" })} className={`rounded-full px-3 py-1 ${size.format === "metric" ? "bg-ink text-white" : "border border-border"}`}>Metric</button>
-              <button onClick={() => setSize({ ...size, format: "custom" })} className={`rounded-full px-3 py-1 ${size.format === "custom" ? "bg-ink text-white" : "border border-border"}`}>Custom / LT / other</button>
+              <button type="button" onClick={() => switchFormat("metric")} className={`rounded-full px-3 py-1 ${size.format === "metric" ? "bg-ink text-white" : "border border-border"}`}>Metric</button>
+              <button type="button" onClick={() => switchFormat("custom")} className={`rounded-full px-3 py-1 ${size.format === "custom" ? "bg-ink text-white" : "border border-border"}`}>Custom / LT / other</button>
             </div>
             {size.format === "metric" ? (
-              <div className="grid grid-cols-3 gap-3">
-                <Field label="Width">
-                  <input list="widths" value={size.width} onChange={(e) => updateSize({ width: e.target.value })} className={inp} placeholder="195" />
-                  <datalist id="widths">{COMMON_WIDTHS.map((w) => <option key={w} value={w} />)}</datalist>
-                </Field>
-                <Field label="Profile">
-                  <input list="profiles" value={size.profile} onChange={(e) => updateSize({ profile: e.target.value })} className={inp} placeholder="65" />
-                  <datalist id="profiles">{COMMON_PROFILES.map((w) => <option key={w} value={w} />)}</datalist>
-                </Field>
-                <Field label="Rim">
-                  <input list="rims" value={size.rim} onChange={(e) => updateSize({ rim: e.target.value })} className={inp} placeholder="15" />
-                  <datalist id="rims">{COMMON_RIMS.map((w) => <option key={w} value={w} />)}</datalist>
-                </Field>
-              </div>
+              <>
+                <p className="text-xs text-muted-foreground">Enter all three numbers from the sidewall, e.g. <span className="font-mono">195/65 R15</span>.</p>
+                <div className="grid grid-cols-3 gap-3">
+                  <Field label="Width">
+                    <input list="widths" inputMode="numeric" value={size.width} onChange={(e) => updateSize({ width: e.target.value.replace(/\D/g, "") })} className={inp} placeholder="195" />
+                    <datalist id="widths">{COMMON_WIDTHS.map((w) => <option key={w} value={w} />)}</datalist>
+                  </Field>
+                  <Field label="Profile">
+                    <input list="profiles" inputMode="numeric" value={size.profile} onChange={(e) => updateSize({ profile: e.target.value.replace(/\D/g, "") })} className={inp} placeholder="65" />
+                    <datalist id="profiles">{COMMON_PROFILES.map((w) => <option key={w} value={w} />)}</datalist>
+                  </Field>
+                  <Field label="Rim">
+                    <input list="rims" inputMode="numeric" value={size.rim} onChange={(e) => updateSize({ rim: e.target.value.replace(/\D/g, "") })} className={inp} placeholder="15" />
+                    <datalist id="rims">{COMMON_RIMS.map((w) => <option key={w} value={w} />)}</datalist>
+                  </Field>
+                </div>
+              </>
             ) : (
               <Field label="Size (e.g. LT265/70R17, 31x10.50R15)">
-                <input value={size.custom} onChange={(e) => updateSize({ custom: e.target.value })} className={inp} />
+                <input value={size.custom} onChange={(e) => updateSize({ custom: e.target.value })} className={inp} placeholder="LT265/70R17" />
               </Field>
             )}
             <div className="rounded-md bg-muted/40 p-3">
               <div className="text-xs text-muted-foreground">Result</div>
-              <div className="font-display text-xl">{normalized || "—"}</div>
-              <button onClick={checkDup} disabled={!modelId || !normalized} className="mt-2 text-xs text-primary hover:underline disabled:text-muted-foreground">Check for duplicate</button>
+              <div className="font-display text-xl">
+                {normalized || (size.format === "metric"
+                  ? `${size.width || "…"}/${size.profile || "…"} R${size.rim || "…"}`
+                  : "—")}
+              </div>
+              {!normalized && <div className="mt-1 text-xs text-amber-700">Fill all three fields to continue.</div>}
+              <button type="button" onClick={checkDup} disabled={!modelId || !normalized} className="mt-2 text-xs text-primary hover:underline disabled:text-muted-foreground">Check for duplicate</button>
               {dupWarning && <div className="mt-2 text-xs text-red-600">{dupWarning}</div>}
             </div>
           </div>
         )}
+
 
         {step === 3 && (
           <div className="space-y-4">
