@@ -28,7 +28,7 @@ type Model = { id: string; name: string; slug?: string|null; short_desc: string|
 function TyresPage() {
   const fetch = useServerFn(listPublishedCatalogue);
   const fetchV = useServerFn(listVehiclesPublic);
-  const findByV = useServerFn(findModelsByVehicle);
+  const findByV = useServerFn(findVariantsByVehicle);
   const { data, isLoading } = useQuery<Model[]>({ queryKey: ["public-catalogue"], queryFn: () => fetch() as any });
   const { data: veh } = useQuery({ queryKey: ["pub-vehicles"], queryFn: () => fetchV() });
 
@@ -39,12 +39,18 @@ function TyresPage() {
   const [avail, setAvail] = useState("All");
   const [type, setType] = useState("All");
   const [runFlat, setRunFlat] = useState(false);
-  const [vehicleMatchIds, setVehicleMatchIds] = useState<string[] | null>(null);
+  const [variantMatchIds, setVariantMatchIds] = useState<string[] | null>(null);
 
   const all = data ?? [];
   const brands = useMemo(() => Array.from(new Set(all.map(m => m.brand.name))), [all]);
   const filteredModels = useMemo(() => {
-    let list = all;
+    let list: Model[] = all;
+    if (mode === "vehicle" && variantMatchIds) {
+      const set = new Set(variantMatchIds);
+      list = all
+        .map((m) => ({ ...m, variants: m.variants.filter((v) => set.has(v.id)) }))
+        .filter((m) => m.variants.length > 0);
+    }
     if (brand !== "All") list = list.filter(m => m.brand.name === brand);
     if (type !== "All") list = list.filter(m => m.tyre_type === type);
     if (avail === "in_stock") list = list.filter(m => m.variants.some(v => v.availability === "in_stock"));
@@ -56,15 +62,16 @@ function TyresPage() {
         (!size.rim || String(v.rim) === size.rim)
       ));
     }
-    if (mode === "vehicle" && vehicleMatchIds) {
-      list = list.filter(m => vehicleMatchIds.includes(m.id));
-    }
     return list;
-  }, [all, brand, avail, type, runFlat, mode, size, vehicleMatchIds]);
+  }, [all, brand, avail, type, runFlat, mode, size, variantMatchIds]);
 
   async function runVehicleSearch() {
-    const res = await findByV({ data: { vehicle_model_id: vsel.vehicle_model_id || undefined, year: vsel.year ? Number(vsel.year) : undefined } });
-    setVehicleMatchIds(res as string[]);
+    const res = await findByV({ data: {
+      vehicle_model_id: vsel.vehicle_model_id || undefined,
+      make_id: !vsel.vehicle_model_id && vsel.make_id ? vsel.make_id : undefined,
+      year: vsel.year ? Number(vsel.year) : undefined,
+    } });
+    setVariantMatchIds(res as string[]);
     track("vehicle_search", vsel);
     if (!res.length) track("no_results", { via: "vehicle", vsel });
   }
@@ -73,8 +80,9 @@ function TyresPage() {
   }
   function reset() {
     setSize({ width: "", profile: "", rim: "" }); setVsel({ make_id: "", vehicle_model_id: "", year: "" });
-    setBrand("All"); setAvail("All"); setType("All"); setRunFlat(false); setVehicleMatchIds(null);
+    setBrand("All"); setAvail("All"); setType("All"); setRunFlat(false); setVariantMatchIds(null);
   }
+
 
   const vMakes = veh?.makes ?? [];
   const vModels = (veh?.models ?? []).filter(m => !vsel.make_id || m.make_id === vsel.make_id);
