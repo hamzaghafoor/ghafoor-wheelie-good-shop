@@ -55,7 +55,7 @@ export const listLeads = createServerFn({ method: "GET" })
   .inputValidator((d: { status?: string } = {}) => z.object({ status: z.string().optional() }).parse(d))
   .handler(async ({ data, context }) => {
     await assertAdmin(context);
-    let q = context.supabase.from("leads").select("*").order("created_at", { ascending: false }).limit(200);
+    let q: any = (context.supabase as any).from("leads").select("*").order("created_at", { ascending: false }).limit(200);
     if (data.status) q = q.eq("status", data.status);
     const { data: rows, error } = await q;
     if (error) throw new Error(error.message);
