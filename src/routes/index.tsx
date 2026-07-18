@@ -6,16 +6,14 @@ import catTyres from "@/assets/cat-tyres.jpg";
 import catLubes from "@/assets/cat-lubricants.jpg";
 import svcAlign from "@/assets/svc-alignment.jpg";
 import svcBal from "@/assets/svc-balancing.jpg";
-import { tyres, tyrePriorities } from "@/lib/tyres";
 import { services } from "@/lib/services";
 import { popularVehicles } from "@/lib/vehicles";
 import { business, waLink } from "@/lib/business";
 import { TyreFinder } from "@/components/TyreFinder";
-import { ProductCard } from "@/components/ProductCard";
 import { ServiceCard } from "@/components/ServiceCard";
 import { LocationSection } from "@/components/LocationSection";
 import { CTASection } from "@/components/CTASection";
-import { useState } from "react";
+
 
 export const Route = createFileRoute("/")({
   head: () => ({
