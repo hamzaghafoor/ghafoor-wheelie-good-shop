@@ -87,7 +87,7 @@ export const findModelsByVehicle = createServerFn({ method: "POST" })
         (r.year_from == null || data.year! >= r.year_from) && (r.year_to == null || data.year! <= r.year_to)
       );
     }
-    return Array.from(new Set(filtered.map((r: any) => r.tyre_model_id)));
+    return Array.from(new Set(filtered.map((r: any) => r.tyre_model_id))) as string[];
   });
 
 export const getTyreModelBySlug = createServerFn({ method: "GET" })
