@@ -6,16 +6,14 @@ import catTyres from "@/assets/cat-tyres.jpg";
 import catLubes from "@/assets/cat-lubricants.jpg";
 import svcAlign from "@/assets/svc-alignment.jpg";
 import svcBal from "@/assets/svc-balancing.jpg";
-import { tyres, tyrePriorities } from "@/lib/tyres";
 import { services } from "@/lib/services";
 import { popularVehicles } from "@/lib/vehicles";
 import { business, waLink } from "@/lib/business";
 import { TyreFinder } from "@/components/TyreFinder";
-import { ProductCard } from "@/components/ProductCard";
 import { ServiceCard } from "@/components/ServiceCard";
 import { LocationSection } from "@/components/LocationSection";
 import { CTASection } from "@/components/CTASection";
-import { useState } from "react";
+
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -164,14 +162,6 @@ function ShopByNeed() {
 }
 
 function FeaturedTyres() {
-  const [filter, setFilter] = useState<string>("All");
-  const filtered = tyres.filter((t) => {
-    if (filter === "All") return true;
-    if (filter === "Passenger Cars") return t.category === "Passenger" || t.category === "Hatchback";
-    if (filter === "SUVs") return t.category === "SUV";
-    return t.priorities.includes(filter as any);
-  });
-  const chips = ["All", "Passenger Cars", "SUVs", ...tyrePriorities];
   return (
     <section className="py-16 md:py-20">
       <div className="container-x">
@@ -179,25 +169,24 @@ function FeaturedTyres() {
           <div className="max-w-xl">
             <p className="eyebrow">Featured</p>
             <h2 className="mt-2 font-display text-3xl md:text-4xl">Popular Tyre Options</h2>
-            <p className="mt-2 text-muted-foreground">Explore options for everyday cars, sedans, SUVs, and crossovers.</p>
+            <p className="mt-2 text-muted-foreground">Explore live inventory or ask our team for a personalised recommendation.</p>
           </div>
-          <Link to="/tyres" className="text-sm font-semibold text-primary hover:underline">View all tyres →</Link>
+          <Link to="/tyres" className="text-sm font-semibold text-primary hover:underline">View tyre catalogue →</Link>
         </div>
-        <div className="mt-6 flex flex-wrap gap-2">
-          {chips.map((c) => (
-            <button key={c} onClick={() => setFilter(c)} className={`rounded-full border px-3.5 py-1.5 text-xs font-semibold transition ${filter === c ? "border-ink bg-ink text-white" : "border-border bg-surface text-foreground/70 hover:border-primary hover:text-primary"}`}>
-              {c}
-            </button>
-          ))}
+        <div className="card-surface mt-8 p-10 text-center">
+          <h3 className="font-display text-2xl text-ink">Our online catalogue is being updated.</h3>
+          <p className="mx-auto mt-2 max-w-xl text-sm text-muted-foreground">
+            Share your vehicle and tyre size with us on WhatsApp — we'll suggest suitable options and today's price.
+          </p>
+          <div className="mt-4">
+            <Link to="/tyres" className="btn-primary text-sm">Browse tyres</Link>
+          </div>
         </div>
-        <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-          {filtered.slice(0, 8).map((t) => <ProductCard key={t.id} tyre={t} />)}
-        </div>
-        <p className="mt-4 text-xs text-muted-foreground">Demo product data shown. Prices and availability confirmed via WhatsApp.</p>
       </div>
     </section>
   );
 }
+
 
 function VehicleCategories() {
   const cats = [
