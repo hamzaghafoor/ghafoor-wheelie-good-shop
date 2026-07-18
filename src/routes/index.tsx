@@ -194,13 +194,9 @@ function FeaturedTyres({ c }: { c: any }) {
   const mode = c.mode ?? "featured";
   const fetchCat = useServerFn(listPublishedCatalogue);
   const { data } = useQuery({ queryKey: ["public-catalogue"], queryFn: () => fetchCat() });
-  const models = (data?.models ?? []).filter((m: any) => {
-    if (mode === "manual") return (c.model_ids ?? []).includes(m.id);
-    return m.is_featured;
-  });
-  const brandName = (id: string) => (data?.brands ?? []).find((b: any) => b.id === id)?.name ?? "";
-  const modelVariants = (mid: string) => (data?.variants ?? []).filter((v: any) => v.model_id === mid);
-  const withStock = c.in_stock_only ? models.filter((m: any) => modelVariants(m.id).some((v: any) => v.availability === "in_stock")) : models;
+  const allModels: any[] = (data as any[]) ?? [];
+  const models = allModels.filter((m) => mode === "manual" ? (c.model_ids ?? []).includes(m.id) : m.is_featured);
+  const withStock = c.in_stock_only ? models.filter((m) => (m.variants ?? []).some((v: any) => v.availability === "in_stock")) : models;
   const list = withStock.slice(0, max);
 
   return (
@@ -219,8 +215,8 @@ function FeaturedTyres({ c }: { c: any }) {
         ) : (
           <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {list.map((m: any) => {
-              const vs = modelVariants(m.id);
-              const priced = vs.find((v: any) => v.price != null);
+              const vs: any[] = m.variants ?? [];
+              const priced = vs.find((v) => v.price != null);
               const img = m.images?.main?.url || null;
               return (
                 <Link key={m.id} to="/tyres" className="card-surface group overflow-hidden">
@@ -228,7 +224,7 @@ function FeaturedTyres({ c }: { c: any }) {
                     {img ? <img src={img} alt={m.name} loading="lazy" className="h-full w-full object-cover transition group-hover:scale-105" /> : <div className="flex h-full items-center justify-center text-xs text-muted-foreground">No image</div>}
                   </div>
                   <div className="p-4">
-                    <div className="text-xs font-semibold uppercase tracking-wider text-primary">{brandName(m.brand_id)}</div>
+                    <div className="text-xs font-semibold uppercase tracking-wider text-primary">{m.brand?.name ?? ""}</div>
                     <h3 className="mt-1 font-display text-lg text-ink">{m.name}</h3>
                     {m.short_desc && <p className="mt-1 text-sm text-muted-foreground line-clamp-2">{m.short_desc}</p>}
                     <div className="mt-2 flex items-center justify-between text-xs">
