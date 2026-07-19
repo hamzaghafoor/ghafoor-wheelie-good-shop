@@ -62,7 +62,11 @@ function VehiclesAdmin() {
           <h1 className="font-display text-2xl">Vehicles</h1>
           <p className="mt-1 text-sm text-muted-foreground">Makes → Models → Years. Reused across tyres and all product categories.</p>
         </div>
-        <button onClick={() => setShowMake(true)} className="btn-primary text-sm"><Plus className="h-4 w-4" /> Add make</button>
+        <div className="flex gap-2">
+          <Link to="/admin/vehicles/review" className="btn-outline text-sm">Review queue</Link>
+          <Link to="/admin/vehicles/import" className="btn-outline text-sm">Import Vehicle Data</Link>
+          <button onClick={() => setShowMake(true)} className="btn-primary text-sm"><Plus className="h-4 w-4" /> Add make</button>
+        </div>
       </div>
 
       {msg && <div className="mt-3 rounded-md bg-green-50 p-2 text-xs text-green-800">{msg}</div>}
