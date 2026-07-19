@@ -92,8 +92,8 @@ function ConfigDetailPage() {
           kind="oil"
           rows={q.data?.oilSpecs ?? []}
           onAdd={() => setEditingOil({ configuration_id: configId, verification_status: "needs_verification" })}
-          onEdit={(r) => setEditingOil(r)}
-          onArchive={(id, archived) => mA.mutate({ kind: "oil", id, archived })}
+          onEdit={(r: any) => setEditingOil(r)}
+          onArchive={(id: string, archived: boolean) => mA.mutate({ kind: "oil", id, archived })}
           renderRow={(r: any) => (
             <>
               <td className="p-2 font-medium">{r.sae_grade ?? "—"}</td>
