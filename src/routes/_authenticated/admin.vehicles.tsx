@@ -103,6 +103,7 @@ function VehiclesAdmin() {
                                 <td className="py-1.5 text-xs text-muted-foreground">{md.body_type}</td>
                                 <td className="py-1.5 text-xs">{yrs.length === 0 ? <span className="text-muted-foreground">—</span> : yrs.map((y) => `${y.year_from}${y.year_to ? "–" + y.year_to : "+"}${y.variant_note ? " (" + y.variant_note + ")" : ""}`).join(", ")}</td>
                                 <td className="py-1.5 text-right">
+                                  <Link to="/admin/vehicles/$modelId" params={{ modelId: md.id }} className="mr-2 text-[10px] text-primary hover:underline">Configs</Link>
                                   <button onClick={() => setYearFor(md.id)} className="btn-outline text-[10px]"><Plus className="h-3 w-3" /> Year</button>
                                   <button onClick={() => mArch.mutate({ kind: "model", id: md.id, archived: !md.archived })} className="ml-1 rounded p-1 hover:bg-muted" title={md.archived ? "Restore" : "Archive"}>
                                     {md.archived ? <RotateCcw className="h-3.5 w-3.5" /> : <Archive className="h-3.5 w-3.5" />}
