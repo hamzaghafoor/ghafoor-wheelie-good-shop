@@ -75,8 +75,8 @@ function ConfigDetailPage() {
           kind="tyre"
           rows={q.data?.tyreSpecs ?? []}
           onAdd={() => setEditingTyre({ configuration_id: configId, layout: "same", verification_status: "needs_verification" })}
-          onEdit={(r) => setEditingTyre(r)}
-          onArchive={(id, archived) => mA.mutate({ kind: "tyre", id, archived })}
+          onEdit={(r: any) => setEditingTyre(r)}
+          onArchive={(id: string, archived: boolean) => mA.mutate({ kind: "tyre", id, archived })}
           renderRow={(r: any) => (
             <>
               <td className="p-2 font-medium">{r.front_size_label}{r.rear_size_label && ` / ${r.rear_size_label}`}</td>
