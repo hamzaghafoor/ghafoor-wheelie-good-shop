@@ -317,15 +317,15 @@ export const previewImport = createServerFn({ method: "POST" })
 
     const batchId = (batch as any).id;
     const rowsPayload = previews.map(p => ({
-      batch_id: batchId,
-      row_number: p.row_number,
-      status: "pending",
-      source_payload: p.payload,
-      error_message: p.errors.length ? p.errors.map(e => `${e.field ?? ""}: ${e.message}`).join("; ") : null,
+      batch_id: batchId as string,
+      row_number: p.row_number as number,
+      status: "pending" as const,
+      source_payload: p.payload as any,
+      error_message: p.errors.length ? p.errors.map((e: Warn) => `${e.field ?? ""}: ${e.message}`).join("; ") : null,
     }));
     // chunked insert
     for (let i = 0; i < rowsPayload.length; i += 500) {
-      const { error } = await context.supabase.from("import_batch_rows").insert(rowsPayload.slice(i, i + 500));
+      const { error } = await context.supabase.from("import_batch_rows").insert(rowsPayload.slice(i, i + 500) as any);
       if (error) throw new Error(error.message);
     }
 
