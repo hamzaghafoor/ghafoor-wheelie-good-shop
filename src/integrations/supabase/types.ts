@@ -1606,6 +1606,7 @@ export type Database = {
       }
     }
     Functions: {
+      apply_vehicle_import_batch: { Args: { _batch_id: string }; Returns: Json }
       get_vehicle_configurations: {
         Args: { _model_id: string }
         Returns: {
@@ -1674,6 +1675,11 @@ export type Database = {
         Returns: boolean
       }
       is_admin: { Args: { _user_id: string }; Returns: boolean }
+      purge_import_payloads: { Args: never; Returns: number }
+      rollback_vehicle_import_batch: {
+        Args: { _batch_id: string }
+        Returns: Json
+      }
     }
     Enums: {
       app_role: "owner" | "admin" | "staff"
