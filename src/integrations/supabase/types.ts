@@ -1109,6 +1109,7 @@ export type Database = {
       vehicle_configurations: {
         Row: {
           admin_notes: string | null
+          archived: boolean
           body_type: string | null
           chassis_code: string | null
           created_at: string
@@ -1138,6 +1139,7 @@ export type Database = {
         }
         Insert: {
           admin_notes?: string | null
+          archived?: boolean
           body_type?: string | null
           chassis_code?: string | null
           created_at?: string
@@ -1167,6 +1169,7 @@ export type Database = {
         }
         Update: {
           admin_notes?: string | null
+          archived?: boolean
           body_type?: string | null
           chassis_code?: string | null
           created_at?: string
@@ -1346,6 +1349,7 @@ export type Database = {
           acea_standard: string | null
           admin_notes: string | null
           api_standard: string | null
+          archived: boolean
           capacity_with_filter_l: number | null
           capacity_without_filter_l: number | null
           change_interval_km: number | null
@@ -1372,6 +1376,7 @@ export type Database = {
           acea_standard?: string | null
           admin_notes?: string | null
           api_standard?: string | null
+          archived?: boolean
           capacity_with_filter_l?: number | null
           capacity_without_filter_l?: number | null
           change_interval_km?: number | null
@@ -1398,6 +1403,7 @@ export type Database = {
           acea_standard?: string | null
           admin_notes?: string | null
           api_standard?: string | null
+          archived?: boolean
           capacity_with_filter_l?: number | null
           capacity_without_filter_l?: number | null
           change_interval_km?: number | null
@@ -1433,6 +1439,7 @@ export type Database = {
       vehicle_oem_tyre_specs: {
         Row: {
           admin_notes: string | null
+          archived: boolean
           configuration_id: string
           created_at: string
           created_by: string | null
@@ -1462,6 +1469,7 @@ export type Database = {
         }
         Insert: {
           admin_notes?: string | null
+          archived?: boolean
           configuration_id: string
           created_at?: string
           created_by?: string | null
@@ -1491,6 +1499,7 @@ export type Database = {
         }
         Update: {
           admin_notes?: string | null
+          archived?: boolean
           configuration_id?: string
           created_at?: string
           created_by?: string | null
