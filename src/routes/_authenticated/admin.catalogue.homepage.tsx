@@ -51,7 +51,7 @@ function HomepageSectionsAdmin() {
 
       <div className="space-y-3">
         {(sections.data ?? []).map((sec: any) => (
-          <SectionCard key={sec.id} sec={sec} brands={lookups.data?.brands ?? []} products={products.data ?? []} onSave={(patch) => mUpsert.mutate({ ...sec, ...patch })} onDelete={() => { if (confirm("Delete this section?")) mDel.mutate({ id: sec.id }); }} />
+          <SectionCard key={sec.id} sec={sec} brands={lookups.data?.brands ?? []} products={products.data ?? []} onSave={(patch: any) => mUpsert.mutate({ ...sec, ...patch })} onDelete={() => { if (confirm("Delete this section?")) mDel.mutate({ id: sec.id }); }} />
         ))}
         {(sections.data ?? []).length === 0 && <div className="rounded-md border border-dashed border-border p-6 text-center text-sm text-muted-foreground">No sections yet.</div>}
       </div>
