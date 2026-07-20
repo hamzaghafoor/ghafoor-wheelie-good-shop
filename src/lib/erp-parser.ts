@@ -192,7 +192,11 @@ export function coreName(desc: string, brand?: string | null): string {
     s = s.replace(re, " ");
   }
   for (const re of VISCOSITY_RES) s = s.replace(re, " ");
-  s = s.replace(new RegExp(`\\b\\d+(?:[.,]\\d+)?\\s*${UNIT_TOKEN_RE.source.slice(1, -1)}\\b`, "gi"), " ");
+  // Strip "<number> <unit>" tokens (e.g. "4 L", "500 ml"). Uses UNIT_TOKENS directly so the
+  // regex remains valid — an earlier bug used UNIT_TOKEN_RE.source.slice(1,-1) which stripped
+  // required backslashes and produced a broken pattern that never matched, causing pack size
+  // to leak into the family key (e.g. "Super Light 4 L" and "Super Light 1 L" grouped separately).
+  s = s.replace(new RegExp(`\\b\\d+(?:[.,]\\d+)?\\s*(?:${UNIT_TOKENS.join("|")})\\b`, "gi"), " ");
   s = s.replace(/\s+/g, " ").trim().toLowerCase();
   s = s.replace(/[^a-z0-9\s\-]/g, "").trim();
   return s;
