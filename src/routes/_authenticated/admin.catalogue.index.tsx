@@ -78,16 +78,44 @@ function ProductsList() {
         <div className="overflow-hidden rounded-lg border border-border bg-white">
           <table className="w-full text-sm">
             <thead className="bg-muted text-xs uppercase tracking-wider text-muted-foreground">
-              <tr><th className="p-3 text-left">Name</th><th className="p-3 text-left">Category</th><th className="p-3 text-left">Status</th><th className="p-3">Featured</th><th className="p-3 text-right">Actions</th></tr>
+              <tr><th className="p-3 text-left">Name</th><th className="p-3 text-left">Category</th><th className="p-3">Complete</th><th className="p-3">Availability</th><th className="p-3">Status</th><th className="p-3">Featured</th><th className="p-3 text-right">Actions</th></tr>
             </thead>
             <tbody>
-              {(products.data ?? []).map((p: any) => (
+              {(products.data ?? []).map((p: any) => {
+                const staleDays = 30;
+                const verifiedAt = p.availability_verified_at ? new Date(p.availability_verified_at).getTime() : 0;
+                const ageDays = verifiedAt ? Math.floor((Date.now() - verifiedAt) / 86400000) : Infinity;
+                const isStale = !verifiedAt || ageDays > staleDays;
+                const checks = [
+                  Array.isArray(p.images) && p.images.length > 0,
+                  !!p.brand_id,
+                  !!p.product_type_id,
+                  !!p.short_desc,
+                  p.specs && Object.keys(p.specs).length > 0,
+                  p.price_mode === "hidden" || !!p.price,
+                ];
+                const done = checks.filter(Boolean).length;
+                const total = checks.length;
+                const pct = Math.round((done / total) * 100);
+                const color = pct >= 100 ? "bg-green-500" : pct >= 60 ? "bg-amber-500" : "bg-red-500";
+                return (
                 <tr key={p.id} className={`border-t border-border ${p.archived ? "opacity-50" : ""}`}>
                   <td className="p-3">
                     <Link to="/admin/catalogue/$id" params={{ id: p.id }} className="font-medium hover:text-primary">{p.name}</Link>
                     <div className="text-xs text-muted-foreground">/{p.slug}</div>
                   </td>
                   <td className="p-3 text-muted-foreground">{p.category.replace(/_/g," ")}</td>
+                  <td className="p-3">
+                    <div className="flex items-center gap-2" title={`${done}/${total} fields set`}>
+                      <div className="h-1.5 w-16 rounded-full bg-muted overflow-hidden"><div className={`h-full ${color}`} style={{ width: `${pct}%` }} /></div>
+                      <span className="text-xs text-muted-foreground">{pct}%</span>
+                    </div>
+                  </td>
+                  <td className="p-3 text-center">
+                    {isStale
+                      ? <span className="rounded bg-amber-50 px-2 py-0.5 text-xs text-amber-700" title={verifiedAt ? `Last verified ${ageDays}d ago` : "Never verified"}>Stale</span>
+                      : <span className="rounded bg-green-50 px-2 py-0.5 text-xs text-green-700" title={`Verified ${ageDays}d ago`}>Fresh</span>}
+                  </td>
                   <td className="p-3">
                     <span className={`rounded px-2 py-0.5 text-xs font-medium ${p.status === "published" ? "bg-green-50 text-green-700" : p.status === "archived" ? "bg-muted text-muted-foreground" : "bg-amber-50 text-amber-700"}`}>{p.status}</span>
                   </td>
@@ -105,7 +133,7 @@ function ProductsList() {
                     </div>
                   </td>
                 </tr>
-              ))}
+              );})}
             </tbody>
           </table>
         </div>
