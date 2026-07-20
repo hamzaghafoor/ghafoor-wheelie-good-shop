@@ -30,15 +30,18 @@ import { Route as TyresSlugRouteImport } from './routes/tyres.$slug'
 import { Route as AdminTestingLabRouteImport } from './routes/admin.testing-lab'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin.index'
+import { Route as AuthenticatedAdminVideosRouteImport } from './routes/_authenticated/admin.videos'
 import { Route as AuthenticatedAdminVehiclesRouteImport } from './routes/_authenticated/admin.vehicles'
 import { Route as AuthenticatedAdminTyresRouteImport } from './routes/_authenticated/admin.tyres'
 import { Route as AuthenticatedAdminSectionsRouteImport } from './routes/_authenticated/admin.sections'
+import { Route as AuthenticatedAdminReviewsRouteImport } from './routes/_authenticated/admin.reviews'
 import { Route as AuthenticatedAdminMediaRouteImport } from './routes/_authenticated/admin.media'
 import { Route as AuthenticatedAdminLeadsRouteImport } from './routes/_authenticated/admin.leads'
 import { Route as AuthenticatedAdminChangePasswordRouteImport } from './routes/_authenticated/admin.change-password'
 import { Route as AuthenticatedAdminCatalogueRouteImport } from './routes/_authenticated/admin.catalogue'
 import { Route as AuthenticatedAdminBusinessRouteImport } from './routes/_authenticated/admin.business'
 import { Route as AuthenticatedAdminBrandsRouteImport } from './routes/_authenticated/admin.brands'
+import { Route as AuthenticatedAdminArticlesRouteImport } from './routes/_authenticated/admin.articles'
 import { Route as AuthenticatedAdminActivityRouteImport } from './routes/_authenticated/admin.activity'
 import { Route as AuthenticatedAdminTyresIndexRouteImport } from './routes/_authenticated/admin.tyres.index'
 import { Route as AuthenticatedAdminSectionsIndexRouteImport } from './routes/_authenticated/admin.sections.index'
@@ -168,6 +171,12 @@ const AuthenticatedAdminIndexRoute = AuthenticatedAdminIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AuthenticatedAdminRoute,
 } as any)
+const AuthenticatedAdminVideosRoute =
+  AuthenticatedAdminVideosRouteImport.update({
+    id: '/videos',
+    path: '/videos',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
 const AuthenticatedAdminVehiclesRoute =
   AuthenticatedAdminVehiclesRouteImport.update({
     id: '/vehicles',
@@ -183,6 +192,12 @@ const AuthenticatedAdminSectionsRoute =
   AuthenticatedAdminSectionsRouteImport.update({
     id: '/sections',
     path: '/sections',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminReviewsRoute =
+  AuthenticatedAdminReviewsRouteImport.update({
+    id: '/reviews',
+    path: '/reviews',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
 const AuthenticatedAdminMediaRoute = AuthenticatedAdminMediaRouteImport.update({
@@ -217,6 +232,12 @@ const AuthenticatedAdminBrandsRoute =
   AuthenticatedAdminBrandsRouteImport.update({
     id: '/brands',
     path: '/brands',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminArticlesRoute =
+  AuthenticatedAdminArticlesRouteImport.update({
+    id: '/articles',
+    path: '/articles',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
 const AuthenticatedAdminActivityRoute =
@@ -385,15 +406,18 @@ export interface FileRoutesByFullPath {
   '/admin/testing-lab': typeof AdminTestingLabRoute
   '/tyres/$slug': typeof TyresSlugRoute
   '/admin/activity': typeof AuthenticatedAdminActivityRoute
+  '/admin/articles': typeof AuthenticatedAdminArticlesRoute
   '/admin/brands': typeof AuthenticatedAdminBrandsRouteWithChildren
   '/admin/business': typeof AuthenticatedAdminBusinessRoute
   '/admin/catalogue': typeof AuthenticatedAdminCatalogueRouteWithChildren
   '/admin/change-password': typeof AuthenticatedAdminChangePasswordRoute
   '/admin/leads': typeof AuthenticatedAdminLeadsRoute
   '/admin/media': typeof AuthenticatedAdminMediaRoute
+  '/admin/reviews': typeof AuthenticatedAdminReviewsRoute
   '/admin/sections': typeof AuthenticatedAdminSectionsRouteWithChildren
   '/admin/tyres': typeof AuthenticatedAdminTyresRouteWithChildren
   '/admin/vehicles': typeof AuthenticatedAdminVehiclesRouteWithChildren
+  '/admin/videos': typeof AuthenticatedAdminVideosRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
   '/admin/brands/$id': typeof AuthenticatedAdminBrandsIdRoute
   '/admin/brands/new': typeof AuthenticatedAdminBrandsNewRoute
@@ -439,11 +463,14 @@ export interface FileRoutesByTo {
   '/admin/testing-lab': typeof AdminTestingLabRoute
   '/tyres/$slug': typeof TyresSlugRoute
   '/admin/activity': typeof AuthenticatedAdminActivityRoute
+  '/admin/articles': typeof AuthenticatedAdminArticlesRoute
   '/admin/business': typeof AuthenticatedAdminBusinessRoute
   '/admin/change-password': typeof AuthenticatedAdminChangePasswordRoute
   '/admin/leads': typeof AuthenticatedAdminLeadsRoute
   '/admin/media': typeof AuthenticatedAdminMediaRoute
+  '/admin/reviews': typeof AuthenticatedAdminReviewsRoute
   '/admin/vehicles': typeof AuthenticatedAdminVehiclesRouteWithChildren
+  '/admin/videos': typeof AuthenticatedAdminVideosRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
   '/admin/brands/$id': typeof AuthenticatedAdminBrandsIdRoute
   '/admin/brands/new': typeof AuthenticatedAdminBrandsNewRoute
@@ -492,15 +519,18 @@ export interface FileRoutesById {
   '/admin/testing-lab': typeof AdminTestingLabRoute
   '/tyres/$slug': typeof TyresSlugRoute
   '/_authenticated/admin/activity': typeof AuthenticatedAdminActivityRoute
+  '/_authenticated/admin/articles': typeof AuthenticatedAdminArticlesRoute
   '/_authenticated/admin/brands': typeof AuthenticatedAdminBrandsRouteWithChildren
   '/_authenticated/admin/business': typeof AuthenticatedAdminBusinessRoute
   '/_authenticated/admin/catalogue': typeof AuthenticatedAdminCatalogueRouteWithChildren
   '/_authenticated/admin/change-password': typeof AuthenticatedAdminChangePasswordRoute
   '/_authenticated/admin/leads': typeof AuthenticatedAdminLeadsRoute
   '/_authenticated/admin/media': typeof AuthenticatedAdminMediaRoute
+  '/_authenticated/admin/reviews': typeof AuthenticatedAdminReviewsRoute
   '/_authenticated/admin/sections': typeof AuthenticatedAdminSectionsRouteWithChildren
   '/_authenticated/admin/tyres': typeof AuthenticatedAdminTyresRouteWithChildren
   '/_authenticated/admin/vehicles': typeof AuthenticatedAdminVehiclesRouteWithChildren
+  '/_authenticated/admin/videos': typeof AuthenticatedAdminVideosRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
   '/_authenticated/admin/brands/$id': typeof AuthenticatedAdminBrandsIdRoute
   '/_authenticated/admin/brands/new': typeof AuthenticatedAdminBrandsNewRoute
@@ -549,15 +579,18 @@ export interface FileRouteTypes {
     | '/admin/testing-lab'
     | '/tyres/$slug'
     | '/admin/activity'
+    | '/admin/articles'
     | '/admin/brands'
     | '/admin/business'
     | '/admin/catalogue'
     | '/admin/change-password'
     | '/admin/leads'
     | '/admin/media'
+    | '/admin/reviews'
     | '/admin/sections'
     | '/admin/tyres'
     | '/admin/vehicles'
+    | '/admin/videos'
     | '/admin/'
     | '/admin/brands/$id'
     | '/admin/brands/new'
@@ -603,11 +636,14 @@ export interface FileRouteTypes {
     | '/admin/testing-lab'
     | '/tyres/$slug'
     | '/admin/activity'
+    | '/admin/articles'
     | '/admin/business'
     | '/admin/change-password'
     | '/admin/leads'
     | '/admin/media'
+    | '/admin/reviews'
     | '/admin/vehicles'
+    | '/admin/videos'
     | '/admin'
     | '/admin/brands/$id'
     | '/admin/brands/new'
@@ -655,15 +691,18 @@ export interface FileRouteTypes {
     | '/admin/testing-lab'
     | '/tyres/$slug'
     | '/_authenticated/admin/activity'
+    | '/_authenticated/admin/articles'
     | '/_authenticated/admin/brands'
     | '/_authenticated/admin/business'
     | '/_authenticated/admin/catalogue'
     | '/_authenticated/admin/change-password'
     | '/_authenticated/admin/leads'
     | '/_authenticated/admin/media'
+    | '/_authenticated/admin/reviews'
     | '/_authenticated/admin/sections'
     | '/_authenticated/admin/tyres'
     | '/_authenticated/admin/vehicles'
+    | '/_authenticated/admin/videos'
     | '/_authenticated/admin/'
     | '/_authenticated/admin/brands/$id'
     | '/_authenticated/admin/brands/new'
@@ -860,6 +899,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminIndexRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
+    '/_authenticated/admin/videos': {
+      id: '/_authenticated/admin/videos'
+      path: '/videos'
+      fullPath: '/admin/videos'
+      preLoaderRoute: typeof AuthenticatedAdminVideosRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
     '/_authenticated/admin/vehicles': {
       id: '/_authenticated/admin/vehicles'
       path: '/vehicles'
@@ -879,6 +925,13 @@ declare module '@tanstack/react-router' {
       path: '/sections'
       fullPath: '/admin/sections'
       preLoaderRoute: typeof AuthenticatedAdminSectionsRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/reviews': {
+      id: '/_authenticated/admin/reviews'
+      path: '/reviews'
+      fullPath: '/admin/reviews'
+      preLoaderRoute: typeof AuthenticatedAdminReviewsRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
     '/_authenticated/admin/media': {
@@ -921,6 +974,13 @@ declare module '@tanstack/react-router' {
       path: '/brands'
       fullPath: '/admin/brands'
       preLoaderRoute: typeof AuthenticatedAdminBrandsRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/articles': {
+      id: '/_authenticated/admin/articles'
+      path: '/articles'
+      fullPath: '/admin/articles'
+      preLoaderRoute: typeof AuthenticatedAdminArticlesRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
     '/_authenticated/admin/activity': {
@@ -1250,20 +1310,24 @@ const AuthenticatedAdminVehiclesRouteWithChildren =
 
 interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminActivityRoute: typeof AuthenticatedAdminActivityRoute
+  AuthenticatedAdminArticlesRoute: typeof AuthenticatedAdminArticlesRoute
   AuthenticatedAdminBrandsRoute: typeof AuthenticatedAdminBrandsRouteWithChildren
   AuthenticatedAdminBusinessRoute: typeof AuthenticatedAdminBusinessRoute
   AuthenticatedAdminCatalogueRoute: typeof AuthenticatedAdminCatalogueRouteWithChildren
   AuthenticatedAdminChangePasswordRoute: typeof AuthenticatedAdminChangePasswordRoute
   AuthenticatedAdminLeadsRoute: typeof AuthenticatedAdminLeadsRoute
   AuthenticatedAdminMediaRoute: typeof AuthenticatedAdminMediaRoute
+  AuthenticatedAdminReviewsRoute: typeof AuthenticatedAdminReviewsRoute
   AuthenticatedAdminSectionsRoute: typeof AuthenticatedAdminSectionsRouteWithChildren
   AuthenticatedAdminTyresRoute: typeof AuthenticatedAdminTyresRouteWithChildren
   AuthenticatedAdminVehiclesRoute: typeof AuthenticatedAdminVehiclesRouteWithChildren
+  AuthenticatedAdminVideosRoute: typeof AuthenticatedAdminVideosRoute
   AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
 }
 
 const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
   AuthenticatedAdminActivityRoute: AuthenticatedAdminActivityRoute,
+  AuthenticatedAdminArticlesRoute: AuthenticatedAdminArticlesRoute,
   AuthenticatedAdminBrandsRoute: AuthenticatedAdminBrandsRouteWithChildren,
   AuthenticatedAdminBusinessRoute: AuthenticatedAdminBusinessRoute,
   AuthenticatedAdminCatalogueRoute:
@@ -1271,9 +1335,11 @@ const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
   AuthenticatedAdminChangePasswordRoute: AuthenticatedAdminChangePasswordRoute,
   AuthenticatedAdminLeadsRoute: AuthenticatedAdminLeadsRoute,
   AuthenticatedAdminMediaRoute: AuthenticatedAdminMediaRoute,
+  AuthenticatedAdminReviewsRoute: AuthenticatedAdminReviewsRoute,
   AuthenticatedAdminSectionsRoute: AuthenticatedAdminSectionsRouteWithChildren,
   AuthenticatedAdminTyresRoute: AuthenticatedAdminTyresRouteWithChildren,
   AuthenticatedAdminVehiclesRoute: AuthenticatedAdminVehiclesRouteWithChildren,
+  AuthenticatedAdminVideosRoute: AuthenticatedAdminVideosRoute,
   AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
 }
 
