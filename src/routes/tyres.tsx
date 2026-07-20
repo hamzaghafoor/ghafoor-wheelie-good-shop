@@ -243,11 +243,11 @@ function TyresPage() {
                     key={s.key}
                     title={s.staggered ? `${s.label} — ${s.width}/${s.profile} R${s.rim}` : `Recommended size — ${s.width}/${s.profile} R${s.rim}`}
                     subtitle={i === 0 && oemSets.some((x) => x.staggered) ? "This vehicle uses a staggered layout — front and rear sizes differ." : undefined}
-                    loading={vehicleQueries[i]?.isLoading}
-                    error={vehicleQueries[i]?.error as Error | null}
-                    onRetry={() => vehicleQueries[i]?.refetch()}
-                    rows={(vehicleQueries[i]?.data?.rows ?? []) as Row[]}
-                    total={vehicleQueries[i]?.data?.total ?? 0}
+                    loading={vehicleQuery.isLoading}
+                    error={vehicleQuery.error as Error | null}
+                    onRetry={() => vehicleQuery.refetch()}
+                    rows={(vehicleQuery.data?.[i]?.rows ?? []) as Row[]}
+                    total={vehicleQuery.data?.[i]?.total ?? 0}
                     page={page} pageSize={24}
                     onPage={(n) => setSearch({ page: n })}
                     emptyContext={{
