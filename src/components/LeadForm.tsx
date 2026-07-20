@@ -59,6 +59,13 @@ export function LeadForm(p: Props) {
         <input required placeholder="Phone / WhatsApp" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} className="h-10 rounded-md border border-border px-3 text-sm" />
       </div>
       <textarea placeholder="Anything specific? (optional)" rows={2} value={form.message} onChange={(e) => setForm({ ...form, message: e.target.value })} className="w-full rounded-md border border-border px-3 py-2 text-sm" />
+      {p.showExtended && (
+        <div className="grid gap-3 sm:grid-cols-3">
+          <input placeholder="Preferred brand (optional)" value={form.preferred_brand} onChange={(e) => setForm({ ...form, preferred_brand: e.target.value })} className="h-10 rounded-md border border-border px-3 text-sm" />
+          <input placeholder="Quantity" value={form.quantity} onChange={(e) => setForm({ ...form, quantity: e.target.value })} className="h-10 rounded-md border border-border px-3 text-sm" />
+          <input placeholder="Budget (optional)" value={form.budget} onChange={(e) => setForm({ ...form, budget: e.target.value })} className="h-10 rounded-md border border-border px-3 text-sm" />
+        </div>
+      )}
       <div className="flex flex-wrap items-center gap-3 text-xs">
         <span className="text-muted-foreground">Contact me on:</span>
         {(["whatsapp","call","either"] as const).map((k) => (
