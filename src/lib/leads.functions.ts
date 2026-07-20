@@ -39,6 +39,7 @@ const leadSchema = z.object({
   search_context: z.record(z.any()).default({}),
   variant_id: z.string().uuid().nullable().optional(),
   model_id: z.string().uuid().nullable().optional(),
+  lead_type: z.enum(["general","tyre_no_results","catalogue_no_results","vehicle_no_match","callback"]).default("general"),
 });
 
 export const submitLead = createServerFn({ method: "POST" })

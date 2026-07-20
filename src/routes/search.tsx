@@ -5,6 +5,8 @@ import { useState } from "react";
 import { z } from "zod";
 import { Search as SearchIcon } from "lucide-react";
 import { searchCatalogue } from "@/lib/search.functions";
+import { searchPublicCatalogue } from "@/lib/recommendations.functions";
+import { LeadForm } from "@/components/LeadForm";
 
 const CATEGORIES = [
   { value: "", label: "All" },
@@ -29,10 +31,16 @@ function SearchPage() {
   const [q, setQ] = useState(params.q ?? "");
   const [cat, setCat] = useState(params.category ?? "");
 
-  const search = useServerFn(searchCatalogue);
-  const { data, isFetching } = useQuery({
-    queryKey: ["search", params.q, params.category],
-    queryFn: () => search({ data: { q: params.q!, category: params.category || null } }),
+  const searchTyres = useServerFn(searchCatalogue);
+  const searchCat = useServerFn(searchPublicCatalogue);
+  const tyreRes = useQuery({
+    queryKey: ["search-tyres", params.q, params.category],
+    queryFn: () => searchTyres({ data: { q: params.q!, category: params.category || null } }),
+    enabled: !!params.q && params.q.length > 1 && (!params.category || params.category === "tyres"),
+  });
+  const catRes = useQuery({
+    queryKey: ["search-cat", params.q, params.category],
+    queryFn: () => searchCat({ data: { q: params.q ?? "", category: params.category || null, limit: 60, offset: 0 } }),
     enabled: !!params.q && params.q.length > 1,
   });
 
@@ -41,7 +49,14 @@ function SearchPage() {
     navigate({ search: { q: q.trim() || undefined, category: cat || undefined } });
   };
 
-  const results = data ?? [];
+  const tyreResults = (tyreRes.data ?? []) as any[];
+  const catResults = (catRes.data ?? []) as any[];
+  const results = [...tyreResults, ...catResults.map((r: any) => ({
+    kind: "family", id: r.id, category: r.category, title: r.name,
+    brand_name: r.brand_name, part_number: null, size_or_spec: r.product_type_name,
+    images: r.images, slug: r.slug,
+  }))];
+  const isFetching = tyreRes.isFetching || catRes.isFetching;
 
   return (
     <>
@@ -69,9 +84,17 @@ function SearchPage() {
           ) : isFetching ? (
             <p className="text-sm text-muted-foreground">Searching…</p>
           ) : results.length === 0 ? (
-            <div className="card-surface p-8 text-center">
-              <h3 className="font-display text-xl">No results for "{params.q}"</h3>
-              <p className="mt-2 text-sm text-muted-foreground">Try a different keyword, brand, tyre size (e.g. 195/65 R15), viscosity (e.g. 5W-30) or part number — or contact us on WhatsApp.</p>
+            <div className="space-y-6">
+              <div className="card-surface p-8 text-center">
+                <h3 className="font-display text-xl">No results for "{params.q}"</h3>
+                <p className="mt-2 text-sm text-muted-foreground">Try a different keyword, brand, tyre size (e.g. 195/65 R15), viscosity (e.g. 5W-30) or part number — or ask our expert below.</p>
+              </div>
+              <LeadForm
+                title="Ask our expert"
+                lead_type="catalogue_no_results"
+                showExtended
+                search_context={{ q: params.q, category: params.category }}
+              />
             </div>
           ) : (
             <>
