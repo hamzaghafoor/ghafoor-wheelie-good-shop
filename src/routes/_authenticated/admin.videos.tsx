@@ -67,7 +67,7 @@ function VideosAdmin() {
               <div className="grid grid-cols-2 gap-3">
                 <label className="block text-sm"><span className="mb-1 block text-muted-foreground">Provider</span>
                   <select className="w-full h-9 rounded-md border border-border px-2" value={editing.provider} onChange={(e) => setEditing({ ...editing, provider: e.target.value })}>
-                    <option value="youtube">YouTube</option><option value="vimeo">Vimeo</option><option value="other">Other</option>
+                    <option value="youtube">YouTube</option><option value="vimeo">Vimeo</option>
                   </select>
                 </label>
                 <label className="block text-sm"><span className="mb-1 block text-muted-foreground">Display order</span><input type="number" className="w-full h-9 rounded-md border border-border px-3" value={editing.display_order} onChange={(e) => setEditing({ ...editing, display_order: Number(e.target.value) })} /></label>
