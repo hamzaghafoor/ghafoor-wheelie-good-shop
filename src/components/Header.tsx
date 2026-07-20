@@ -107,11 +107,7 @@ export function Header() {
                   {n.label}
                 </Link>
               ))}
-              <Link to="/search" onClick={() => setOpen(false)} className="border-b border-border/60 py-3 text-sm font-medium text-foreground/80">Search</Link>
-              <div className="flex gap-2 py-3">
-                <a href={telLink()} className="btn-outline flex-1 text-sm">Call</a>
-                <a href={waLink("Assalam-o-Alaikum, I need help with tyres for my car.")} target="_blank" rel="noreferrer" className="btn-primary flex-1 text-sm">WhatsApp</a>
-              </div>
+              <Link to="/search" onClick={() => setOpen(false)} className="py-3 text-sm font-medium text-foreground/80">Search</Link>
             </div>
           </div>
         )}
