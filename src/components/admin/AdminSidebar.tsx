@@ -15,6 +15,9 @@ const groups: Group[] = [
   ]},
   { label: "Website", items: [
     { to: "/admin/sections", label: "Homepage Sections", icon: LayoutTemplate },
+    { to: "/admin/reviews", label: "Reviews", icon: Star },
+    { to: "/admin/articles", label: "Articles / Blog", icon: BookOpen },
+    { to: "/admin/videos", label: "Videos", icon: Video },
     { to: "/admin/pages", label: "Website Pages", icon: FileText, soon: true },
     { to: "/admin/navigation", label: "Navigation", icon: Navigation, soon: true },
     { to: "/admin/announcement", label: "Announcement Bar", icon: Megaphone, soon: true },
