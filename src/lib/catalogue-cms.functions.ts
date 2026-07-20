@@ -533,7 +533,7 @@ export const mergeBrand = createServerFn({ method: "POST" })
     z.object({ from: z.string().uuid(), to: z.string().uuid(), notes: z.string().max(500).optional() }).parse(d))
   .handler(async ({ data, context }) => {
     await assertAdmin(context);
-    const { data: res, error } = await context.supabase.rpc("merge_brand", { _from: data.from, _to: data.to, _notes: data.notes ?? null });
+    const { data: res, error } = await context.supabase.rpc("merge_brand", { _from: data.from, _to: data.to, _notes: data.notes ?? undefined });
     if (error) throw new Error(error.message);
     return res as any;
   });
