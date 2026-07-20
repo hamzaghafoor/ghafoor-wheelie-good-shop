@@ -787,11 +787,14 @@ export type Database = {
           id: string
           image_path: string | null
           is_default: boolean
-          normalized_base_qty: number
-          normalized_kind: Database["public"]["Enums"]["packaging_unit_kind"]
+          is_packless: boolean
+          normalized_base_qty: number | null
+          normalized_kind:
+            | Database["public"]["Enums"]["packaging_unit_kind"]
+            | null
           pack_label: string | null
-          pack_unit_code: string
-          pack_value: number
+          pack_unit_code: string | null
+          pack_value: number | null
           price: number | null
           private_notes: string | null
           product_id: string
@@ -809,11 +812,14 @@ export type Database = {
           id?: string
           image_path?: string | null
           is_default?: boolean
-          normalized_base_qty: number
-          normalized_kind: Database["public"]["Enums"]["packaging_unit_kind"]
+          is_packless?: boolean
+          normalized_base_qty?: number | null
+          normalized_kind?:
+            | Database["public"]["Enums"]["packaging_unit_kind"]
+            | null
           pack_label?: string | null
-          pack_unit_code: string
-          pack_value: number
+          pack_unit_code?: string | null
+          pack_value?: number | null
           price?: number | null
           private_notes?: string | null
           product_id: string
@@ -831,11 +837,14 @@ export type Database = {
           id?: string
           image_path?: string | null
           is_default?: boolean
-          normalized_base_qty?: number
-          normalized_kind?: Database["public"]["Enums"]["packaging_unit_kind"]
+          is_packless?: boolean
+          normalized_base_qty?: number | null
+          normalized_kind?:
+            | Database["public"]["Enums"]["packaging_unit_kind"]
+            | null
           pack_label?: string | null
-          pack_unit_code?: string
-          pack_value?: number
+          pack_unit_code?: string | null
+          pack_value?: number | null
           price?: number | null
           private_notes?: string | null
           product_id?: string
@@ -2136,6 +2145,7 @@ export type Database = {
         | "rolled_back"
         | "rollback_skipped"
         | "rollback_failed"
+        | "rollback_skipped_modified"
       lead_contact_method: "whatsapp" | "call" | "either"
       lead_status: "new" | "contacted" | "qualified" | "closed" | "lost"
       market_type: "PK" | "GLOBAL" | "JP_IMPORT" | "OTHER_IMPORT"
@@ -2370,6 +2380,7 @@ export const Constants = {
         "rolled_back",
         "rollback_skipped",
         "rollback_failed",
+        "rollback_skipped_modified",
       ],
       lead_contact_method: ["whatsapp", "call", "either"],
       lead_status: ["new", "contacted", "qualified", "closed", "lost"],
