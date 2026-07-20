@@ -189,15 +189,52 @@ export const listVideosAdmin = createServerFn({ method: "GET" })
     return data ?? [];
   });
 
+function parseVideoRef(provider: "youtube" | "vimeo", raw: string): string | null {
+  const s = raw.trim();
+  if (/^[A-Za-z0-9_-]{6,64}$/.test(s)) return s;
+  let u: URL;
+  try { u = new URL(s); } catch { return null; }
+  if (u.protocol !== "https:" && u.protocol !== "http:") return null;
+  const host = u.hostname.toLowerCase().replace(/^www\./, "");
+  if (provider === "youtube") {
+    if (host === "youtu.be") {
+      const id = u.pathname.slice(1);
+      return /^[A-Za-z0-9_-]{6,64}$/.test(id) ? id : null;
+    }
+    if (host === "youtube.com" || host === "m.youtube.com" || host === "youtube-nocookie.com") {
+      const v = u.searchParams.get("v");
+      if (v && /^[A-Za-z0-9_-]{6,64}$/.test(v)) return v;
+      const m = u.pathname.match(/^\/(embed|shorts|v)\/([A-Za-z0-9_-]{6,64})/);
+      if (m) return m[2];
+    }
+    return null;
+  }
+  if (provider === "vimeo") {
+    if (host === "vimeo.com" || host === "player.vimeo.com") {
+      const m = u.pathname.match(/(\d{6,20})/);
+      if (m) return m[1];
+    }
+    return null;
+  }
+  return null;
+}
+
 const videoSchema = z.object({
   id: z.string().uuid().optional(),
-  title: z.string().min(1).max(200),
-  provider: z.enum(["youtube", "vimeo", "other"]).default("youtube"),
-  video_ref: z.string().min(1).max(500),
+  title: z.string().trim().min(1).max(200),
+  provider: z.enum(["youtube", "vimeo"]).default("youtube"),
+  video_ref: z.string().trim().min(1).max(500),
   thumbnail_url: z.string().url().max(500).optional().nullable(),
   description: z.string().max(2000).optional().nullable(),
   published: z.boolean().default(false),
   display_order: z.number().int().default(0),
+}).transform((v, ctx) => {
+  const ref = parseVideoRef(v.provider, v.video_ref);
+  if (!ref) {
+    ctx.addIssue({ code: "custom", path: ["video_ref"], message: `Invalid ${v.provider} URL or ID. Paste a YouTube or Vimeo link.` });
+    return z.NEVER;
+  }
+  return { ...v, video_ref: ref };
 });
 
 export const upsertVideo = createServerFn({ method: "POST" })
