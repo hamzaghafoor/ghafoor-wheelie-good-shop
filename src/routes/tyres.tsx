@@ -127,16 +127,17 @@ function TyresPage() {
     enabled: mode === "size" && !!search.w,
   });
 
-  // Vehicle mode without config: run one search based on OEM-less selection -> just show finder + prompt.
-  // Vehicle mode with config: run one search per set.
-  const vehicleQueries = oemSets.map((s) =>
-    // eslint-disable-next-line react-hooks/rules-of-hooks
-    useQuery({
-      queryKey: ["search-vehicle", s.key, s.width, s.profile, s.rim, search.brand, search.avail, search.type, search.rf, sort, page],
-      queryFn: () => searchFn({ data: { ...commonFilters, width: s.width, profile: s.profile, rim: s.rim } }),
-      enabled: mode === "vehicle" && oemSets.length > 0,
-    })
-  );
+  // Vehicle mode with config: run one combined search across all OEM sets.
+  const vehicleQuery = useQuery({
+    queryKey: ["search-vehicle", oemSets.map((s) => s.key).join("|"), search.brand, search.avail, search.type, search.rf, sort, page],
+    queryFn: async () => {
+      const results = await Promise.all(
+        oemSets.map((s) => searchFn({ data: { ...commonFilters, width: s.width, profile: s.profile, rim: s.rim } }))
+      );
+      return results;
+    },
+    enabled: mode === "vehicle" && oemSets.length > 0,
+  });
 
   // No-results analytics de-dup.
   const lastNoResultsKey = useRef<string>("");
@@ -149,8 +150,8 @@ function TyresPage() {
         track("no_results", { via: "size", w: search.w, p: search.p, r: search.r });
       }
     }
-    if (mode === "vehicle" && oemSets.length && vehicleQueries.every((q) => q.isFetched)) {
-      const total = vehicleQueries.reduce((n, q) => n + (q.data?.total ?? 0), 0);
+    if (mode === "vehicle" && oemSets.length && vehicleQuery.isFetched) {
+      const total = (vehicleQuery.data ?? []).reduce((n: number, q: any) => n + (q?.total ?? 0), 0);
       const key = `veh:${search.config}:${total}`;
       if (total === 0 && key !== lastNoResultsKey.current) {
         lastNoResultsKey.current = key;
@@ -158,7 +159,7 @@ function TyresPage() {
       }
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [mode, sizeQuery.data, JSON.stringify(vehicleQueries.map((q) => q.data?.total))]);
+  }, [mode, sizeQuery.data, vehicleQuery.data]);
 
   const searchInitiated = mode === "size" ? !!search.w : (mode === "vehicle" && (!!search.config || !!search.model));
 
