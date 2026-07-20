@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { Link } from "@tanstack/react-router";
 import { getVehicleRecommendationsPublic } from "@/lib/recommendations.functions";
-import { waHref } from "@/lib/whatsapp";
+import { waLink } from "@/lib/business";
 import { MessageCircle } from "lucide-react";
 
 type Props = {
