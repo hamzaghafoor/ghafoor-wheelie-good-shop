@@ -7,6 +7,7 @@ type Group = { label: string; items: Item[] };
 const groups: Group[] = [
   { label: "", items: [{ to: "/admin", label: "Overview", icon: LayoutDashboard }] },
   { label: "Catalogue", items: [
+    { to: "/admin/catalogue", label: "Products", icon: Package },
     { to: "/admin/tyres", label: "Tyres", icon: Package },
     { to: "/admin/brands", label: "Brands", icon: Tag },
     { to: "/admin/vehicles", label: "Vehicles", icon: Navigation },
