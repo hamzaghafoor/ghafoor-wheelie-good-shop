@@ -46,17 +46,28 @@ export const listReviewsAdmin = createServerFn({ method: "GET" })
     return data ?? [];
   });
 
+const GOOGLE_URL_RE = /^https:\/\/(www\.)?(google\.[a-z.]+|maps\.google\.[a-z.]+|maps\.app\.goo\.gl|g\.page|search\.google\.[a-z.]+)\//i;
+
 const reviewSchema = z.object({
   id: z.string().uuid().optional(),
-  author_name: z.string().min(1).max(120),
+  author_name: z.string().trim().min(1).max(120),
   rating: z.number().int().min(1).max(5),
-  body: z.string().min(1).max(4000),
+  body: z.string().trim().min(1).max(4000),
   source: z.enum(["manual", "google", "facebook", "other"]).default("manual"),
   external_id: z.string().max(200).optional().nullable(),
   external_url: z.string().url().max(500).optional().nullable(),
   review_date: z.string().optional().nullable(),
   published: z.boolean().default(false),
   display_order: z.number().int().default(0),
+}).superRefine((v, ctx) => {
+  if (v.source === "google") {
+    if (!v.external_url || !GOOGLE_URL_RE.test(v.external_url)) {
+      ctx.addIssue({ code: "custom", path: ["external_url"], message: "Google reviews require a valid HTTPS Google source URL" });
+    }
+    if (v.body.trim().length < 10) {
+      ctx.addIssue({ code: "custom", path: ["body"], message: "Google reviews require genuine review text (min 10 chars)" });
+    }
+  }
 });
 
 export const upsertReview = createServerFn({ method: "POST" })
