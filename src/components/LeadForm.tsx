@@ -15,23 +15,34 @@ type Props = {
   search_context?: Record<string, any>;
   compact?: boolean;
   title?: string;
+  lead_type?: "general" | "tyre_no_results" | "catalogue_no_results" | "vehicle_no_match" | "callback";
+  showExtended?: boolean;
 };
 
 export function LeadForm(p: Props) {
   const submit = useServerFn(submitLead);
   const [form, setForm] = useState({
     name: "", phone: "", message: "", preferred_contact: "whatsapp" as "whatsapp" | "call" | "either",
+    preferred_brand: "", quantity: "", budget: "",
   });
   const [done, setDone] = useState(false);
 
   const m = useMutation({
     mutationFn: () => submit({ data: {
-      ...form, tyre_size: p.tyre_size, vehicle_make: p.vehicle_make, vehicle_model: p.vehicle_model, vehicle_year: p.vehicle_year,
+      name: form.name, phone: form.phone, preferred_contact: form.preferred_contact,
+      message: [form.message, p.showExtended && form.preferred_brand ? `Preferred brand: ${form.preferred_brand}` : "",
+                p.showExtended && form.quantity ? `Quantity: ${form.quantity}` : "",
+                p.showExtended && form.budget ? `Budget: ${form.budget}` : ""].filter(Boolean).join(" · ") || null,
+      tyre_size: p.tyre_size, vehicle_make: p.vehicle_make, vehicle_model: p.vehicle_model, vehicle_year: p.vehicle_year,
       variant_id: p.variant_id, model_id: p.model_id,
-      search_context: p.search_context ?? {},
+      search_context: {
+        ...(p.search_context ?? {}),
+        ...(p.showExtended ? { preferred_brand: form.preferred_brand || null, quantity: form.quantity || null, budget: form.budget || null } : {}),
+      },
       source_page: typeof window !== "undefined" ? window.location.pathname : null,
+      lead_type: p.lead_type ?? "general",
     } as any }),
-    onSuccess: () => { setDone(true); track("lead_submitted", { has_size: !!p.tyre_size, has_vehicle: !!p.vehicle_make }); },
+    onSuccess: () => { setDone(true); track("lead_submitted", { has_size: !!p.tyre_size, has_vehicle: !!p.vehicle_make, lead_type: p.lead_type ?? "general" }); },
   });
 
   if (done) return (
