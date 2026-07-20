@@ -2009,6 +2009,10 @@ export type Database = {
       }
     }
     Functions: {
+      apply_catalogue_import_batch: {
+        Args: { _batch_id: string }
+        Returns: Json
+      }
       apply_vehicle_import_batch: { Args: { _batch_id: string }; Returns: Json }
       get_vehicle_configurations: {
         Args: { _model_id: string }
@@ -2083,6 +2087,10 @@ export type Database = {
         Returns: Json
       }
       purge_import_payloads: { Args: never; Returns: number }
+      rollback_catalogue_import_batch: {
+        Args: { _batch_id: string }
+        Returns: Json
+      }
       rollback_vehicle_import_batch: {
         Args: { _batch_id: string }
         Returns: Json
@@ -2118,7 +2126,7 @@ export type Database = {
         | "partially_rolled_back"
         | "rollback_failed"
       import_conflict_strategy: "skip" | "update" | "error"
-      import_kind: "vehicle_spec"
+      import_kind: "vehicle_spec" | "catalogue"
       import_row_action: "insert" | "update" | "skip" | "error"
       import_row_status:
         | "pending"
@@ -2352,7 +2360,7 @@ export const Constants = {
         "rollback_failed",
       ],
       import_conflict_strategy: ["skip", "update", "error"],
-      import_kind: ["vehicle_spec"],
+      import_kind: ["vehicle_spec", "catalogue"],
       import_row_action: ["insert", "update", "skip", "error"],
       import_row_status: [
         "pending",
