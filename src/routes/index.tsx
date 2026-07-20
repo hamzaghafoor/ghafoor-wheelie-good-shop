@@ -9,9 +9,8 @@ import catLubes from "@/assets/cat-lubricants.jpg";
 import svcAlign from "@/assets/svc-alignment.jpg";
 import svcBal from "@/assets/svc-balancing.jpg";
 import { services } from "@/lib/services";
-import { popularVehicles } from "@/lib/vehicles";
 import { business, waLink } from "@/lib/business";
-import { TyreFinder } from "@/components/TyreFinder";
+import { TyreFinderShared } from "@/components/finder/TyreFinderShared";
 import { ServiceCard } from "@/components/ServiceCard";
 import { LocationSection } from "@/components/LocationSection";
 import { CTASection } from "@/components/CTASection";
@@ -48,7 +47,7 @@ function HomePage() {
     <>
       {enabled("hero") && <Hero c={cfg("hero")} />}
       {enabled("tyre_finder") && (
-        <div className="container-x -mt-12 relative z-10"><TyreFinder /></div>
+        <div className="container-x -mt-12 relative z-10"><TyreFinderShared variant="hero" /></div>
       )}
       {enabled("trust_strip") && <TrustStrip />}
       {enabled("vehicle_categories") && <ShopByNeed />}
@@ -330,6 +329,3 @@ function EducationSection() {
     </section>
   );
 }
-
-// Suppress unused warning
-void popularVehicles;
