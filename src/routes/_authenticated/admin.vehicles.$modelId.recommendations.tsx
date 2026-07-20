@@ -130,7 +130,7 @@ function RecPage() {
           configs={model.data?.configs ?? []}
           brands={brands.data ?? []}
           onCancel={() => setEditing(null)}
-          onSave={(d) => mSave.mutate(d)}
+          onSave={(d: any) => mSave.mutate(d)}
           busy={mSave.isPending}
           loadFamilies={loadFamilies}
         />
