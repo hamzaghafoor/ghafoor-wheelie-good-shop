@@ -25,14 +25,14 @@ function RecPage() {
   const { modelId } = Route.useParams();
   const qc = useQueryClient();
   const loadModel = useServerFn(getModelWithConfigs);
-  const loadBrands = useServerFn(listBrands);
+  const loadBrands = useServerFn(listBrandsAdmin);
   const loadFamilies = useServerFn(listPublishedFamilies);
   const loadRecs = useServerFn(listRecommendations);
   const save = useServerFn(upsertRecommendation);
   const del = useServerFn(deleteRecommendation);
 
   const model = useQuery({ queryKey: ["rec-model", modelId], queryFn: () => loadModel({ data: { modelId } }) });
-  const brands = useQuery({ queryKey: ["rec-brands"], queryFn: () => loadBrands({ data: {} } as any) });
+  const brands = useQuery({ queryKey: ["rec-brands"], queryFn: () => loadBrands() });
   const recs = useQuery({ queryKey: ["recs", modelId], queryFn: () => loadRecs({ data: { model_id: modelId } }) });
 
   const makeId = model.data?.model?.make_id;
