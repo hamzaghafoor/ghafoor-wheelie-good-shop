@@ -174,7 +174,7 @@ export function TyreFinderShared({ variant = "page", initial, onSubmit }: Props)
                   onChange={(e) => { const v = e.target.value ? Number(e.target.value) : null; setW(v); setP(null); setR(null); }}
                   className="finder-select">
                   <option value="">{widths.isLoading ? "Loading…" : "Select width"}</option>
-                  {(widths.data ?? []).map((x) => <option key={x} value={x}>{x}</option>)}
+                  {(widths.data ?? []).map((x: number) => <option key={x} value={x}>{x}</option>)}
                 </select>
               </Field>
               <Field label="Profile">
@@ -183,7 +183,7 @@ export function TyreFinderShared({ variant = "page", initial, onSubmit }: Props)
                   onChange={(e) => { const v = e.target.value ? Number(e.target.value) : null; setP(v); setR(null); }}
                   className="finder-select">
                   <option value="">{!w ? "Select width first" : profiles.isLoading ? "Loading…" : "Select profile"}</option>
-                  {(profiles.data ?? []).map((x) => <option key={x} value={x}>{x}</option>)}
+                  {(profiles.data ?? []).map((x: number) => <option key={x} value={x}>{x}</option>)}
                 </select>
               </Field>
               <Field label="Rim (R)">
@@ -192,7 +192,7 @@ export function TyreFinderShared({ variant = "page", initial, onSubmit }: Props)
                   onChange={(e) => setR(e.target.value ? Number(e.target.value) : null)}
                   className="finder-select">
                   <option value="">{!p ? "Select profile first" : rims.isLoading ? "Loading…" : "Select rim"}</option>
-                  {(rims.data ?? []).map((x) => <option key={x} value={x}>{x}</option>)}
+                  {(rims.data ?? []).map((x: number) => <option key={x} value={x}>{x}</option>)}
                 </select>
               </Field>
               <button

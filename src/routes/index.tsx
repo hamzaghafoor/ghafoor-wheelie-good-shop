@@ -329,6 +329,3 @@ function EducationSection() {
     </section>
   );
 }
-
-// Suppress unused warning
-void popularVehicles;
