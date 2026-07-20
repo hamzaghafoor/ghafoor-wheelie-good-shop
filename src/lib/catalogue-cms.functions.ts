@@ -290,10 +290,20 @@ export const deleteVariant = createServerFn({ method: "POST" })
   .inputValidator((d: { id: string }) => z.object({ id: z.string().uuid() }).parse(d))
   .handler(async ({ data, context }) => {
     await assertAdmin(context);
+    // Guard: only hard-delete safe draft variants (no ERP id, no image, not published).
+    // Trigger `pv_guard_delete` enforces the same rules server-side; we surface a friendly message.
+    const { data: v, error: readErr } = await context.supabase
+      .from("product_variants").select("id, status, erp_stock_id, image_path, archived").eq("id", data.id).maybeSingle();
+    if (readErr) throw new Error(readErr.message);
+    if (!v) throw new Error("Variant not found.");
+    if ((v as any).status === "published") throw new Error("This variant is published. Unpublish and archive it instead of deleting.");
+    if ((v as any).erp_stock_id) throw new Error("This variant has an ERP Stock ID. Archive it to preserve ERP history.");
+    if ((v as any).image_path) throw new Error("This variant has an uploaded image. Remove the image first, or archive the variant.");
     const { error } = await context.supabase.from("product_variants").delete().eq("id", data.id);
     if (error) throw new Error(error.message);
     return { ok: true as const };
   });
+
 
 export const setVariantStatus = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -519,10 +529,17 @@ export const deleteHomepageCatalogueSection = createServerFn({ method: "POST" })
   .inputValidator((d: { id: string }) => z.object({ id: z.string().uuid() }).parse(d))
   .handler(async ({ data, context }) => {
     await assertAdmin(context);
+    // Safety: only allow hard-delete when the section is hidden (not currently on the homepage).
+    // Visible sections must be hidden first — this is the "archive before delete" pattern.
+    const { data: s } = await context.supabase
+      .from("homepage_catalogue_sections").select("id, is_visible").eq("id", data.id).maybeSingle();
+    if (!s) throw new Error("Section not found.");
+    if ((s as any).is_visible) throw new Error("Hide this section from the homepage before deleting it permanently.");
     const { error } = await context.supabase.from("homepage_catalogue_sections").delete().eq("id", data.id);
     if (error) throw new Error(error.message);
     return { ok: true as const };
   });
+
 
 // ============================================================================
 // BRAND MERGE
