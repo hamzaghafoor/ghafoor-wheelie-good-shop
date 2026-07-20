@@ -74,6 +74,60 @@ export type Database = {
         }
         Relationships: []
       }
+      articles: {
+        Row: {
+          body_md: string
+          cover_image_path: string | null
+          created_at: string
+          created_by: string | null
+          display_order: number
+          excerpt: string | null
+          id: string
+          published: boolean
+          published_at: string | null
+          seo_description: string | null
+          seo_title: string | null
+          slug: string
+          tags: string[]
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          body_md?: string
+          cover_image_path?: string | null
+          created_at?: string
+          created_by?: string | null
+          display_order?: number
+          excerpt?: string | null
+          id?: string
+          published?: boolean
+          published_at?: string | null
+          seo_description?: string | null
+          seo_title?: string | null
+          slug: string
+          tags?: string[]
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          body_md?: string
+          cover_image_path?: string | null
+          created_at?: string
+          created_by?: string | null
+          display_order?: number
+          excerpt?: string | null
+          id?: string
+          published?: boolean
+          published_at?: string | null
+          seo_description?: string | null
+          seo_title?: string | null
+          slug?: string
+          tags?: string[]
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       brand_merges: {
         Row: {
           from_brand_id: string
@@ -1065,6 +1119,54 @@ export type Database = {
           full_name?: string | null
           id?: string
           must_change_password?: boolean
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      reviews: {
+        Row: {
+          author_name: string
+          body: string
+          created_at: string
+          created_by: string | null
+          display_order: number
+          external_id: string | null
+          external_url: string | null
+          id: string
+          published: boolean
+          rating: number
+          review_date: string | null
+          source: string
+          updated_at: string
+        }
+        Insert: {
+          author_name: string
+          body: string
+          created_at?: string
+          created_by?: string | null
+          display_order?: number
+          external_id?: string | null
+          external_url?: string | null
+          id?: string
+          published?: boolean
+          rating: number
+          review_date?: string | null
+          source?: string
+          updated_at?: string
+        }
+        Update: {
+          author_name?: string
+          body?: string
+          created_at?: string
+          created_by?: string | null
+          display_order?: number
+          external_id?: string | null
+          external_url?: string | null
+          id?: string
+          published?: boolean
+          rating?: number
+          review_date?: string | null
+          source?: string
           updated_at?: string
         }
         Relationships: []
@@ -2104,6 +2206,48 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      videos: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          description: string | null
+          display_order: number
+          id: string
+          provider: string
+          published: boolean
+          thumbnail_url: string | null
+          title: string
+          updated_at: string
+          video_ref: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          display_order?: number
+          id?: string
+          provider?: string
+          published?: boolean
+          thumbnail_url?: string | null
+          title: string
+          updated_at?: string
+          video_ref: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          display_order?: number
+          id?: string
+          provider?: string
+          published?: boolean
+          thumbnail_url?: string | null
+          title?: string
+          updated_at?: string
+          video_ref?: string
+        }
+        Relationships: []
       }
     }
     Views: {
