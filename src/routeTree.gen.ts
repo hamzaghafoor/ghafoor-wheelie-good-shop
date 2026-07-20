@@ -52,6 +52,7 @@ import { Route as AuthenticatedAdminTyresIdRouteImport } from './routes/_authent
 import { Route as AuthenticatedAdminSectionsIdRouteImport } from './routes/_authenticated/admin.sections.$id'
 import { Route as AuthenticatedAdminCatalogueTypesRouteImport } from './routes/_authenticated/admin.catalogue.types'
 import { Route as AuthenticatedAdminCatalogueSettingsRouteImport } from './routes/_authenticated/admin.catalogue.settings'
+import { Route as AuthenticatedAdminCatalogueReviewRouteImport } from './routes/_authenticated/admin.catalogue.review'
 import { Route as AuthenticatedAdminCatalogueNewRouteImport } from './routes/_authenticated/admin.catalogue.new'
 import { Route as AuthenticatedAdminCatalogueImportRouteImport } from './routes/_authenticated/admin.catalogue.import'
 import { Route as AuthenticatedAdminCatalogueHomepageRouteImport } from './routes/_authenticated/admin.catalogue.homepage'
@@ -295,6 +296,12 @@ const AuthenticatedAdminCatalogueSettingsRoute =
     path: '/settings',
     getParentRoute: () => AuthenticatedAdminCatalogueRoute,
   } as any)
+const AuthenticatedAdminCatalogueReviewRoute =
+  AuthenticatedAdminCatalogueReviewRouteImport.update({
+    id: '/review',
+    path: '/review',
+    getParentRoute: () => AuthenticatedAdminCatalogueRoute,
+  } as any)
 const AuthenticatedAdminCatalogueNewRoute =
   AuthenticatedAdminCatalogueNewRouteImport.update({
     id: '/new',
@@ -387,6 +394,7 @@ export interface FileRoutesByFullPath {
   '/admin/catalogue/homepage': typeof AuthenticatedAdminCatalogueHomepageRoute
   '/admin/catalogue/import': typeof AuthenticatedAdminCatalogueImportRouteWithChildren
   '/admin/catalogue/new': typeof AuthenticatedAdminCatalogueNewRoute
+  '/admin/catalogue/review': typeof AuthenticatedAdminCatalogueReviewRoute
   '/admin/catalogue/settings': typeof AuthenticatedAdminCatalogueSettingsRoute
   '/admin/catalogue/types': typeof AuthenticatedAdminCatalogueTypesRoute
   '/admin/sections/$id': typeof AuthenticatedAdminSectionsIdRoute
@@ -435,6 +443,7 @@ export interface FileRoutesByTo {
   '/admin/catalogue/homepage': typeof AuthenticatedAdminCatalogueHomepageRoute
   '/admin/catalogue/import': typeof AuthenticatedAdminCatalogueImportRouteWithChildren
   '/admin/catalogue/new': typeof AuthenticatedAdminCatalogueNewRoute
+  '/admin/catalogue/review': typeof AuthenticatedAdminCatalogueReviewRoute
   '/admin/catalogue/settings': typeof AuthenticatedAdminCatalogueSettingsRoute
   '/admin/catalogue/types': typeof AuthenticatedAdminCatalogueTypesRoute
   '/admin/sections/$id': typeof AuthenticatedAdminSectionsIdRoute
@@ -490,6 +499,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/catalogue/homepage': typeof AuthenticatedAdminCatalogueHomepageRoute
   '/_authenticated/admin/catalogue/import': typeof AuthenticatedAdminCatalogueImportRouteWithChildren
   '/_authenticated/admin/catalogue/new': typeof AuthenticatedAdminCatalogueNewRoute
+  '/_authenticated/admin/catalogue/review': typeof AuthenticatedAdminCatalogueReviewRoute
   '/_authenticated/admin/catalogue/settings': typeof AuthenticatedAdminCatalogueSettingsRoute
   '/_authenticated/admin/catalogue/types': typeof AuthenticatedAdminCatalogueTypesRoute
   '/_authenticated/admin/sections/$id': typeof AuthenticatedAdminSectionsIdRoute
@@ -545,6 +555,7 @@ export interface FileRouteTypes {
     | '/admin/catalogue/homepage'
     | '/admin/catalogue/import'
     | '/admin/catalogue/new'
+    | '/admin/catalogue/review'
     | '/admin/catalogue/settings'
     | '/admin/catalogue/types'
     | '/admin/sections/$id'
@@ -593,6 +604,7 @@ export interface FileRouteTypes {
     | '/admin/catalogue/homepage'
     | '/admin/catalogue/import'
     | '/admin/catalogue/new'
+    | '/admin/catalogue/review'
     | '/admin/catalogue/settings'
     | '/admin/catalogue/types'
     | '/admin/sections/$id'
@@ -647,6 +659,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/catalogue/homepage'
     | '/_authenticated/admin/catalogue/import'
     | '/_authenticated/admin/catalogue/new'
+    | '/_authenticated/admin/catalogue/review'
     | '/_authenticated/admin/catalogue/settings'
     | '/_authenticated/admin/catalogue/types'
     | '/_authenticated/admin/sections/$id'
@@ -988,6 +1001,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminCatalogueSettingsRouteImport
       parentRoute: typeof AuthenticatedAdminCatalogueRoute
     }
+    '/_authenticated/admin/catalogue/review': {
+      id: '/_authenticated/admin/catalogue/review'
+      path: '/review'
+      fullPath: '/admin/catalogue/review'
+      preLoaderRoute: typeof AuthenticatedAdminCatalogueReviewRouteImport
+      parentRoute: typeof AuthenticatedAdminCatalogueRoute
+    }
     '/_authenticated/admin/catalogue/new': {
       id: '/_authenticated/admin/catalogue/new'
       path: '/new'
@@ -1092,6 +1112,7 @@ interface AuthenticatedAdminCatalogueRouteChildren {
   AuthenticatedAdminCatalogueHomepageRoute: typeof AuthenticatedAdminCatalogueHomepageRoute
   AuthenticatedAdminCatalogueImportRoute: typeof AuthenticatedAdminCatalogueImportRouteWithChildren
   AuthenticatedAdminCatalogueNewRoute: typeof AuthenticatedAdminCatalogueNewRoute
+  AuthenticatedAdminCatalogueReviewRoute: typeof AuthenticatedAdminCatalogueReviewRoute
   AuthenticatedAdminCatalogueSettingsRoute: typeof AuthenticatedAdminCatalogueSettingsRoute
   AuthenticatedAdminCatalogueTypesRoute: typeof AuthenticatedAdminCatalogueTypesRoute
   AuthenticatedAdminCatalogueIndexRoute: typeof AuthenticatedAdminCatalogueIndexRoute
@@ -1105,6 +1126,8 @@ const AuthenticatedAdminCatalogueRouteChildren: AuthenticatedAdminCatalogueRoute
     AuthenticatedAdminCatalogueImportRoute:
       AuthenticatedAdminCatalogueImportRouteWithChildren,
     AuthenticatedAdminCatalogueNewRoute: AuthenticatedAdminCatalogueNewRoute,
+    AuthenticatedAdminCatalogueReviewRoute:
+      AuthenticatedAdminCatalogueReviewRoute,
     AuthenticatedAdminCatalogueSettingsRoute:
       AuthenticatedAdminCatalogueSettingsRoute,
     AuthenticatedAdminCatalogueTypesRoute:
