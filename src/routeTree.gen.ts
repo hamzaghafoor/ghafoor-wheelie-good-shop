@@ -60,6 +60,7 @@ import { Route as AuthenticatedAdminBrandsNewRouteImport } from './routes/_authe
 import { Route as AuthenticatedAdminBrandsIdRouteImport } from './routes/_authenticated/admin.brands.$id'
 import { Route as AuthenticatedAdminVehiclesConfigurationsConfigIdRouteImport } from './routes/_authenticated/admin.vehicles.configurations.$configId'
 import { Route as AuthenticatedAdminTyresIdCompatRouteImport } from './routes/_authenticated/admin.tyres.$id.compat'
+import { Route as AuthenticatedAdminCatalogueImportBatchIdRouteImport } from './routes/_authenticated/admin.catalogue.import.$batchId'
 
 const TyresRoute = TyresRouteImport.update({
   id: '/tyres',
@@ -342,6 +343,12 @@ const AuthenticatedAdminTyresIdCompatRoute =
     path: '/compat',
     getParentRoute: () => AuthenticatedAdminTyresIdRoute,
   } as any)
+const AuthenticatedAdminCatalogueImportBatchIdRoute =
+  AuthenticatedAdminCatalogueImportBatchIdRouteImport.update({
+    id: '/$batchId',
+    path: '/$batchId',
+    getParentRoute: () => AuthenticatedAdminCatalogueImportRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -378,7 +385,7 @@ export interface FileRoutesByFullPath {
   '/admin/brands/new': typeof AuthenticatedAdminBrandsNewRoute
   '/admin/catalogue/$id': typeof AuthenticatedAdminCatalogueIdRoute
   '/admin/catalogue/homepage': typeof AuthenticatedAdminCatalogueHomepageRoute
-  '/admin/catalogue/import': typeof AuthenticatedAdminCatalogueImportRoute
+  '/admin/catalogue/import': typeof AuthenticatedAdminCatalogueImportRouteWithChildren
   '/admin/catalogue/new': typeof AuthenticatedAdminCatalogueNewRoute
   '/admin/catalogue/settings': typeof AuthenticatedAdminCatalogueSettingsRoute
   '/admin/catalogue/types': typeof AuthenticatedAdminCatalogueTypesRoute
@@ -392,6 +399,7 @@ export interface FileRoutesByFullPath {
   '/admin/catalogue/': typeof AuthenticatedAdminCatalogueIndexRoute
   '/admin/sections/': typeof AuthenticatedAdminSectionsIndexRoute
   '/admin/tyres/': typeof AuthenticatedAdminTyresIndexRoute
+  '/admin/catalogue/import/$batchId': typeof AuthenticatedAdminCatalogueImportBatchIdRoute
   '/admin/tyres/$id/compat': typeof AuthenticatedAdminTyresIdCompatRoute
   '/admin/vehicles/configurations/$configId': typeof AuthenticatedAdminVehiclesConfigurationsConfigIdRoute
 }
@@ -425,7 +433,7 @@ export interface FileRoutesByTo {
   '/admin/brands/new': typeof AuthenticatedAdminBrandsNewRoute
   '/admin/catalogue/$id': typeof AuthenticatedAdminCatalogueIdRoute
   '/admin/catalogue/homepage': typeof AuthenticatedAdminCatalogueHomepageRoute
-  '/admin/catalogue/import': typeof AuthenticatedAdminCatalogueImportRoute
+  '/admin/catalogue/import': typeof AuthenticatedAdminCatalogueImportRouteWithChildren
   '/admin/catalogue/new': typeof AuthenticatedAdminCatalogueNewRoute
   '/admin/catalogue/settings': typeof AuthenticatedAdminCatalogueSettingsRoute
   '/admin/catalogue/types': typeof AuthenticatedAdminCatalogueTypesRoute
@@ -439,6 +447,7 @@ export interface FileRoutesByTo {
   '/admin/catalogue': typeof AuthenticatedAdminCatalogueIndexRoute
   '/admin/sections': typeof AuthenticatedAdminSectionsIndexRoute
   '/admin/tyres': typeof AuthenticatedAdminTyresIndexRoute
+  '/admin/catalogue/import/$batchId': typeof AuthenticatedAdminCatalogueImportBatchIdRoute
   '/admin/tyres/$id/compat': typeof AuthenticatedAdminTyresIdCompatRoute
   '/admin/vehicles/configurations/$configId': typeof AuthenticatedAdminVehiclesConfigurationsConfigIdRoute
 }
@@ -479,7 +488,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/brands/new': typeof AuthenticatedAdminBrandsNewRoute
   '/_authenticated/admin/catalogue/$id': typeof AuthenticatedAdminCatalogueIdRoute
   '/_authenticated/admin/catalogue/homepage': typeof AuthenticatedAdminCatalogueHomepageRoute
-  '/_authenticated/admin/catalogue/import': typeof AuthenticatedAdminCatalogueImportRoute
+  '/_authenticated/admin/catalogue/import': typeof AuthenticatedAdminCatalogueImportRouteWithChildren
   '/_authenticated/admin/catalogue/new': typeof AuthenticatedAdminCatalogueNewRoute
   '/_authenticated/admin/catalogue/settings': typeof AuthenticatedAdminCatalogueSettingsRoute
   '/_authenticated/admin/catalogue/types': typeof AuthenticatedAdminCatalogueTypesRoute
@@ -493,6 +502,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/catalogue/': typeof AuthenticatedAdminCatalogueIndexRoute
   '/_authenticated/admin/sections/': typeof AuthenticatedAdminSectionsIndexRoute
   '/_authenticated/admin/tyres/': typeof AuthenticatedAdminTyresIndexRoute
+  '/_authenticated/admin/catalogue/import/$batchId': typeof AuthenticatedAdminCatalogueImportBatchIdRoute
   '/_authenticated/admin/tyres/$id/compat': typeof AuthenticatedAdminTyresIdCompatRoute
   '/_authenticated/admin/vehicles/configurations/$configId': typeof AuthenticatedAdminVehiclesConfigurationsConfigIdRoute
 }
@@ -547,6 +557,7 @@ export interface FileRouteTypes {
     | '/admin/catalogue/'
     | '/admin/sections/'
     | '/admin/tyres/'
+    | '/admin/catalogue/import/$batchId'
     | '/admin/tyres/$id/compat'
     | '/admin/vehicles/configurations/$configId'
   fileRoutesByTo: FileRoutesByTo
@@ -594,6 +605,7 @@ export interface FileRouteTypes {
     | '/admin/catalogue'
     | '/admin/sections'
     | '/admin/tyres'
+    | '/admin/catalogue/import/$batchId'
     | '/admin/tyres/$id/compat'
     | '/admin/vehicles/configurations/$configId'
   id:
@@ -647,6 +659,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/catalogue/'
     | '/_authenticated/admin/sections/'
     | '/_authenticated/admin/tyres/'
+    | '/_authenticated/admin/catalogue/import/$batchId'
     | '/_authenticated/admin/tyres/$id/compat'
     | '/_authenticated/admin/vehicles/configurations/$configId'
   fileRoutesById: FileRoutesById
@@ -1031,6 +1044,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminTyresIdCompatRouteImport
       parentRoute: typeof AuthenticatedAdminTyresIdRoute
     }
+    '/_authenticated/admin/catalogue/import/$batchId': {
+      id: '/_authenticated/admin/catalogue/import/$batchId'
+      path: '/$batchId'
+      fullPath: '/admin/catalogue/import/$batchId'
+      preLoaderRoute: typeof AuthenticatedAdminCatalogueImportBatchIdRouteImport
+      parentRoute: typeof AuthenticatedAdminCatalogueImportRoute
+    }
   }
 }
 
@@ -1052,10 +1072,25 @@ const AuthenticatedAdminBrandsRouteWithChildren =
     AuthenticatedAdminBrandsRouteChildren,
   )
 
+interface AuthenticatedAdminCatalogueImportRouteChildren {
+  AuthenticatedAdminCatalogueImportBatchIdRoute: typeof AuthenticatedAdminCatalogueImportBatchIdRoute
+}
+
+const AuthenticatedAdminCatalogueImportRouteChildren: AuthenticatedAdminCatalogueImportRouteChildren =
+  {
+    AuthenticatedAdminCatalogueImportBatchIdRoute:
+      AuthenticatedAdminCatalogueImportBatchIdRoute,
+  }
+
+const AuthenticatedAdminCatalogueImportRouteWithChildren =
+  AuthenticatedAdminCatalogueImportRoute._addFileChildren(
+    AuthenticatedAdminCatalogueImportRouteChildren,
+  )
+
 interface AuthenticatedAdminCatalogueRouteChildren {
   AuthenticatedAdminCatalogueIdRoute: typeof AuthenticatedAdminCatalogueIdRoute
   AuthenticatedAdminCatalogueHomepageRoute: typeof AuthenticatedAdminCatalogueHomepageRoute
-  AuthenticatedAdminCatalogueImportRoute: typeof AuthenticatedAdminCatalogueImportRoute
+  AuthenticatedAdminCatalogueImportRoute: typeof AuthenticatedAdminCatalogueImportRouteWithChildren
   AuthenticatedAdminCatalogueNewRoute: typeof AuthenticatedAdminCatalogueNewRoute
   AuthenticatedAdminCatalogueSettingsRoute: typeof AuthenticatedAdminCatalogueSettingsRoute
   AuthenticatedAdminCatalogueTypesRoute: typeof AuthenticatedAdminCatalogueTypesRoute
@@ -1068,7 +1103,7 @@ const AuthenticatedAdminCatalogueRouteChildren: AuthenticatedAdminCatalogueRoute
     AuthenticatedAdminCatalogueHomepageRoute:
       AuthenticatedAdminCatalogueHomepageRoute,
     AuthenticatedAdminCatalogueImportRoute:
-      AuthenticatedAdminCatalogueImportRoute,
+      AuthenticatedAdminCatalogueImportRouteWithChildren,
     AuthenticatedAdminCatalogueNewRoute: AuthenticatedAdminCatalogueNewRoute,
     AuthenticatedAdminCatalogueSettingsRoute:
       AuthenticatedAdminCatalogueSettingsRoute,

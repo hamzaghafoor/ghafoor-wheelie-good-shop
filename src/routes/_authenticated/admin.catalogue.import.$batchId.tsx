@@ -122,10 +122,8 @@ function PreviewPage() {
   const isCommitted = batch.status === "succeeded" || batch.status === "partially_rolled_back";
   const canRb = isCommitted && batch.rollback_expires_at && new Date(batch.rollback_expires_at) > new Date();
 
-  const counts = {
-    all: rows.length,
-    ...ACTIONS.reduce((acc, a) => ({ ...acc, [a]: rows.filter((r: any) => r.source_payload?.action === a).length }), {} as Record<string, number>),
-  };
+  const counts: Record<string, number> = { all: rows.length };
+  for (const a of ACTIONS) counts[a] = rows.filter((r: any) => r.source_payload?.action === a).length;
 
   return (
     <div>
