@@ -74,6 +74,47 @@ export type Database = {
         }
         Relationships: []
       }
+      brand_merges: {
+        Row: {
+          from_brand_id: string
+          id: string
+          moved_product_count: number
+          moved_tyre_model_count: number
+          notes: string | null
+          performed_at: string
+          performed_by: string | null
+          to_brand_id: string
+        }
+        Insert: {
+          from_brand_id: string
+          id?: string
+          moved_product_count?: number
+          moved_tyre_model_count?: number
+          notes?: string | null
+          performed_at?: string
+          performed_by?: string | null
+          to_brand_id: string
+        }
+        Update: {
+          from_brand_id?: string
+          id?: string
+          moved_product_count?: number
+          moved_tyre_model_count?: number
+          notes?: string | null
+          performed_at?: string
+          performed_by?: string | null
+          to_brand_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "brand_merges_to_brand_id_fkey"
+            columns: ["to_brand_id"]
+            isOneToOne: false
+            referencedRelation: "brands"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       brands: {
         Row: {
           archived: boolean
@@ -191,6 +232,102 @@ export type Database = {
           updated_at?: string
           updated_by?: string | null
           whatsapp?: string | null
+        }
+        Relationships: []
+      }
+      catalogue_settings: {
+        Row: {
+          catalogue_phone: string | null
+          category_order: string[]
+          default_availability: string
+          default_import_status: string
+          empty_catalogue_message: string
+          id: number
+          nav_categories: string[]
+          price_confirm_text: string
+          products_per_page: number
+          updated_at: string
+          updated_by: string | null
+          whatsapp_cta_text: string
+        }
+        Insert: {
+          catalogue_phone?: string | null
+          category_order?: string[]
+          default_availability?: string
+          default_import_status?: string
+          empty_catalogue_message?: string
+          id?: number
+          nav_categories?: string[]
+          price_confirm_text?: string
+          products_per_page?: number
+          updated_at?: string
+          updated_by?: string | null
+          whatsapp_cta_text?: string
+        }
+        Update: {
+          catalogue_phone?: string | null
+          category_order?: string[]
+          default_availability?: string
+          default_import_status?: string
+          empty_catalogue_message?: string
+          id?: number
+          nav_categories?: string[]
+          price_confirm_text?: string
+          products_per_page?: number
+          updated_at?: string
+          updated_by?: string | null
+          whatsapp_cta_text?: string
+        }
+        Relationships: []
+      }
+      homepage_catalogue_sections: {
+        Row: {
+          brand_ids: string[]
+          category_slugs: string[]
+          created_at: string
+          created_by: string | null
+          cta_label: string | null
+          cta_link: string | null
+          description: string | null
+          display_order: number
+          heading: string | null
+          id: string
+          is_visible: boolean
+          kind: Database["public"]["Enums"]["homepage_catalogue_section_kind"]
+          product_ids: string[]
+          updated_at: string
+        }
+        Insert: {
+          brand_ids?: string[]
+          category_slugs?: string[]
+          created_at?: string
+          created_by?: string | null
+          cta_label?: string | null
+          cta_link?: string | null
+          description?: string | null
+          display_order?: number
+          heading?: string | null
+          id?: string
+          is_visible?: boolean
+          kind: Database["public"]["Enums"]["homepage_catalogue_section_kind"]
+          product_ids?: string[]
+          updated_at?: string
+        }
+        Update: {
+          brand_ids?: string[]
+          category_slugs?: string[]
+          created_at?: string
+          created_by?: string | null
+          cta_label?: string | null
+          cta_link?: string | null
+          description?: string | null
+          display_order?: number
+          heading?: string | null
+          id?: string
+          is_visible?: boolean
+          kind?: Database["public"]["Enums"]["homepage_catalogue_section_kind"]
+          product_ids?: string[]
+          updated_at?: string
         }
         Relationships: []
       }
@@ -475,6 +612,253 @@ export type Database = {
         }
         Relationships: []
       }
+      packaging_presets: {
+        Row: {
+          created_at: string
+          display_label: string | null
+          display_order: number
+          id: string
+          is_active: boolean
+          unit_code: string
+          updated_at: string
+          value_numeric: number
+        }
+        Insert: {
+          created_at?: string
+          display_label?: string | null
+          display_order?: number
+          id?: string
+          is_active?: boolean
+          unit_code: string
+          updated_at?: string
+          value_numeric: number
+        }
+        Update: {
+          created_at?: string
+          display_label?: string | null
+          display_order?: number
+          id?: string
+          is_active?: boolean
+          unit_code?: string
+          updated_at?: string
+          value_numeric?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "packaging_presets_unit_code_fkey"
+            columns: ["unit_code"]
+            isOneToOne: false
+            referencedRelation: "packaging_units"
+            referencedColumns: ["code"]
+          },
+        ]
+      }
+      packaging_units: {
+        Row: {
+          base_code: string
+          code: string
+          display_label: string
+          display_order: number
+          factor_to_base: number
+          is_visible: boolean
+          kind: Database["public"]["Enums"]["packaging_unit_kind"]
+          system_locked: boolean
+          updated_at: string
+        }
+        Insert: {
+          base_code: string
+          code: string
+          display_label: string
+          display_order?: number
+          factor_to_base: number
+          is_visible?: boolean
+          kind: Database["public"]["Enums"]["packaging_unit_kind"]
+          system_locked?: boolean
+          updated_at?: string
+        }
+        Update: {
+          base_code?: string
+          code?: string
+          display_label?: string
+          display_order?: number
+          factor_to_base?: number
+          is_visible?: boolean
+          kind?: Database["public"]["Enums"]["packaging_unit_kind"]
+          system_locked?: boolean
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      product_type_labels: {
+        Row: {
+          archived: boolean
+          created_at: string
+          created_by: string | null
+          display_order: number
+          id: string
+          is_active: boolean
+          label: string
+          slug: string
+          type_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          archived?: boolean
+          created_at?: string
+          created_by?: string | null
+          display_order?: number
+          id?: string
+          is_active?: boolean
+          label: string
+          slug: string
+          type_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          archived?: boolean
+          created_at?: string
+          created_by?: string | null
+          display_order?: number
+          id?: string
+          is_active?: boolean
+          label?: string
+          slug?: string
+          type_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_type_labels_type_id_fkey"
+            columns: ["type_id"]
+            isOneToOne: false
+            referencedRelation: "product_types"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      product_types: {
+        Row: {
+          archived: boolean
+          created_at: string
+          created_by: string | null
+          display_order: number
+          id: string
+          is_active: boolean
+          name: string
+          parent_category: Database["public"]["Enums"]["product_category"]
+          slug: string
+          updated_at: string
+        }
+        Insert: {
+          archived?: boolean
+          created_at?: string
+          created_by?: string | null
+          display_order?: number
+          id?: string
+          is_active?: boolean
+          name: string
+          parent_category: Database["public"]["Enums"]["product_category"]
+          slug: string
+          updated_at?: string
+        }
+        Update: {
+          archived?: boolean
+          created_at?: string
+          created_by?: string | null
+          display_order?: number
+          id?: string
+          is_active?: boolean
+          name?: string
+          parent_category?: Database["public"]["Enums"]["product_category"]
+          slug?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      product_variants: {
+        Row: {
+          archived: boolean
+          availability: string
+          compare_at_price: number | null
+          created_at: string
+          created_by: string | null
+          display_order: number
+          erp_stock_id: string | null
+          id: string
+          image_path: string | null
+          is_default: boolean
+          normalized_base_qty: number
+          normalized_kind: Database["public"]["Enums"]["packaging_unit_kind"]
+          pack_label: string | null
+          pack_unit_code: string
+          pack_value: number
+          price: number | null
+          private_notes: string | null
+          product_id: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          archived?: boolean
+          availability?: string
+          compare_at_price?: number | null
+          created_at?: string
+          created_by?: string | null
+          display_order?: number
+          erp_stock_id?: string | null
+          id?: string
+          image_path?: string | null
+          is_default?: boolean
+          normalized_base_qty: number
+          normalized_kind: Database["public"]["Enums"]["packaging_unit_kind"]
+          pack_label?: string | null
+          pack_unit_code: string
+          pack_value: number
+          price?: number | null
+          private_notes?: string | null
+          product_id: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          archived?: boolean
+          availability?: string
+          compare_at_price?: number | null
+          created_at?: string
+          created_by?: string | null
+          display_order?: number
+          erp_stock_id?: string | null
+          id?: string
+          image_path?: string | null
+          is_default?: boolean
+          normalized_base_qty?: number
+          normalized_kind?: Database["public"]["Enums"]["packaging_unit_kind"]
+          pack_label?: string | null
+          pack_unit_code?: string
+          pack_value?: number
+          price?: number | null
+          private_notes?: string | null
+          product_id?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_variants_pack_unit_code_fkey"
+            columns: ["pack_unit_code"]
+            isOneToOne: false
+            referencedRelation: "packaging_units"
+            referencedColumns: ["code"]
+          },
+          {
+            foreignKeyName: "product_variants_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       product_vehicle_compat: {
         Row: {
           created_at: string
@@ -533,9 +917,11 @@ export type Database = {
           category: Database["public"]["Enums"]["product_category"]
           created_at: string
           created_by: string | null
+          erp_description: string | null
           full_desc: string | null
           id: string
           images: Json
+          internal_notes: string | null
           is_featured: boolean
           name: string
           part_number: string | null
@@ -546,7 +932,9 @@ export type Database = {
           price_verified_at: string | null
           price_verified_by: string | null
           private_notes: string | null
+          product_type_id: string | null
           public_notes: string | null
+          purpose_label_ids: string[]
           short_desc: string | null
           sku: string | null
           slug: string
@@ -563,9 +951,11 @@ export type Database = {
           category: Database["public"]["Enums"]["product_category"]
           created_at?: string
           created_by?: string | null
+          erp_description?: string | null
           full_desc?: string | null
           id?: string
           images?: Json
+          internal_notes?: string | null
           is_featured?: boolean
           name: string
           part_number?: string | null
@@ -576,7 +966,9 @@ export type Database = {
           price_verified_at?: string | null
           price_verified_by?: string | null
           private_notes?: string | null
+          product_type_id?: string | null
           public_notes?: string | null
+          purpose_label_ids?: string[]
           short_desc?: string | null
           sku?: string | null
           slug: string
@@ -593,9 +985,11 @@ export type Database = {
           category?: Database["public"]["Enums"]["product_category"]
           created_at?: string
           created_by?: string | null
+          erp_description?: string | null
           full_desc?: string | null
           id?: string
           images?: Json
+          internal_notes?: string | null
           is_featured?: boolean
           name?: string
           part_number?: string | null
@@ -606,7 +1000,9 @@ export type Database = {
           price_verified_at?: string | null
           price_verified_by?: string | null
           private_notes?: string | null
+          product_type_id?: string | null
           public_notes?: string | null
+          purpose_label_ids?: string[]
           short_desc?: string | null
           sku?: string | null
           slug?: string
@@ -620,6 +1016,13 @@ export type Database = {
             columns: ["brand_id"]
             isOneToOne: false
             referencedRelation: "brands"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "products_product_type_id_fkey"
+            columns: ["product_type_id"]
+            isOneToOne: false
+            referencedRelation: "product_types"
             referencedColumns: ["id"]
           },
         ]
@@ -1675,6 +2078,10 @@ export type Database = {
         Returns: boolean
       }
       is_admin: { Args: { _user_id: string }; Returns: boolean }
+      merge_brand: {
+        Args: { _from: string; _notes?: string; _to: string }
+        Returns: Json
+      }
       purge_import_payloads: { Args: never; Returns: number }
       rollback_vehicle_import_batch: {
         Args: { _batch_id: string }
@@ -1692,6 +2099,12 @@ export type Database = {
         | "discontinued"
       content_status: "draft" | "published" | "scheduled" | "archived"
       fuel_type: "petrol" | "diesel" | "hybrid" | "phev" | "ev" | "cng" | "lpg"
+      homepage_catalogue_section_kind:
+        | "heading"
+        | "product_grid"
+        | "brand_grid"
+        | "category_cards"
+        | "cta"
       import_batch_status:
         | "draft"
         | "validating"
@@ -1718,6 +2131,7 @@ export type Database = {
       lead_contact_method: "whatsapp" | "call" | "either"
       lead_status: "new" | "contacted" | "qualified" | "closed" | "lost"
       market_type: "PK" | "GLOBAL" | "JP_IMPORT" | "OTHER_IMPORT"
+      packaging_unit_kind: "volume" | "mass" | "count"
       price_mode:
         | "fixed"
         | "confirm_today"
@@ -1917,6 +2331,13 @@ export const Constants = {
       ],
       content_status: ["draft", "published", "scheduled", "archived"],
       fuel_type: ["petrol", "diesel", "hybrid", "phev", "ev", "cng", "lpg"],
+      homepage_catalogue_section_kind: [
+        "heading",
+        "product_grid",
+        "brand_grid",
+        "category_cards",
+        "cta",
+      ],
       import_batch_status: [
         "draft",
         "validating",
@@ -1945,6 +2366,7 @@ export const Constants = {
       lead_contact_method: ["whatsapp", "call", "either"],
       lead_status: ["new", "contacted", "qualified", "closed", "lost"],
       market_type: ["PK", "GLOBAL", "JP_IMPORT", "OTHER_IMPORT"],
+      packaging_unit_kind: ["volume", "mass", "count"],
       price_mode: [
         "fixed",
         "confirm_today",
