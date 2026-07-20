@@ -20,6 +20,7 @@ import { Route as LubricantsRouteImport } from './routes/lubricants'
 import { Route as FiltersRouteImport } from './routes/filters'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as CarCareRouteImport } from './routes/car-care'
+import { Route as BlogRouteImport } from './routes/blog'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AdditivesRouteImport } from './routes/additives'
 import { Route as AccessoriesRouteImport } from './routes/accessories'
@@ -27,6 +28,7 @@ import { Route as AboutRouteImport } from './routes/about'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as TyresSlugRouteImport } from './routes/tyres.$slug'
+import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
 import { Route as AdminTestingLabRouteImport } from './routes/admin.testing-lab'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin.index'
@@ -122,6 +124,11 @@ const CarCareRoute = CarCareRouteImport.update({
   path: '/car-care',
   getParentRoute: () => rootRouteImport,
 } as any)
+const BlogRoute = BlogRouteImport.update({
+  id: '/blog',
+  path: '/blog',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
@@ -155,6 +162,11 @@ const TyresSlugRoute = TyresSlugRouteImport.update({
   id: '/$slug',
   path: '/$slug',
   getParentRoute: () => TyresRoute,
+} as any)
+const BlogSlugRoute = BlogSlugRouteImport.update({
+  id: '/$slug',
+  path: '/$slug',
+  getParentRoute: () => BlogRoute,
 } as any)
 const AdminTestingLabRoute = AdminTestingLabRouteImport.update({
   id: '/admin/testing-lab',
@@ -391,6 +403,7 @@ export interface FileRoutesByFullPath {
   '/accessories': typeof AccessoriesRoute
   '/additives': typeof AdditivesRoute
   '/auth': typeof AuthRoute
+  '/blog': typeof BlogRouteWithChildren
   '/car-care': typeof CarCareRoute
   '/contact': typeof ContactRoute
   '/filters': typeof FiltersRoute
@@ -404,6 +417,7 @@ export interface FileRoutesByFullPath {
   '/tyres': typeof TyresRouteWithChildren
   '/admin': typeof AuthenticatedAdminRouteWithChildren
   '/admin/testing-lab': typeof AdminTestingLabRoute
+  '/blog/$slug': typeof BlogSlugRoute
   '/tyres/$slug': typeof TyresSlugRoute
   '/admin/activity': typeof AuthenticatedAdminActivityRoute
   '/admin/articles': typeof AuthenticatedAdminArticlesRoute
@@ -449,6 +463,7 @@ export interface FileRoutesByTo {
   '/accessories': typeof AccessoriesRoute
   '/additives': typeof AdditivesRoute
   '/auth': typeof AuthRoute
+  '/blog': typeof BlogRouteWithChildren
   '/car-care': typeof CarCareRoute
   '/contact': typeof ContactRoute
   '/filters': typeof FiltersRoute
@@ -461,6 +476,7 @@ export interface FileRoutesByTo {
   '/tyre-guide': typeof TyreGuideRoute
   '/tyres': typeof TyresRouteWithChildren
   '/admin/testing-lab': typeof AdminTestingLabRoute
+  '/blog/$slug': typeof BlogSlugRoute
   '/tyres/$slug': typeof TyresSlugRoute
   '/admin/activity': typeof AuthenticatedAdminActivityRoute
   '/admin/articles': typeof AuthenticatedAdminArticlesRoute
@@ -504,6 +520,7 @@ export interface FileRoutesById {
   '/accessories': typeof AccessoriesRoute
   '/additives': typeof AdditivesRoute
   '/auth': typeof AuthRoute
+  '/blog': typeof BlogRouteWithChildren
   '/car-care': typeof CarCareRoute
   '/contact': typeof ContactRoute
   '/filters': typeof FiltersRoute
@@ -517,6 +534,7 @@ export interface FileRoutesById {
   '/tyres': typeof TyresRouteWithChildren
   '/_authenticated/admin': typeof AuthenticatedAdminRouteWithChildren
   '/admin/testing-lab': typeof AdminTestingLabRoute
+  '/blog/$slug': typeof BlogSlugRoute
   '/tyres/$slug': typeof TyresSlugRoute
   '/_authenticated/admin/activity': typeof AuthenticatedAdminActivityRoute
   '/_authenticated/admin/articles': typeof AuthenticatedAdminArticlesRoute
@@ -564,6 +582,7 @@ export interface FileRouteTypes {
     | '/accessories'
     | '/additives'
     | '/auth'
+    | '/blog'
     | '/car-care'
     | '/contact'
     | '/filters'
@@ -577,6 +596,7 @@ export interface FileRouteTypes {
     | '/tyres'
     | '/admin'
     | '/admin/testing-lab'
+    | '/blog/$slug'
     | '/tyres/$slug'
     | '/admin/activity'
     | '/admin/articles'
@@ -622,6 +642,7 @@ export interface FileRouteTypes {
     | '/accessories'
     | '/additives'
     | '/auth'
+    | '/blog'
     | '/car-care'
     | '/contact'
     | '/filters'
@@ -634,6 +655,7 @@ export interface FileRouteTypes {
     | '/tyre-guide'
     | '/tyres'
     | '/admin/testing-lab'
+    | '/blog/$slug'
     | '/tyres/$slug'
     | '/admin/activity'
     | '/admin/articles'
@@ -676,6 +698,7 @@ export interface FileRouteTypes {
     | '/accessories'
     | '/additives'
     | '/auth'
+    | '/blog'
     | '/car-care'
     | '/contact'
     | '/filters'
@@ -689,6 +712,7 @@ export interface FileRouteTypes {
     | '/tyres'
     | '/_authenticated/admin'
     | '/admin/testing-lab'
+    | '/blog/$slug'
     | '/tyres/$slug'
     | '/_authenticated/admin/activity'
     | '/_authenticated/admin/articles'
@@ -736,6 +760,7 @@ export interface RootRouteChildren {
   AccessoriesRoute: typeof AccessoriesRoute
   AdditivesRoute: typeof AdditivesRoute
   AuthRoute: typeof AuthRoute
+  BlogRoute: typeof BlogRouteWithChildren
   CarCareRoute: typeof CarCareRoute
   ContactRoute: typeof ContactRoute
   FiltersRoute: typeof FiltersRoute
@@ -829,6 +854,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CarCareRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/blog': {
+      id: '/blog'
+      path: '/blog'
+      fullPath: '/blog'
+      preLoaderRoute: typeof BlogRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/auth': {
       id: '/auth'
       path: '/auth'
@@ -877,6 +909,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/tyres/$slug'
       preLoaderRoute: typeof TyresSlugRouteImport
       parentRoute: typeof TyresRoute
+    }
+    '/blog/$slug': {
+      id: '/blog/$slug'
+      path: '/$slug'
+      fullPath: '/blog/$slug'
+      preLoaderRoute: typeof BlogSlugRouteImport
+      parentRoute: typeof BlogRoute
     }
     '/admin/testing-lab': {
       id: '/admin/testing-lab'
@@ -1357,6 +1396,16 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
 const AuthenticatedRouteRouteWithChildren =
   AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
 
+interface BlogRouteChildren {
+  BlogSlugRoute: typeof BlogSlugRoute
+}
+
+const BlogRouteChildren: BlogRouteChildren = {
+  BlogSlugRoute: BlogSlugRoute,
+}
+
+const BlogRouteWithChildren = BlogRoute._addFileChildren(BlogRouteChildren)
+
 interface TyresRouteChildren {
   TyresSlugRoute: typeof TyresSlugRoute
 }
@@ -1374,6 +1423,7 @@ const rootRouteChildren: RootRouteChildren = {
   AccessoriesRoute: AccessoriesRoute,
   AdditivesRoute: AdditivesRoute,
   AuthRoute: AuthRoute,
+  BlogRoute: BlogRouteWithChildren,
   CarCareRoute: CarCareRoute,
   ContactRoute: ContactRoute,
   FiltersRoute: FiltersRoute,
