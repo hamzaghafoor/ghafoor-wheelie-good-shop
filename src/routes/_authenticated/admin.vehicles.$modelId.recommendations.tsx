@@ -4,7 +4,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { useState, useMemo } from "react";
 import { ChevronLeft, Plus, Trash2 } from "lucide-react";
 import { getModelWithConfigs } from "@/lib/oem.functions";
-import { listBrands } from "@/lib/brands.functions";
+import { listBrandsAdmin } from "@/lib/brands.functions";
 import { listPublishedFamilies, listRecommendations, upsertRecommendation, deleteRecommendation } from "@/lib/recommendations.functions";
 
 export const Route = createFileRoute("/_authenticated/admin/vehicles/$modelId/recommendations")({

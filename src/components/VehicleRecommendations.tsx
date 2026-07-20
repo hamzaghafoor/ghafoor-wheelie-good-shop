@@ -93,7 +93,7 @@ function RecCard({ r, vehicleLabel, staleDays }: { r: any; vehicleLabel?: string
           <Link to="/search" search={{ q: r.family_name } as any} className="flex-1 rounded-full border border-border px-3 py-1.5 text-center text-xs font-medium hover:border-primary hover:text-primary">
             View details
           </Link>
-          <a href={waHref(msg)} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 rounded-full bg-primary px-3 py-1.5 text-xs font-medium text-white hover:bg-primary/90">
+          <a href={waLink(msg)} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 rounded-full bg-primary px-3 py-1.5 text-xs font-medium text-white hover:bg-primary/90">
             <MessageCircle className="h-3 w-3" /> WhatsApp
           </a>
         </div>
