@@ -1,5 +1,4 @@
-import { Link, useLocation } from "@tanstack/react-router";
-import { LayoutDashboard, Package, Tag, Image, LayoutTemplate, Building2, Activity, ChevronRight, Users, Settings, Megaphone, FileText, Search, Navigation, Phone, Calendar, MessageSquare, DollarSign } from "lucide-react";
+import { LayoutDashboard, Package, Tag, Image, LayoutTemplate, Building2, Activity, Users, Settings, Megaphone, FileText, Search, Navigation, Phone, Calendar, MessageSquare, DollarSign, Star, Video, BookOpen } from "lucide-react";
 
 type Item = { to: string; label: string; icon: any; soon?: boolean };
 type Group = { label: string; items: Item[] };
