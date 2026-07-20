@@ -53,6 +53,7 @@ import { Route as AuthenticatedAdminSectionsIdRouteImport } from './routes/_auth
 import { Route as AuthenticatedAdminCatalogueTypesRouteImport } from './routes/_authenticated/admin.catalogue.types'
 import { Route as AuthenticatedAdminCatalogueSettingsRouteImport } from './routes/_authenticated/admin.catalogue.settings'
 import { Route as AuthenticatedAdminCatalogueNewRouteImport } from './routes/_authenticated/admin.catalogue.new'
+import { Route as AuthenticatedAdminCatalogueImportRouteImport } from './routes/_authenticated/admin.catalogue.import'
 import { Route as AuthenticatedAdminCatalogueHomepageRouteImport } from './routes/_authenticated/admin.catalogue.homepage'
 import { Route as AuthenticatedAdminCatalogueIdRouteImport } from './routes/_authenticated/admin.catalogue.$id'
 import { Route as AuthenticatedAdminBrandsNewRouteImport } from './routes/_authenticated/admin.brands.new'
@@ -299,6 +300,12 @@ const AuthenticatedAdminCatalogueNewRoute =
     path: '/new',
     getParentRoute: () => AuthenticatedAdminCatalogueRoute,
   } as any)
+const AuthenticatedAdminCatalogueImportRoute =
+  AuthenticatedAdminCatalogueImportRouteImport.update({
+    id: '/import',
+    path: '/import',
+    getParentRoute: () => AuthenticatedAdminCatalogueRoute,
+  } as any)
 const AuthenticatedAdminCatalogueHomepageRoute =
   AuthenticatedAdminCatalogueHomepageRouteImport.update({
     id: '/homepage',
@@ -371,6 +378,7 @@ export interface FileRoutesByFullPath {
   '/admin/brands/new': typeof AuthenticatedAdminBrandsNewRoute
   '/admin/catalogue/$id': typeof AuthenticatedAdminCatalogueIdRoute
   '/admin/catalogue/homepage': typeof AuthenticatedAdminCatalogueHomepageRoute
+  '/admin/catalogue/import': typeof AuthenticatedAdminCatalogueImportRoute
   '/admin/catalogue/new': typeof AuthenticatedAdminCatalogueNewRoute
   '/admin/catalogue/settings': typeof AuthenticatedAdminCatalogueSettingsRoute
   '/admin/catalogue/types': typeof AuthenticatedAdminCatalogueTypesRoute
@@ -417,6 +425,7 @@ export interface FileRoutesByTo {
   '/admin/brands/new': typeof AuthenticatedAdminBrandsNewRoute
   '/admin/catalogue/$id': typeof AuthenticatedAdminCatalogueIdRoute
   '/admin/catalogue/homepage': typeof AuthenticatedAdminCatalogueHomepageRoute
+  '/admin/catalogue/import': typeof AuthenticatedAdminCatalogueImportRoute
   '/admin/catalogue/new': typeof AuthenticatedAdminCatalogueNewRoute
   '/admin/catalogue/settings': typeof AuthenticatedAdminCatalogueSettingsRoute
   '/admin/catalogue/types': typeof AuthenticatedAdminCatalogueTypesRoute
@@ -470,6 +479,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/brands/new': typeof AuthenticatedAdminBrandsNewRoute
   '/_authenticated/admin/catalogue/$id': typeof AuthenticatedAdminCatalogueIdRoute
   '/_authenticated/admin/catalogue/homepage': typeof AuthenticatedAdminCatalogueHomepageRoute
+  '/_authenticated/admin/catalogue/import': typeof AuthenticatedAdminCatalogueImportRoute
   '/_authenticated/admin/catalogue/new': typeof AuthenticatedAdminCatalogueNewRoute
   '/_authenticated/admin/catalogue/settings': typeof AuthenticatedAdminCatalogueSettingsRoute
   '/_authenticated/admin/catalogue/types': typeof AuthenticatedAdminCatalogueTypesRoute
@@ -523,6 +533,7 @@ export interface FileRouteTypes {
     | '/admin/brands/new'
     | '/admin/catalogue/$id'
     | '/admin/catalogue/homepage'
+    | '/admin/catalogue/import'
     | '/admin/catalogue/new'
     | '/admin/catalogue/settings'
     | '/admin/catalogue/types'
@@ -569,6 +580,7 @@ export interface FileRouteTypes {
     | '/admin/brands/new'
     | '/admin/catalogue/$id'
     | '/admin/catalogue/homepage'
+    | '/admin/catalogue/import'
     | '/admin/catalogue/new'
     | '/admin/catalogue/settings'
     | '/admin/catalogue/types'
@@ -621,6 +633,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/brands/new'
     | '/_authenticated/admin/catalogue/$id'
     | '/_authenticated/admin/catalogue/homepage'
+    | '/_authenticated/admin/catalogue/import'
     | '/_authenticated/admin/catalogue/new'
     | '/_authenticated/admin/catalogue/settings'
     | '/_authenticated/admin/catalogue/types'
@@ -969,6 +982,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminCatalogueNewRouteImport
       parentRoute: typeof AuthenticatedAdminCatalogueRoute
     }
+    '/_authenticated/admin/catalogue/import': {
+      id: '/_authenticated/admin/catalogue/import'
+      path: '/import'
+      fullPath: '/admin/catalogue/import'
+      preLoaderRoute: typeof AuthenticatedAdminCatalogueImportRouteImport
+      parentRoute: typeof AuthenticatedAdminCatalogueRoute
+    }
     '/_authenticated/admin/catalogue/homepage': {
       id: '/_authenticated/admin/catalogue/homepage'
       path: '/homepage'
@@ -1035,6 +1055,7 @@ const AuthenticatedAdminBrandsRouteWithChildren =
 interface AuthenticatedAdminCatalogueRouteChildren {
   AuthenticatedAdminCatalogueIdRoute: typeof AuthenticatedAdminCatalogueIdRoute
   AuthenticatedAdminCatalogueHomepageRoute: typeof AuthenticatedAdminCatalogueHomepageRoute
+  AuthenticatedAdminCatalogueImportRoute: typeof AuthenticatedAdminCatalogueImportRoute
   AuthenticatedAdminCatalogueNewRoute: typeof AuthenticatedAdminCatalogueNewRoute
   AuthenticatedAdminCatalogueSettingsRoute: typeof AuthenticatedAdminCatalogueSettingsRoute
   AuthenticatedAdminCatalogueTypesRoute: typeof AuthenticatedAdminCatalogueTypesRoute
@@ -1046,6 +1067,8 @@ const AuthenticatedAdminCatalogueRouteChildren: AuthenticatedAdminCatalogueRoute
     AuthenticatedAdminCatalogueIdRoute: AuthenticatedAdminCatalogueIdRoute,
     AuthenticatedAdminCatalogueHomepageRoute:
       AuthenticatedAdminCatalogueHomepageRoute,
+    AuthenticatedAdminCatalogueImportRoute:
+      AuthenticatedAdminCatalogueImportRoute,
     AuthenticatedAdminCatalogueNewRoute: AuthenticatedAdminCatalogueNewRoute,
     AuthenticatedAdminCatalogueSettingsRoute:
       AuthenticatedAdminCatalogueSettingsRoute,
