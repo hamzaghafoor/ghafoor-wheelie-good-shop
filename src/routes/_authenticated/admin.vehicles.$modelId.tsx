@@ -71,6 +71,9 @@ function ModelConfigsPage() {
           <p className="mt-1 text-sm text-muted-foreground">OEM configurations, tyre and engine-oil specifications.</p>
         </div>
         <div className="flex items-center gap-2">
+          <Link to="/admin/vehicles/$modelId/recommendations" params={{ modelId }} className="rounded-md border border-border bg-white px-3 py-1.5 text-xs hover:border-primary hover:text-primary">
+            Recommendations
+          </Link>
           <label className="flex items-center gap-1 text-xs text-muted-foreground">
             <input type="checkbox" checked={showArchived} onChange={(e) => setShowArchived(e.target.checked)} /> Show archived
           </label>
