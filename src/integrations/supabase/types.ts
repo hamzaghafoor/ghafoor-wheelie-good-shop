@@ -237,6 +237,7 @@ export type Database = {
       }
       catalogue_settings: {
         Row: {
+          availability_stale_days: number
           catalogue_phone: string | null
           category_order: string[]
           default_availability: string
@@ -251,6 +252,7 @@ export type Database = {
           whatsapp_cta_text: string
         }
         Insert: {
+          availability_stale_days?: number
           catalogue_phone?: string | null
           category_order?: string[]
           default_availability?: string
@@ -265,6 +267,7 @@ export type Database = {
           whatsapp_cta_text?: string
         }
         Update: {
+          availability_stale_days?: number
           catalogue_phone?: string | null
           category_order?: string[]
           default_availability?: string
@@ -497,6 +500,7 @@ export type Database = {
           admin_notes: string | null
           created_at: string
           id: string
+          lead_type: string
           message: string | null
           model_id: string | null
           name: string
@@ -516,6 +520,7 @@ export type Database = {
           admin_notes?: string | null
           created_at?: string
           id?: string
+          lead_type?: string
           message?: string | null
           model_id?: string | null
           name: string
@@ -535,6 +540,7 @@ export type Database = {
           admin_notes?: string | null
           created_at?: string
           id?: string
+          lead_type?: string
           message?: string | null
           model_id?: string | null
           name?: string
@@ -1949,6 +1955,109 @@ export type Database = {
           },
         ]
       }
+      vehicle_recommendations: {
+        Row: {
+          brand_id: string
+          category: Database["public"]["Enums"]["product_category"]
+          configuration_id: string | null
+          created_at: string
+          created_by: string | null
+          display_order: number
+          id: string
+          is_active: boolean
+          label: string | null
+          make_id: string
+          model_id: string
+          notes: string | null
+          product_family_id: string
+          product_type_id: string | null
+          rec_group: Database["public"]["Enums"]["recommendation_group"]
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          brand_id: string
+          category: Database["public"]["Enums"]["product_category"]
+          configuration_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          display_order?: number
+          id?: string
+          is_active?: boolean
+          label?: string | null
+          make_id: string
+          model_id: string
+          notes?: string | null
+          product_family_id: string
+          product_type_id?: string | null
+          rec_group?: Database["public"]["Enums"]["recommendation_group"]
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          brand_id?: string
+          category?: Database["public"]["Enums"]["product_category"]
+          configuration_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          display_order?: number
+          id?: string
+          is_active?: boolean
+          label?: string | null
+          make_id?: string
+          model_id?: string
+          notes?: string | null
+          product_family_id?: string
+          product_type_id?: string | null
+          rec_group?: Database["public"]["Enums"]["recommendation_group"]
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "vehicle_recommendations_brand_id_fkey"
+            columns: ["brand_id"]
+            isOneToOne: false
+            referencedRelation: "brands"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "vehicle_recommendations_configuration_id_fkey"
+            columns: ["configuration_id"]
+            isOneToOne: false
+            referencedRelation: "vehicle_configurations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "vehicle_recommendations_make_id_fkey"
+            columns: ["make_id"]
+            isOneToOne: false
+            referencedRelation: "vehicle_makes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "vehicle_recommendations_model_id_fkey"
+            columns: ["model_id"]
+            isOneToOne: false
+            referencedRelation: "vehicle_models"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "vehicle_recommendations_product_family_id_fkey"
+            columns: ["product_family_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "vehicle_recommendations_product_type_id_fkey"
+            columns: ["product_type_id"]
+            isOneToOne: false
+            referencedRelation: "product_types"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       vehicle_years: {
         Row: {
           archived: boolean
@@ -2023,6 +2132,8 @@ export type Database = {
         Returns: Json
       }
       apply_vehicle_import_batch: { Args: { _batch_id: string }; Returns: Json }
+      get_family_completeness: { Args: { _family_id: string }; Returns: Json }
+      get_public_product_family: { Args: { _slug: string }; Returns: Json }
       get_public_tyre_profiles: {
         Args: { _width: number }
         Returns: {
@@ -2097,6 +2208,32 @@ export type Database = {
           rear_speed_rating: string
           rear_width: number
           verification_status: string
+        }[]
+      }
+      get_public_vehicle_recommendations: {
+        Args: { _configuration_id?: string; _model_id: string }
+        Returns: {
+          active_variant_count: number
+          brand_id: string
+          brand_logo_url: string
+          brand_name: string
+          category: string
+          display_order: number
+          family_availability: string
+          family_availability_verified_at: string
+          family_id: string
+          family_images: Json
+          family_name: string
+          family_previous_price: number
+          family_price: number
+          family_price_mode: string
+          family_short_desc: string
+          family_slug: string
+          id: string
+          label: string
+          product_type_id: string
+          product_type_name: string
+          rec_group: string
         }[]
       }
       get_public_vehicle_years: {
@@ -2176,6 +2313,17 @@ export type Database = {
         Returns: boolean
       }
       is_admin: { Args: { _user_id: string }; Returns: boolean }
+      list_family_completeness_flags: {
+        Args: never
+        Returns: {
+          family_id: string
+          missing_image: boolean
+          missing_price: boolean
+          missing_specs: boolean
+          missing_variant: boolean
+          stale_availability: boolean
+        }[]
+      }
       merge_brand: {
         Args: { _from: string; _notes?: string; _to: string }
         Returns: Json
@@ -2188,6 +2336,36 @@ export type Database = {
       rollback_vehicle_import_batch: {
         Args: { _batch_id: string }
         Returns: Json
+      }
+      search_public_catalogue: {
+        Args: {
+          _brand_id?: string
+          _category?: string
+          _limit?: number
+          _offset?: number
+          _product_type_id?: string
+          _q: string
+        }
+        Returns: {
+          active_variant_count: number
+          availability: string
+          availability_verified_at: string
+          brand_id: string
+          brand_logo_url: string
+          brand_name: string
+          category: string
+          id: string
+          images: Json
+          name: string
+          previous_price: number
+          price: number
+          price_mode: string
+          product_type_id: string
+          product_type_name: string
+          short_desc: string
+          slug: string
+          total_count: number
+        }[]
       }
       search_public_tyres: {
         Args: {
@@ -2291,6 +2469,7 @@ export type Database = {
         | "accessories"
         | "services"
       product_status: "draft" | "published" | "archived"
+      recommendation_group: "best_match" | "premium" | "value" | "alternative"
       section_type:
         | "hero"
         | "announcement"
@@ -2529,6 +2708,7 @@ export const Constants = {
         "services",
       ],
       product_status: ["draft", "published", "archived"],
+      recommendation_group: ["best_match", "premium", "value", "alternative"],
       section_type: [
         "hero",
         "announcement",
