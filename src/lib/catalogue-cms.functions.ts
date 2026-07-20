@@ -128,7 +128,7 @@ export const listProductsAdmin = createServerFn({ method: "GET" })
     }).parse(d ?? {}))
   .handler(async ({ data, context }) => {
     await assertAdmin(context);
-    let q = context.supabase.from("products").select("id, name, slug, category, brand_id, product_type_id, status, archived, is_featured, updated_at").order("updated_at", { ascending: false }).limit(500);
+    let q = context.supabase.from("products").select("id, name, slug, category, brand_id, product_type_id, status, archived, is_featured, updated_at, images, short_desc, specs, price, price_mode, availability, availability_verified_at, price_verified_at").order("updated_at", { ascending: false }).limit(500);
     if (!data.show_archived) q = q.eq("archived", false);
     if (data.q) q = q.ilike("name", `%${data.q}%`);
     if (data.category) q = q.eq("category", data.category as any);
