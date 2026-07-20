@@ -2023,6 +2023,91 @@ export type Database = {
         Returns: Json
       }
       apply_vehicle_import_batch: { Args: { _batch_id: string }; Returns: Json }
+      get_public_tyre_profiles: {
+        Args: { _width: number }
+        Returns: {
+          profile: number
+        }[]
+      }
+      get_public_tyre_rims: {
+        Args: { _profile: number; _width: number }
+        Returns: {
+          rim: number
+        }[]
+      }
+      get_public_tyre_widths: {
+        Args: never
+        Returns: {
+          width: number
+        }[]
+      }
+      get_public_vehicle_configurations: {
+        Args: { _model_id: string; _year?: number }
+        Returns: {
+          body_type: string
+          drivetrain: string
+          engine_capacity_cc: number
+          engine_name: string
+          fuel_type: string
+          id: string
+          market: string
+          pk_year_from: number
+          pk_year_to: number
+          production_year_from: number
+          production_year_to: number
+          transmission: string
+          trim_name: string
+          verification_status: string
+        }[]
+      }
+      get_public_vehicle_makes: {
+        Args: never
+        Returns: {
+          display_order: number
+          id: string
+          logo_url: string
+          name: string
+          slug: string
+        }[]
+      }
+      get_public_vehicle_models: {
+        Args: { _make_id: string }
+        Returns: {
+          body_type: string
+          id: string
+          is_popular: boolean
+          name: string
+          slug: string
+        }[]
+      }
+      get_public_vehicle_oem_tyre_sizes: {
+        Args: { _configuration_id: string }
+        Returns: {
+          front_load_index: number
+          front_profile: number
+          front_rim: number
+          front_speed_rating: string
+          front_width: number
+          id: string
+          is_primary: boolean
+          layout: string
+          rear_load_index: number
+          rear_profile: number
+          rear_rim: number
+          rear_speed_rating: string
+          rear_width: number
+          verification_status: string
+        }[]
+      }
+      get_public_vehicle_years: {
+        Args: { _model_id: string }
+        Returns: {
+          id: string
+          variant_note: string
+          year_from: number
+          year_to: number
+        }[]
+      }
       get_vehicle_configurations: {
         Args: { _model_id: string }
         Returns: {
@@ -2103,6 +2188,46 @@ export type Database = {
       rollback_vehicle_import_batch: {
         Args: { _batch_id: string }
         Returns: Json
+      }
+      search_public_tyres: {
+        Args: {
+          _availability?: string
+          _brand_id?: string
+          _page?: number
+          _page_size?: number
+          _profile?: number
+          _rim?: number
+          _run_flat?: boolean
+          _sort?: string
+          _tyre_type?: string
+          _width?: number
+        }
+        Returns: {
+          availability: string
+          brand_id: string
+          brand_logo_url: string
+          brand_name: string
+          images: Json
+          load_index: string
+          model_id: string
+          model_name: string
+          model_slug: string
+          normalized_size: string
+          previous_price: number
+          price: number
+          price_mode: string
+          profile: number
+          rim: number
+          run_flat: boolean
+          short_desc: string
+          speed_rating: string
+          total_count: number
+          tubeless: boolean
+          tyre_type: string
+          variant_id: string
+          width: number
+          xl_reinforced: boolean
+        }[]
       }
     }
     Enums: {
