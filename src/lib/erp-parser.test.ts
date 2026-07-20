@@ -1,5 +1,6 @@
 // Unit tests for the ERP parser. Run with `bun test src/lib/erp-parser.test.ts`.
 // These tests lock in the two P2-D1 grouping cases so a regex regression can't ship again.
+// @ts-expect-error - bun:test is provided by the Bun runtime, not typed for tsc.
 import { describe, it, expect } from "bun:test";
 import { coreName, parsePack, parseSheet, extractViscosity } from "./erp-parser";
 
