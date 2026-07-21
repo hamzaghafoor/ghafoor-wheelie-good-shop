@@ -16,6 +16,11 @@ import { listPublishedHomepageSections } from "@/lib/sections.functions";
 import { listBrandsPublic } from "@/lib/brands.functions";
 import { listPublishedCatalogue } from "@/lib/catalogue.functions";
 import { dedupeById, dedupeBrands } from "@/lib/dedupe";
+import { Reveal, Stagger, StaggerItem } from "@/components/ui/Reveal";
+import { Counter } from "@/components/ui/Counter";
+import { BrandMarquee } from "@/components/ui/BrandMarquee";
+import { FAQ } from "@/components/ui/FAQ";
+import { WhyChecklist } from "@/components/ui/WhyChecklist";
 
 export const Route = createFileRoute("/")({
   head: () => ({
