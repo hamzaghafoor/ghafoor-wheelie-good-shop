@@ -279,7 +279,7 @@ function WhySection() {
           <p className="eyebrow">Why Ghafoor Motors</p>
           <h2 className="mt-2 font-display text-3xl md:text-5xl">Straight Advice. Suitable Products. Professional Service.</h2>
           <p className="mt-4 text-foreground/80">Choosing tyres should not be confusing. Our team helps customers compare suitable options based on their vehicle, road use, comfort needs, and budget—without unnecessary complications.</p>
-          <WhyChecklist items={items} className="mt-5" />
+          <div className="mt-5"><WhyChecklist items={items} /></div>
           <a href={waLink("Assalam-o-Alaikum, I would like to speak to a tyre expert.")} target="_blank" rel="noreferrer" className="btn-primary group mt-6 text-sm">
             Speak to a Tyre Expert <ArrowRight className="arrow-nudge h-4 w-4" />
           </a>
@@ -300,9 +300,9 @@ function ReviewsSection() {
             <div className="grid gap-8 md:grid-cols-[1fr_2fr] md:items-center">
               <div className="text-center md:text-left">
                 <div className="flex items-center justify-center gap-2 md:justify-start"><Award className="h-5 w-5 text-primary" /><span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Google Reviews</span></div>
-                <div className="mt-3 font-display text-5xl text-ink"><Counter to={rating} decimals={1} /></div>
+                <div className="mt-3 font-display text-5xl text-ink"><Counter value={rating} decimals={1} /></div>
                 <div className="mt-1 flex justify-center gap-0.5 md:justify-start">{Array.from({ length: 5 }).map((_, i) => (<Star key={i} className={`h-4 w-4 ${i < Math.round(rating) ? "fill-primary text-primary" : "text-border"}`} />))}</div>
-                <p className="mt-1 text-xs text-muted-foreground"><Counter to={reviewCount} />+ verified reviews</p>
+                <p className="mt-1 text-xs text-muted-foreground"><Counter value={reviewCount} />+ verified reviews</p>
               </div>
               <div>
                 <h2 className="font-display text-3xl text-ink md:text-4xl">Trusted by Karachi Drivers</h2>
