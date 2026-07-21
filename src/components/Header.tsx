@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { Phone, Menu, X, Search } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import logo from "@/assets/logo.png";
 import { business, telLink, waLink } from "@/lib/business";
 import { BookingButton } from "@/components/BookingButton";
@@ -29,12 +29,12 @@ export function Header() {
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
-  useState(() => 0); // keep import
-  if (typeof window !== "undefined") {
-    // Attach once on mount via effect below
-  }
-  // eslint-disable-next-line react-hooks/rules-of-hooks
-  useEffectScroll(setScrolled);
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 8);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
   return (
     <>
