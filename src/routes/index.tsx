@@ -255,26 +255,38 @@ function WhySection() {
 
 function ReviewsSection() {
   const { rating, reviewCount, reviewsUrl } = business.google;
+  const hasVerified = reviewCount > 0;
   return (
     <section className="py-16 md:py-20">
       <div className="container-x">
         <div className="card-surface p-8 md:p-10">
-          <div className="grid gap-8 md:grid-cols-[1fr_2fr] md:items-center">
-            <div className="text-center md:text-left">
-              <div className="flex items-center justify-center gap-2 md:justify-start"><Award className="h-5 w-5 text-primary" /><span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Google Reviews</span></div>
-              <div className="mt-3 font-display text-5xl text-ink">{rating.toFixed(1)}</div>
-              <div className="mt-1 flex justify-center gap-0.5 md:justify-start">{Array.from({ length: 5 }).map((_, i) => (<Star key={i} className={`h-4 w-4 ${i < Math.round(rating) ? "fill-primary text-primary" : "text-border"}`} />))}</div>
-              <p className="mt-1 text-xs text-muted-foreground">{reviewCount ? `${reviewCount}+ verified reviews` : "Verified Google reviews"}</p>
-            </div>
-            <div>
-              <h2 className="font-display text-3xl text-ink md:text-4xl">Trusted by Karachi Drivers</h2>
-              <p className="mt-2 text-muted-foreground">Real customer reviews will be featured here once verified reviews are supplied.</p>
-              <div className="mt-4 flex flex-wrap gap-3">
-                <a href={reviewsUrl} target="_blank" rel="noreferrer" className="btn-primary text-sm"><Users className="h-4 w-4" /> Read Our Google Reviews</a>
-                <a href={reviewsUrl} target="_blank" rel="noreferrer" className="btn-outline text-sm">Leave a Review</a>
+          {hasVerified ? (
+            <div className="grid gap-8 md:grid-cols-[1fr_2fr] md:items-center">
+              <div className="text-center md:text-left">
+                <div className="flex items-center justify-center gap-2 md:justify-start"><Award className="h-5 w-5 text-primary" /><span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Google Reviews</span></div>
+                <div className="mt-3 font-display text-5xl text-ink">{rating.toFixed(1)}</div>
+                <div className="mt-1 flex justify-center gap-0.5 md:justify-start">{Array.from({ length: 5 }).map((_, i) => (<Star key={i} className={`h-4 w-4 ${i < Math.round(rating) ? "fill-primary text-primary" : "text-border"}`} />))}</div>
+                <p className="mt-1 text-xs text-muted-foreground">{reviewCount}+ verified reviews</p>
+              </div>
+              <div>
+                <h2 className="font-display text-3xl text-ink md:text-4xl">Trusted by Karachi Drivers</h2>
+                <p className="mt-2 text-muted-foreground">Read what our customers say about tyres, fitting and wheel care at our PECHS workshop.</p>
+                <div className="mt-4 flex flex-wrap gap-3">
+                  <a href={reviewsUrl} target="_blank" rel="noreferrer" className="btn-primary text-sm"><Users className="h-4 w-4" /> Read Google Reviews</a>
+                  <a href={reviewsUrl} target="_blank" rel="noreferrer" className="btn-outline text-sm">Leave a Review</a>
+                </div>
               </div>
             </div>
-          </div>
+          ) : (
+            <div className="text-center">
+              <div className="inline-flex items-center gap-2"><Award className="h-5 w-5 text-primary" /><span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Google Business</span></div>
+              <h2 className="mt-3 font-display text-3xl text-ink md:text-4xl">Find us on Google</h2>
+              <p className="mx-auto mt-2 max-w-xl text-muted-foreground">See our workshop location, hours and directions on Google. Your feedback helps other Karachi drivers.</p>
+              <div className="mt-4 flex flex-wrap justify-center gap-3">
+                <a href={reviewsUrl} target="_blank" rel="noreferrer" className="btn-primary text-sm"><Users className="h-4 w-4" /> View us on Google</a>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </section>
