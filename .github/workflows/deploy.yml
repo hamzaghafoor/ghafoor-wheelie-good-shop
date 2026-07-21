@@ -41,8 +41,14 @@ jobs:
           bun run build
           bun scripts/prerender.mjs
 
+      - name: Copy PWA service worker into published folder
+        run: |
+          cp dist/sw.js dist/client/sw.js
+          cp dist/workbox-*.js dist/client/ 2>/dev/null || true
+          ls -la dist/client/sw.js dist/client/workbox-*.js
+
       - name: Verify static site output
-        run: test -f ./dist/client/index.html
+        run: test -f ./dist/client/index.html && test -f ./dist/client/sw.js
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
