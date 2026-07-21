@@ -254,21 +254,36 @@ function FeaturedTyres({ c }: { c: any }) {
 }
 
 function WhySection() {
+  const items = [
+    "Recommendations based on vehicle and usage",
+    "Multiple suitable options where available",
+    "Professional fitting and wheel-care support",
+    "Clear guidance on tyre size and maintenance",
+    "Convenient showroom in central Karachi",
+  ];
   return (
     <section className="bg-surface-2 py-16 md:py-24">
       <div className="container-x grid gap-10 lg:grid-cols-2 lg:items-center">
-        <div className="overflow-hidden rounded-2xl border border-border"><img src={svcAlign} alt="Ghafoor Motors workshop" loading="lazy" width={1200} height={900} className="h-full w-full object-cover" /></div>
-        <div>
+        <Reveal className="overflow-hidden rounded-2xl border border-border">
+          <img
+            src={svcAlign}
+            alt="Ghafoor Motors workshop"
+            loading="lazy"
+            width={1200}
+            height={900}
+            onLoad={(e) => e.currentTarget.setAttribute("data-loaded", "true")}
+            className="img-fade h-full w-full object-cover transition duration-700 hover:scale-[1.03]"
+          />
+        </Reveal>
+        <Reveal delay={0.05}>
           <p className="eyebrow">Why Ghafoor Motors</p>
           <h2 className="mt-2 font-display text-3xl md:text-5xl">Straight Advice. Suitable Products. Professional Service.</h2>
           <p className="mt-4 text-foreground/80">Choosing tyres should not be confusing. Our team helps customers compare suitable options based on their vehicle, road use, comfort needs, and budget—without unnecessary complications.</p>
-          <ul className="mt-5 space-y-2 text-sm text-foreground/80">
-            {["Recommendations based on vehicle and usage","Multiple suitable options where available","Professional fitting and wheel-care support","Clear guidance on tyre size and maintenance","Convenient showroom in central Karachi"].map((s) => (
-              <li key={s} className="flex gap-2"><span className="mt-2 h-1.5 w-1.5 flex-none rounded-full bg-primary" />{s}</li>
-            ))}
-          </ul>
-          <a href={waLink("Assalam-o-Alaikum, I would like to speak to a tyre expert.")} target="_blank" rel="noreferrer" className="btn-primary mt-6 text-sm">Speak to a Tyre Expert</a>
-        </div>
+          <WhyChecklist items={items} className="mt-5" />
+          <a href={waLink("Assalam-o-Alaikum, I would like to speak to a tyre expert.")} target="_blank" rel="noreferrer" className="btn-primary group mt-6 text-sm">
+            Speak to a Tyre Expert <ArrowRight className="arrow-nudge h-4 w-4" />
+          </a>
+        </Reveal>
       </div>
     </section>
   );
@@ -280,14 +295,14 @@ function ReviewsSection() {
   return (
     <section className="py-16 md:py-20">
       <div className="container-x">
-        <div className="card-surface p-8 md:p-10">
+        <Reveal className="card-surface p-8 md:p-10">
           {hasVerified ? (
             <div className="grid gap-8 md:grid-cols-[1fr_2fr] md:items-center">
               <div className="text-center md:text-left">
                 <div className="flex items-center justify-center gap-2 md:justify-start"><Award className="h-5 w-5 text-primary" /><span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Google Reviews</span></div>
-                <div className="mt-3 font-display text-5xl text-ink">{rating.toFixed(1)}</div>
+                <div className="mt-3 font-display text-5xl text-ink"><Counter to={rating} decimals={1} /></div>
                 <div className="mt-1 flex justify-center gap-0.5 md:justify-start">{Array.from({ length: 5 }).map((_, i) => (<Star key={i} className={`h-4 w-4 ${i < Math.round(rating) ? "fill-primary text-primary" : "text-border"}`} />))}</div>
-                <p className="mt-1 text-xs text-muted-foreground">{reviewCount}+ verified reviews</p>
+                <p className="mt-1 text-xs text-muted-foreground"><Counter to={reviewCount} />+ verified reviews</p>
               </div>
               <div>
                 <h2 className="font-display text-3xl text-ink md:text-4xl">Trusted by Karachi Drivers</h2>
@@ -308,7 +323,7 @@ function ReviewsSection() {
               </div>
             </div>
           )}
-        </div>
+        </Reveal>
       </div>
     </section>
   );
@@ -323,20 +338,36 @@ function EducationSection() {
   return (
     <section className="bg-surface-2 py-16 md:py-20">
       <div className="container-x">
-        <div className="flex flex-wrap items-end justify-between gap-4">
+        <Reveal className="flex flex-wrap items-end justify-between gap-4">
           <div><p className="eyebrow">Tyre Guide</p><h2 className="mt-2 font-display text-3xl md:text-4xl">Simple Tyre Advice for Safer Driving</h2></div>
-          <Link to="/tyre-guide" className="text-sm font-semibold text-primary hover:underline">View all guides →</Link>
-        </div>
-        <div className="mt-8 grid gap-5 md:grid-cols-3">
+          <Link to="/tyre-guide" className="group inline-flex items-center gap-1 text-sm font-semibold text-primary hover:underline">View all guides <ArrowRight className="arrow-nudge h-3.5 w-3.5" /></Link>
+        </Reveal>
+        <Stagger className="mt-8 grid gap-5 md:grid-cols-3">
           {posts.map((p) => (
-            <Link key={p.title} to="/tyre-guide" className="card-surface p-6 transition hover:border-primary/50">
-              <div className="text-xs font-semibold uppercase tracking-wider text-primary">Guide</div>
-              <h3 className="mt-2 font-display text-xl text-ink">{p.title}</h3>
-              <p className="mt-2 text-sm text-muted-foreground">{p.body}</p>
-              <span className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-primary">Read more <ArrowRight className="h-3.5 w-3.5" /></span>
-            </Link>
+            <StaggerItem key={p.title}>
+              <Link to="/tyre-guide" className="card-surface lift-card group block h-full p-6">
+                <div className="text-xs font-semibold uppercase tracking-wider text-primary">Guide</div>
+                <h3 className="mt-2 font-display text-xl text-ink">{p.title}</h3>
+                <p className="mt-2 text-sm text-muted-foreground">{p.body}</p>
+                <span className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-primary">Read more <ArrowRight className="arrow-nudge h-3.5 w-3.5" /></span>
+              </Link>
+            </StaggerItem>
           ))}
-        </div>
+        </Stagger>
+
+        <Reveal className="mt-14 max-w-3xl">
+          <p className="eyebrow">FAQs</p>
+          <h2 className="mt-2 font-display text-3xl md:text-4xl">Common Questions</h2>
+          <FAQ
+            className="mt-6"
+            items={[
+              { q: "How do I know which tyre size fits my car?", a: "Check the sidewall of your current tyre (e.g. 195/65 R15) or the sticker in the driver's door. Our finder also matches by vehicle make, model and year." },
+              { q: "How often should I change engine oil?", a: "Most passenger cars in Karachi conditions benefit from an oil change every 5,000–7,500 km for mineral/semi-synthetic and 8,000–10,000 km for fully synthetic — check your owner's manual for the exact interval." },
+              { q: "Do you offer wheel alignment and balancing?", a: "Yes. We provide computerised wheel alignment, balancing, nitrogen filling, and tyre fitting at our PECHS workshop. You can book a slot on WhatsApp or via the appointment form." },
+              { q: "Are all products genuine?", a: "We stock genuine tyres and lubricants from trusted brands with proper batch and warranty support. Ask our team for details on any specific product." },
+            ]}
+          />
+        </Reveal>
       </div>
     </section>
   );
