@@ -4,6 +4,9 @@ import { Link } from "@tanstack/react-router";
 import { getVehicleRecommendationsPublic } from "@/lib/recommendations.functions";
 import { waLink } from "@/lib/business";
 import { MessageCircle } from "lucide-react";
+import { BookingButton } from "@/components/BookingButton";
+import { track } from "@/lib/analytics";
+
 
 type Props = {
   modelId: string;

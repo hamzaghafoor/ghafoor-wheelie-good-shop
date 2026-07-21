@@ -1,5 +1,8 @@
 import { Phone, MessageCircle } from "lucide-react";
 import { business, telLink, waLink } from "@/lib/business";
+import { BookingButton } from "@/components/BookingButton";
+import { track } from "@/lib/analytics";
+
 
 export function CTASection() {
   return (
@@ -10,15 +13,17 @@ export function CTASection() {
         <p className="mx-auto mt-4 max-w-xl text-white/70">
           Send us your car make, model, year, or current tyre size. Our team will help you compare suitable options.
         </p>
-        {/* Hidden on mobile — the fixed MobileActionBar already offers Call and WhatsApp. */}
+        {/* Hidden on mobile — the fixed MobileActionBar already offers Call, WhatsApp and Book. */}
         <div className="mt-7 hidden flex-wrap justify-center gap-3 md:flex">
-          <a href={waLink("Assalam-o-Alaikum, please help me choose suitable tyres. My car is:")} target="_blank" rel="noreferrer" className="btn-primary">
-            <MessageCircle className="h-4 w-4" /> Ask on WhatsApp
+          <a href={waLink("Assalam-o-Alaikum, please help me choose suitable tyres. My car is:")} target="_blank" rel="noreferrer" onClick={() => track("whatsapp_click", { source: "cta_section" })} className="btn-primary">
+            <MessageCircle className="h-4 w-4" /> WhatsApp Now
           </a>
+          <BookingButton variant="light" context={{ source: "cta_section" }} />
           <a href={telLink()} className="btn-outline border-white/20 bg-transparent text-white hover:text-primary">
             <Phone className="h-4 w-4" /> Call {business.phoneDisplay}
           </a>
         </div>
+
         <p className="mt-4 text-xs text-white/50">No complicated forms. Just tell us what you drive.</p>
       </div>
     </section>
