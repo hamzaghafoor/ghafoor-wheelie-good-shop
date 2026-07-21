@@ -16,6 +16,8 @@ import { Footer } from "@/components/Footer";
 import { WhatsAppButton } from "@/components/WhatsAppButton";
 import { MobileActionBar } from "@/components/MobileActionBar";
 import { ChatLauncher } from "@/components/chat/ChatLauncher";
+import { useCalendlyCompletionTracker } from "@/lib/booking";
+
 
 
 function NotFoundComponent() {
@@ -92,6 +94,8 @@ function RootShell({ children }: { children: ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+  useCalendlyCompletionTracker();
+
   return (
     <QueryClientProvider client={queryClient}>
       <div className="flex min-h-screen flex-col">
