@@ -193,14 +193,12 @@ function FeaturedBrandsSection({ c }: { c: any }) {
   return (
     <section className="py-14">
       <div className="container-x">
-        <div className="mb-6 max-w-2xl"><p className="eyebrow">Brands</p><h2 className="mt-2 font-display text-3xl md:text-4xl">{heading}</h2>{subtitle && <p className="mt-2 text-muted-foreground">{subtitle}</p>}</div>
-        <div className="grid grid-cols-3 gap-4 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8">
-          {brands.map((b: any) => (
-            <div key={b.id} className="card-surface flex aspect-square items-center justify-center p-3">
-              {b.logo_url ? <img src={b.logo_url} alt={b.name} className="max-h-full max-w-full object-contain" loading="lazy" /> : <span className="text-center text-xs font-semibold text-ink">{b.name}</span>}
-            </div>
-          ))}
-        </div>
+        <Reveal className="mb-6 max-w-2xl">
+          <p className="eyebrow">Brands</p>
+          <h2 className="mt-2 font-display text-3xl md:text-4xl">{heading}</h2>
+          {subtitle && <p className="mt-2 text-muted-foreground">{subtitle}</p>}
+        </Reveal>
+        <BrandMarquee brands={brands as any} />
       </div>
     </section>
   );
