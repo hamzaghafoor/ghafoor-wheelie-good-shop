@@ -8,10 +8,8 @@ import catTyres from "@/assets/cat-tyres.jpg";
 import catLubes from "@/assets/cat-lubricants.jpg";
 import svcAlign from "@/assets/svc-alignment.jpg";
 import svcBal from "@/assets/svc-balancing.jpg";
-import { services } from "@/lib/services";
 import { business, waLink } from "@/lib/business";
 import { TyreFinderShared } from "@/components/finder/TyreFinderShared";
-import { ServiceCard } from "@/components/ServiceCard";
 import { LocationSection } from "@/components/LocationSection";
 import { CTASection } from "@/components/CTASection";
 import { listPublishedHomepageSections } from "@/lib/sections.functions";
@@ -31,7 +29,7 @@ export const Route = createFileRoute("/")({
 
 const RENDER_ORDER = [
   "hero", "tyre_finder", "trust_strip", "vehicle_categories", "featured_brands",
-  "featured_tyres", "services_grid", "why_us", "reviews", "articles", "location", "contact_cta",
+  "featured_tyres", "why_us", "reviews", "articles", "location", "contact_cta",
 ];
 
 function HomePage() {
@@ -54,7 +52,6 @@ function HomePage() {
       {enabled("vehicle_categories") && <ShopByNeed />}
       {enabled("featured_brands") && <FeaturedBrandsSection c={cfg("featured_brands")} />}
       {enabled("featured_tyres") && <FeaturedTyres c={cfg("featured_tyres")} />}
-      {enabled("services_grid") && <ServicesPreview />}
       {enabled("why_us") && <WhySection />}
       {enabled("reviews") && <ReviewsSection />}
       {enabled("articles") && <EducationSection />}
@@ -237,18 +234,6 @@ function FeaturedTyres({ c }: { c: any }) {
             })}
           </div>
         )}
-      </div>
-    </section>
-  );
-}
-
-function ServicesPreview() {
-  return (
-    <section className="py-16 md:py-20">
-      <div className="container-x">
-        <div className="max-w-2xl"><p className="eyebrow">Services</p><h2 className="mt-2 font-display text-3xl md:text-4xl">Professional Care Beyond Tyres</h2></div>
-        <div className="mt-8 grid gap-5 md:grid-cols-2 lg:grid-cols-3">{services.slice(0, 3).map((s) => <ServiceCard key={s.id} service={s} />)}</div>
-        <div className="mt-6 text-center"><Link to="/services" className="btn-outline">See all services <ArrowRight className="h-4 w-4" /></Link></div>
       </div>
     </section>
   );
