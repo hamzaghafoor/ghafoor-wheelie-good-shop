@@ -9,6 +9,8 @@ import { waTyreLink } from "@/lib/whatsapp";
 import { business, telLink } from "@/lib/business";
 import { track } from "@/lib/analytics";
 import { LeadForm } from "@/components/LeadForm";
+import { BookingButton } from "@/components/BookingButton";
+
 
 export const Route = createFileRoute("/tyres/$slug")({
   head: ({ params }) => ({
@@ -126,9 +128,11 @@ function DetailPage() {
                 {!priceVisible && <div className="mt-3 text-sm text-muted-foreground">Confirm today's price via WhatsApp.</div>}
                 {current.availability_note && <div className="mt-1 text-xs text-muted-foreground">{current.availability_note}</div>}
                 <div className="mt-4 grid gap-2 sm:grid-cols-2">
-                  <a href={waTyreLink(waCtx)} target="_blank" rel="noreferrer" onClick={() => track("whatsapp_click", { slug, size: current.normalized_size })} className="btn-primary text-sm"><MessageCircle className="h-4 w-4" /> WhatsApp for Price</a>
-                  <a href={telLink()} onClick={() => track("call_click", { slug })} className="btn-outline text-sm"><Phone className="h-4 w-4" /> Call {business.phoneDisplay}</a>
+                  <a href={waTyreLink(waCtx)} target="_blank" rel="noreferrer" onClick={() => track("whatsapp_click", { slug, size: current.normalized_size, source: "tyre_detail" })} className="btn-primary text-sm"><MessageCircle className="h-4 w-4" /> WhatsApp Now</a>
+                  <BookingButton label="Book Appointment" context={{ source: "tyre_detail", brand: brand?.name, model: model.name, size: current.normalized_size }} />
+                  <a href={telLink()} onClick={() => track("call_click", { slug })} className="btn-outline text-sm sm:col-span-2"><Phone className="h-4 w-4" /> Call {business.phoneDisplay}</a>
                 </div>
+
               </div>
             )}
 
