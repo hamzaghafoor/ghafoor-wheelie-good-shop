@@ -81,10 +81,13 @@ export function Header() {
               href={waLink("Assalam-o-Alaikum, please share today's price for tyres suitable for my car.")}
               target="_blank"
               rel="noreferrer"
+              onClick={() => track("whatsapp_click", { source: "header" })}
               className="btn-primary hidden text-sm md:inline-flex"
             >
-              Get Today's Price
+              WhatsApp Now
             </a>
+            <BookingButton className="hidden md:inline-flex" context={{ source: "header" }} />
+
             <button
               className="grid h-10 w-10 place-items-center rounded-md border border-border lg:hidden"
               onClick={() => setOpen((v) => !v)}
