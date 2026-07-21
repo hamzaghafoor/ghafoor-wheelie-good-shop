@@ -4,6 +4,10 @@ import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useState } from "react";
 import { getCatalogueSettings, updateCatalogueSettings, listLookups, upsertPackagingPreset, deletePackagingPreset, updateUnitVisibility } from "@/lib/catalogue-cms.functions";
 import { Trash2, Plus } from "lucide-react";
+import { services as servicesList } from "@/lib/services";
+
+const SERVICE_KEYS: string[] = servicesList.map((s) => s.id);
+
 
 export const Route = createFileRoute("/_authenticated/admin/catalogue/settings")({
   component: SettingsPage,
