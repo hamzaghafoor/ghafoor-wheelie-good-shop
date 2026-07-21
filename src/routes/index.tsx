@@ -120,15 +120,17 @@ function TrustStrip() {
   ];
   return (
     <section className="py-16">
-      <div className="container-x grid gap-5 md:grid-cols-2 lg:grid-cols-4">
+      <Stagger className="container-x grid gap-5 md:grid-cols-2 lg:grid-cols-4">
         {items.map((i) => (
-          <div key={i.title} className="card-surface p-5">
-            <div className="grid h-10 w-10 place-items-center rounded-lg bg-primary/10 text-primary"><i.icon className="h-5 w-5" /></div>
-            <h3 className="mt-3 font-display text-lg text-ink">{i.title}</h3>
-            <p className="mt-1 text-sm text-muted-foreground">{i.body}</p>
-          </div>
+          <StaggerItem key={i.title}>
+            <div className="card-surface lift-card h-full p-5">
+              <div className="grid h-10 w-10 place-items-center rounded-lg bg-primary/10 text-primary"><i.icon className="h-5 w-5" /></div>
+              <h3 className="mt-3 font-display text-lg text-ink">{i.title}</h3>
+              <p className="mt-1 text-sm text-muted-foreground">{i.body}</p>
+            </div>
+          </StaggerItem>
         ))}
-      </div>
+      </Stagger>
     </section>
   );
 }
