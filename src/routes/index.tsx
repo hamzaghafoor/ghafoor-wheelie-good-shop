@@ -145,21 +145,37 @@ function ShopByNeed() {
   return (
     <section className="bg-surface-2 py-16 md:py-20">
       <div className="container-x">
-        <div className="mb-8 max-w-2xl"><p className="eyebrow">What we do</p><h2 className="mt-2 font-display text-3xl md:text-4xl">What Does Your Car Need Today?</h2></div>
-        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+        <Reveal className="mb-8 max-w-2xl">
+          <p className="eyebrow">What we do</p>
+          <h2 className="mt-2 font-display text-3xl md:text-4xl">What Does Your Car Need Today?</h2>
+        </Reveal>
+        <Stagger className="grid gap-5 snap-x snap-mandatory overflow-x-auto pb-2 sm:snap-none sm:overflow-visible sm:grid-cols-2 lg:grid-cols-4">
           {cards.map((c) => (
-            <Link key={c.title} to={c.to} className="card-surface group overflow-hidden">
-              <div className="aspect-[4/3] overflow-hidden bg-surface-2">
-                <img src={c.img} alt={c.title} loading="lazy" width={800} height={600} className="h-full w-full object-cover transition duration-500 group-hover:scale-105" />
-              </div>
-              <div className="p-4">
-                <h3 className="font-display text-lg text-ink">{c.title}</h3>
-                <p className="mt-1 text-sm text-muted-foreground">{c.body}</p>
-                <div className="mt-3 inline-flex items-center gap-1 text-sm font-semibold text-primary">{c.cta} <ArrowRight className="h-3.5 w-3.5 transition group-hover:translate-x-0.5" /></div>
-              </div>
-            </Link>
+            <StaggerItem key={c.title} className="min-w-[80%] snap-start sm:min-w-0">
+              <Link to={c.to} className="card-surface lift-card group relative block h-full overflow-hidden">
+                <div className="aspect-[4/3] overflow-hidden bg-surface-2">
+                  <img
+                    src={c.img}
+                    alt={c.title}
+                    loading="lazy"
+                    width={800}
+                    height={600}
+                    onLoad={(e) => e.currentTarget.setAttribute("data-loaded", "true")}
+                    className="img-fade h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.08]"
+                  />
+                  <div aria-hidden className="pointer-events-none absolute inset-0 bg-gradient-to-tr from-ink/40 via-transparent to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
+                </div>
+                <div className="p-4">
+                  <h3 className="font-display text-lg text-ink">{c.title}</h3>
+                  <p className="mt-1 text-sm text-muted-foreground">{c.body}</p>
+                  <div className="mt-3 inline-flex items-center gap-1 text-sm font-semibold text-primary">
+                    {c.cta} <ArrowRight className="arrow-nudge h-3.5 w-3.5" />
+                  </div>
+                </div>
+              </Link>
+            </StaggerItem>
           ))}
-        </div>
+        </Stagger>
       </div>
     </section>
   );
