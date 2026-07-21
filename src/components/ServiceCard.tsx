@@ -1,6 +1,8 @@
-import { AlertCircle } from "lucide-react";
+import { AlertCircle, MessageCircle } from "lucide-react";
 import type { Service } from "@/lib/services";
 import { waLink } from "@/lib/business";
+import { BookingButton } from "@/components/BookingButton";
+import { track } from "@/lib/analytics";
 
 export function ServiceCard({ service }: { service: Service }) {
   const msg = `Assalam-o-Alaikum, I would like to book ${service.name}. Please share the next available slot.`;
@@ -20,9 +22,22 @@ export function ServiceCard({ service }: { service: Service }) {
             {service.signs.map((s) => <li key={s} className="flex gap-2"><span className="mt-1.5 h-1 w-1 flex-none rounded-full bg-primary" />{s}</li>)}
           </ul>
         </div>
-        <a href={waLink(msg)} target="_blank" rel="noreferrer" className="btn-primary mt-5 w-full text-sm">
-          Book {service.name}
-        </a>
+        <div className="mt-5 grid gap-2 sm:grid-cols-2">
+          <a
+            href={waLink(msg)}
+            target="_blank"
+            rel="noreferrer"
+            onClick={() => track("whatsapp_click", { source: "service_card", service: service.id })}
+            className="btn-primary text-sm"
+          >
+            <MessageCircle className="h-4 w-4" /> WhatsApp Now
+          </a>
+          <BookingButton
+            serviceKey={service.id}
+            context={{ source: "service_card", service: service.id }}
+            label="Book Appointment"
+          />
+        </div>
       </div>
     </article>
   );
