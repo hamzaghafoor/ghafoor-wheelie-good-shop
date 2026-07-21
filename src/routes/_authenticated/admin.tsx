@@ -6,6 +6,7 @@ import { getMyAuthStatus } from "@/lib/auth.functions";
 import { supabase } from "@/integrations/supabase/client";
 import { useEffect } from "react";
 import { AdminSidebar } from "@/components/admin/AdminSidebar";
+import { AdminBottomNav } from "@/components/admin/AdminBottomNav";
 
 export const Route = createFileRoute("/_authenticated/admin")({
   head: () => ({
@@ -60,10 +61,11 @@ function AdminLayout() {
       </div>
       <div className="flex">
         <AdminSidebar />
-        <main className="flex-1 p-4 md:p-6 max-w-full overflow-x-auto">
+        <main className="flex-1 p-4 pb-24 md:p-6 md:pb-6 max-w-full overflow-x-auto">
           <Outlet />
         </main>
       </div>
+      <AdminBottomNav />
     </div>
   );
 }

@@ -15,6 +15,7 @@ import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as ServicesRouteImport } from './routes/services'
 import { Route as SearchRouteImport } from './routes/search'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
+import { Route as OfflineRouteImport } from './routes/offline'
 import { Route as MaintenancePartsRouteImport } from './routes/maintenance-parts'
 import { Route as LubricantsRouteImport } from './routes/lubricants'
 import { Route as FiltersRouteImport } from './routes/filters'
@@ -97,6 +98,11 @@ const SearchRoute = SearchRouteImport.update({
 const ResetPasswordRoute = ResetPasswordRouteImport.update({
   id: '/reset-password',
   path: '/reset-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OfflineRoute = OfflineRouteImport.update({
+  id: '/offline',
+  path: '/offline',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MaintenancePartsRoute = MaintenancePartsRouteImport.update({
@@ -409,6 +415,7 @@ export interface FileRoutesByFullPath {
   '/filters': typeof FiltersRoute
   '/lubricants': typeof LubricantsRoute
   '/maintenance-parts': typeof MaintenancePartsRoute
+  '/offline': typeof OfflineRoute
   '/reset-password': typeof ResetPasswordRoute
   '/search': typeof SearchRoute
   '/services': typeof ServicesRoute
@@ -469,6 +476,7 @@ export interface FileRoutesByTo {
   '/filters': typeof FiltersRoute
   '/lubricants': typeof LubricantsRoute
   '/maintenance-parts': typeof MaintenancePartsRoute
+  '/offline': typeof OfflineRoute
   '/reset-password': typeof ResetPasswordRoute
   '/search': typeof SearchRoute
   '/services': typeof ServicesRoute
@@ -526,6 +534,7 @@ export interface FileRoutesById {
   '/filters': typeof FiltersRoute
   '/lubricants': typeof LubricantsRoute
   '/maintenance-parts': typeof MaintenancePartsRoute
+  '/offline': typeof OfflineRoute
   '/reset-password': typeof ResetPasswordRoute
   '/search': typeof SearchRoute
   '/services': typeof ServicesRoute
@@ -588,6 +597,7 @@ export interface FileRouteTypes {
     | '/filters'
     | '/lubricants'
     | '/maintenance-parts'
+    | '/offline'
     | '/reset-password'
     | '/search'
     | '/services'
@@ -648,6 +658,7 @@ export interface FileRouteTypes {
     | '/filters'
     | '/lubricants'
     | '/maintenance-parts'
+    | '/offline'
     | '/reset-password'
     | '/search'
     | '/services'
@@ -704,6 +715,7 @@ export interface FileRouteTypes {
     | '/filters'
     | '/lubricants'
     | '/maintenance-parts'
+    | '/offline'
     | '/reset-password'
     | '/search'
     | '/services'
@@ -766,6 +778,7 @@ export interface RootRouteChildren {
   FiltersRoute: typeof FiltersRoute
   LubricantsRoute: typeof LubricantsRoute
   MaintenancePartsRoute: typeof MaintenancePartsRoute
+  OfflineRoute: typeof OfflineRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   SearchRoute: typeof SearchRoute
   ServicesRoute: typeof ServicesRoute
@@ -817,6 +830,13 @@ declare module '@tanstack/react-router' {
       path: '/reset-password'
       fullPath: '/reset-password'
       preLoaderRoute: typeof ResetPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/offline': {
+      id: '/offline'
+      path: '/offline'
+      fullPath: '/offline'
+      preLoaderRoute: typeof OfflineRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/maintenance-parts': {
@@ -1429,6 +1449,7 @@ const rootRouteChildren: RootRouteChildren = {
   FiltersRoute: FiltersRoute,
   LubricantsRoute: LubricantsRoute,
   MaintenancePartsRoute: MaintenancePartsRoute,
+  OfflineRoute: OfflineRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   SearchRoute: SearchRoute,
   ServicesRoute: ServicesRoute,
