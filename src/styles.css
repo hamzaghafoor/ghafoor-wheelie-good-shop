@@ -142,3 +142,67 @@
   font-size: 0.72rem; letter-spacing: 0.18em; text-transform: uppercase;
   font-weight: 700; color: var(--primary);
 }
+
+/* Brand logo marquee */
+@keyframes brand-marquee {
+  from { transform: translate3d(0, 0, 0); }
+  to   { transform: translate3d(-50%, 0, 0); }
+}
+.animate-brand-marquee {
+  animation: brand-marquee linear infinite;
+  will-change: transform;
+}
+@media (prefers-reduced-motion: reduce) {
+  .animate-brand-marquee { animation: none; }
+}
+
+/* Progressive image reveal — apply loading="lazy" alongside .img-fade */
+.img-fade {
+  opacity: 0;
+  transition: opacity 0.45s ease;
+}
+.img-fade.is-loaded, .img-fade[data-loaded="true"] {
+  opacity: 1;
+}
+
+/* Directional lift for interactive cards */
+@utility lift-card {
+  transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1),
+              box-shadow 0.28s ease,
+              border-color 0.28s ease;
+}
+.lift-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 28px -14px rgba(16,16,16,0.22);
+  border-color: color-mix(in oklab, var(--primary) 45%, var(--border));
+}
+
+/* Animated arrow that nudges on hover of parent .group */
+.arrow-nudge {
+  transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.group:hover .arrow-nudge, .group:focus-visible .arrow-nudge {
+  transform: translateX(3px);
+}
+
+/* Button press feedback */
+.btn-primary, .btn-outline, .btn-dark {
+  transition: background 0.18s ease, color 0.18s ease, border-color 0.18s ease,
+              transform 0.15s cubic-bezier(0.22, 1, 0.36, 1),
+              box-shadow 0.2s ease;
+}
+.btn-primary:active, .btn-outline:active, .btn-dark:active { transform: translateY(1px) scale(0.985); }
+.btn-primary:hover { box-shadow: 0 8px 20px -10px color-mix(in oklab, var(--primary) 55%, transparent); }
+
+/* Header shadow when scrolled */
+.header-scrolled {
+  box-shadow: 0 6px 20px -14px rgba(16,16,16,0.25);
+  background-color: color-mix(in oklab, var(--surface) 92%, transparent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lift-card:hover { transform: none; }
+  .arrow-nudge { transition: none; }
+  .btn-primary:hover { box-shadow: none; }
+}
+
