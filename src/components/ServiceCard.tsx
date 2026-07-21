@@ -36,6 +36,7 @@ export function ServiceCard({ service }: { service: Service }) {
             serviceKey={service.id}
             context={{ source: "service_card", service: service.id }}
             label="Book Appointment"
+            fallbackHref="/services"
           />
         </div>
       </div>

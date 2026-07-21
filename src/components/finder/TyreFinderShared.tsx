@@ -166,7 +166,8 @@ export function TyreFinderShared({ variant = "page", initial, onSubmit }: Props)
       {emptyInventory ? (
         <EmptyInventoryPrompt />
       ) : (
-        <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-4">
+        <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-4 animate-in fade-in duration-300">
+
           {mode === "size" ? (
             <>
               <Field label="Width">
@@ -274,10 +275,55 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
 }
 
 function EmptyInventoryPrompt() {
+  const [tab, setTab] = useState<"size" | "vehicle">("size");
+  const [size, setSize] = useState("");
+  const [vehicle, setVehicle] = useState("");
+  const [year, setYear] = useState("");
+
+  const disabled = tab === "size" ? size.trim().length < 3 : vehicle.trim().length < 2;
+
+  function onSend() {
+    const parts: string[] = ["Assalam-o-Alaikum, I need tyre options."];
+    if (tab === "size" && size.trim()) parts.push(`Tyre size: ${size.trim()}`);
+    if (tab === "vehicle") {
+      if (vehicle.trim()) parts.push(`Vehicle: ${vehicle.trim()}`);
+      if (year.trim()) parts.push(`Year: ${year.trim()}`);
+    }
+    parts.push("Please share suitable options and today's price.");
+    const msg = parts.join("\n");
+    track("whatsapp_click", { source: "finder_empty", mode: tab, size: tab === "size" ? size : undefined, vehicle: tab === "vehicle" ? vehicle : undefined, year: tab === "vehicle" ? year : undefined });
+    window.open(`https://wa.me/923324443021?text=${encodeURIComponent(msg)}`, "_blank", "noopener");
+  }
+
   return (
     <div className="mt-4 rounded-lg border border-border bg-surface-2 p-4 text-sm text-foreground/80">
       <p className="font-semibold text-ink">Our online catalogue is being updated.</p>
-      <p className="mt-1">Tell us your tyre size or vehicle and our expert will reply on WhatsApp with the best options and today's price.</p>
+      <p className="mt-1">Share your tyre size or vehicle — we'll reply on WhatsApp with the best options and today's price.</p>
+      <div role="tablist" className="mt-3 inline-flex rounded-lg bg-surface p-1 text-xs font-medium">
+        <button role="tab" aria-selected={tab === "size"} onClick={() => setTab("size")}
+          className={`rounded-md px-2.5 py-1 transition ${tab === "size" ? "bg-ink text-white" : "text-foreground/70"}`}>By size</button>
+        <button role="tab" aria-selected={tab === "vehicle"} onClick={() => setTab("vehicle")}
+          className={`rounded-md px-2.5 py-1 transition ${tab === "vehicle" ? "bg-ink text-white" : "text-foreground/70"}`}>By vehicle</button>
+      </div>
+      <div className="mt-3 grid gap-2 sm:grid-cols-[1fr_auto]">
+        {tab === "size" ? (
+          <input
+            aria-label="Tyre size"
+            value={size} onChange={(e) => setSize(e.target.value)}
+            placeholder="e.g. 195/65 R15"
+            className="finder-select"
+          />
+        ) : (
+          <div className="grid gap-2 sm:grid-cols-2">
+            <input aria-label="Vehicle make and model" value={vehicle} onChange={(e) => setVehicle(e.target.value)} placeholder="Make & model (e.g. Toyota Corolla)" className="finder-select" />
+            <input aria-label="Vehicle year" value={year} onChange={(e) => setYear(e.target.value)} placeholder="Year (optional)" className="finder-select" inputMode="numeric" />
+          </div>
+        )}
+        <button onClick={onSend} disabled={disabled} className="btn-primary text-sm disabled:opacity-50 sm:self-stretch">
+          <Search className="h-4 w-4" /> Ask on WhatsApp
+        </button>
+      </div>
     </div>
   );
 }
+

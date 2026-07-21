@@ -64,9 +64,9 @@ function HomePage() {
 function Hero({ c }: { c: any }) {
   const ease = [0.22, 1, 0.36, 1] as const;
   const eyebrow = c.eyebrow || "Tyres • Lubricants • Wheel Care";
-  const line1 = c.heading_line1 || "The Right Tyres for a";
-  const line2 = c.heading_line2 || "Safer, Smoother Drive.";
-  const description = c.description || "Get genuine tyres, expert recommendations, quality lubricants, and professional wheel-care services at Ghafoor Motors Tyres & Lubricants in PECHS, Karachi.";
+  const line1 = c.heading_line1 || "Find the Right Tyres";
+  const line2 = c.heading_line2 || "for a Safer, Smoother Drive.";
+  const description = c.description || "Genuine tyres, quality lubricants and professional wheel care in PECHS, Karachi.";
   const primaryLabel = c.primary_cta_label || "Find Tyres for My Car";
   const primaryHref = c.primary_cta_href || "/tyres";
   const secondaryLabel = c.secondary_cta_label || "WhatsApp for Today's Price";
@@ -195,6 +195,7 @@ function FeaturedTyres({ c }: { c: any }) {
   const models = allModels.filter((m) => mode === "manual" ? (c.model_ids ?? []).includes(m.id) : m.is_featured);
   const withStock = c.in_stock_only ? models.filter((m) => (m.variants ?? []).some((v: any) => v.availability === "in_stock")) : models;
   const list = withStock.slice(0, max);
+  if (list.length === 0) return null;
 
   return (
     <section className="py-16 md:py-20">
@@ -203,37 +204,29 @@ function FeaturedTyres({ c }: { c: any }) {
           <div className="max-w-xl"><p className="eyebrow">Featured</p><h2 className="mt-2 font-display text-3xl md:text-4xl">{heading}</h2><p className="mt-2 text-muted-foreground">{subtitle}</p></div>
           <Link to="/tyres" className="text-sm font-semibold text-primary hover:underline">{ctaLabel} →</Link>
         </div>
-        {list.length === 0 ? (
-          <div className="card-surface mt-8 p-10 text-center">
-            <h3 className="font-display text-2xl text-ink">Our online catalogue is being updated.</h3>
-            <p className="mx-auto mt-2 max-w-xl text-sm text-muted-foreground">Share your vehicle and tyre size with us on WhatsApp — we'll suggest suitable options and today's price.</p>
-            <div className="mt-4"><Link to="/tyres" className="btn-primary text-sm">Browse tyres</Link></div>
-          </div>
-        ) : (
-          <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {list.map((m: any) => {
-              const vs: any[] = m.variants ?? [];
-              const priced = vs.find((v) => v.price != null);
-              const img = m.images?.main?.url || null;
-              return (
-                <Link key={m.id} to="/tyres" className="card-surface group overflow-hidden">
-                  <div className="aspect-[4/3] overflow-hidden bg-surface-2">
-                    {img ? <img src={img} alt={m.name} loading="lazy" className="h-full w-full object-cover transition group-hover:scale-105" /> : <div className="flex h-full items-center justify-center text-xs text-muted-foreground">No image</div>}
+        <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          {list.map((m: any) => {
+            const vs: any[] = m.variants ?? [];
+            const priced = vs.find((v) => v.price != null);
+            const img = m.images?.main?.url || null;
+            return (
+              <Link key={m.id} to="/tyres" className="card-surface group overflow-hidden transition hover:-translate-y-0.5 hover:shadow-lg">
+                <div className="aspect-[4/3] overflow-hidden bg-surface-2">
+                  {img ? <img src={img} alt={m.name} loading="lazy" className="h-full w-full object-cover transition duration-500 group-hover:scale-105" /> : <div className="flex h-full items-center justify-center text-xs text-muted-foreground">No image</div>}
+                </div>
+                <div className="p-4">
+                  <div className="text-xs font-semibold uppercase tracking-wider text-primary">{m.brand?.name ?? ""}</div>
+                  <h3 className="mt-1 font-display text-lg text-ink">{m.name}</h3>
+                  {m.short_desc && <p className="mt-1 text-sm text-muted-foreground line-clamp-2">{m.short_desc}</p>}
+                  <div className="mt-2 flex items-center justify-between text-xs">
+                    <span className="text-muted-foreground">{vs.length} size{vs.length === 1 ? "" : "s"}</span>
+                    {priced && <span className="font-semibold text-ink">from PKR {Number(priced.price).toLocaleString()}</span>}
                   </div>
-                  <div className="p-4">
-                    <div className="text-xs font-semibold uppercase tracking-wider text-primary">{m.brand?.name ?? ""}</div>
-                    <h3 className="mt-1 font-display text-lg text-ink">{m.name}</h3>
-                    {m.short_desc && <p className="mt-1 text-sm text-muted-foreground line-clamp-2">{m.short_desc}</p>}
-                    <div className="mt-2 flex items-center justify-between text-xs">
-                      <span className="text-muted-foreground">{vs.length} size{vs.length === 1 ? "" : "s"}</span>
-                      {priced && <span className="font-semibold text-ink">from PKR {Number(priced.price).toLocaleString()}</span>}
-                    </div>
-                  </div>
-                </Link>
-              );
-            })}
-          </div>
-        )}
+                </div>
+              </Link>
+            );
+          })}
+        </div>
       </div>
     </section>
   );
@@ -262,26 +255,38 @@ function WhySection() {
 
 function ReviewsSection() {
   const { rating, reviewCount, reviewsUrl } = business.google;
+  const hasVerified = reviewCount > 0;
   return (
     <section className="py-16 md:py-20">
       <div className="container-x">
         <div className="card-surface p-8 md:p-10">
-          <div className="grid gap-8 md:grid-cols-[1fr_2fr] md:items-center">
-            <div className="text-center md:text-left">
-              <div className="flex items-center justify-center gap-2 md:justify-start"><Award className="h-5 w-5 text-primary" /><span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Google Reviews</span></div>
-              <div className="mt-3 font-display text-5xl text-ink">{rating.toFixed(1)}</div>
-              <div className="mt-1 flex justify-center gap-0.5 md:justify-start">{Array.from({ length: 5 }).map((_, i) => (<Star key={i} className={`h-4 w-4 ${i < Math.round(rating) ? "fill-primary text-primary" : "text-border"}`} />))}</div>
-              <p className="mt-1 text-xs text-muted-foreground">{reviewCount ? `${reviewCount}+ verified reviews` : "Verified Google reviews"}</p>
-            </div>
-            <div>
-              <h2 className="font-display text-3xl text-ink md:text-4xl">Trusted by Karachi Drivers</h2>
-              <p className="mt-2 text-muted-foreground">Real customer reviews will be featured here once verified reviews are supplied.</p>
-              <div className="mt-4 flex flex-wrap gap-3">
-                <a href={reviewsUrl} target="_blank" rel="noreferrer" className="btn-primary text-sm"><Users className="h-4 w-4" /> Read Our Google Reviews</a>
-                <a href={reviewsUrl} target="_blank" rel="noreferrer" className="btn-outline text-sm">Leave a Review</a>
+          {hasVerified ? (
+            <div className="grid gap-8 md:grid-cols-[1fr_2fr] md:items-center">
+              <div className="text-center md:text-left">
+                <div className="flex items-center justify-center gap-2 md:justify-start"><Award className="h-5 w-5 text-primary" /><span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Google Reviews</span></div>
+                <div className="mt-3 font-display text-5xl text-ink">{rating.toFixed(1)}</div>
+                <div className="mt-1 flex justify-center gap-0.5 md:justify-start">{Array.from({ length: 5 }).map((_, i) => (<Star key={i} className={`h-4 w-4 ${i < Math.round(rating) ? "fill-primary text-primary" : "text-border"}`} />))}</div>
+                <p className="mt-1 text-xs text-muted-foreground">{reviewCount}+ verified reviews</p>
+              </div>
+              <div>
+                <h2 className="font-display text-3xl text-ink md:text-4xl">Trusted by Karachi Drivers</h2>
+                <p className="mt-2 text-muted-foreground">Read what our customers say about tyres, fitting and wheel care at our PECHS workshop.</p>
+                <div className="mt-4 flex flex-wrap gap-3">
+                  <a href={reviewsUrl} target="_blank" rel="noreferrer" className="btn-primary text-sm"><Users className="h-4 w-4" /> Read Google Reviews</a>
+                  <a href={reviewsUrl} target="_blank" rel="noreferrer" className="btn-outline text-sm">Leave a Review</a>
+                </div>
               </div>
             </div>
-          </div>
+          ) : (
+            <div className="text-center">
+              <div className="inline-flex items-center gap-2"><Award className="h-5 w-5 text-primary" /><span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Google Business</span></div>
+              <h2 className="mt-3 font-display text-3xl text-ink md:text-4xl">Find us on Google</h2>
+              <p className="mx-auto mt-2 max-w-xl text-muted-foreground">See our workshop location, hours and directions on Google. Your feedback helps other Karachi drivers.</p>
+              <div className="mt-4 flex flex-wrap justify-center gap-3">
+                <a href={reviewsUrl} target="_blank" rel="noreferrer" className="btn-primary text-sm"><Users className="h-4 w-4" /> View us on Google</a>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </section>
