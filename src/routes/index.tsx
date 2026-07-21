@@ -17,6 +17,7 @@ import { CTASection } from "@/components/CTASection";
 import { listPublishedHomepageSections } from "@/lib/sections.functions";
 import { listBrandsPublic } from "@/lib/brands.functions";
 import { listPublishedCatalogue } from "@/lib/catalogue.functions";
+import { dedupeById, dedupeBrands } from "@/lib/dedupe";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -38,7 +39,7 @@ function HomePage() {
   const { data: sections } = useQuery({ queryKey: ["public-sections"], queryFn: () => fetchSections() });
 
   const byType = new Map<string, any>();
-  for (const s of sections ?? []) byType.set(s.type, s);
+  for (const s of dedupeById(sections as any[])) byType.set(s.type, s);
   // If DB has no sections yet, show everything (legacy default).
   const enabled = (t: string) => sections === undefined || sections.length === 0 || byType.has(t);
   const cfg = (t: string) => byType.get(t)?.config ?? {};
@@ -167,7 +168,7 @@ function FeaturedBrandsSection({ c }: { c: any }) {
   const subtitle = c.subtitle || "";
   const mode = c.mode ?? "featured";
   const max = c.max ?? 8;
-  const brands = (allBrands ?? []).filter((b: any) => mode === "manual" ? (c.brand_ids ?? []).includes(b.id) : b.is_featured).slice(0, max);
+  const brands = dedupeBrands((allBrands ?? []).filter((b: any) => mode === "manual" ? (c.brand_ids ?? []).includes(b.id) : b.is_featured)).slice(0, max);
   if (brands.length === 0) return null;
   return (
     <section className="py-14">
@@ -193,7 +194,7 @@ function FeaturedTyres({ c }: { c: any }) {
   const mode = c.mode ?? "featured";
   const fetchCat = useServerFn(listPublishedCatalogue);
   const { data } = useQuery({ queryKey: ["public-catalogue"], queryFn: () => fetchCat() });
-  const allModels: any[] = (data as any[]) ?? [];
+  const allModels: any[] = dedupeById((data as any[]) ?? []);
   const models = allModels.filter((m) => mode === "manual" ? (c.model_ids ?? []).includes(m.id) : m.is_featured);
   const withStock = c.in_stock_only ? models.filter((m) => (m.variants ?? []).some((v: any) => v.availability === "in_stock")) : models;
   const list = withStock.slice(0, max);
