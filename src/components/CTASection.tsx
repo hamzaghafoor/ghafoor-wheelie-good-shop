@@ -8,10 +8,10 @@ export function CTASection() {
   return (
     <section className="bg-ink py-16 text-white md:py-20">
       <div className="container-x max-w-3xl text-center">
-        <p className="eyebrow text-primary">Not sure what fits your car?</p>
-        <h2 className="mt-3 font-display text-3xl md:text-5xl">Not Sure Which Tyres Fit Your Car?</h2>
+        <p className="eyebrow text-primary">Talk to a tyre expert</p>
+        <h2 className="mt-3 font-display text-3xl md:text-5xl">Not sure which tyres fit your car?</h2>
         <p className="mx-auto mt-4 max-w-xl text-white/70">
-          Send us your car make, model, year, or current tyre size. Our team will help you compare suitable options.
+          Send your car make, model, year, or current tyre size — we'll suggest suitable options.
         </p>
         {/* Hidden on mobile — the fixed MobileActionBar already offers Call, WhatsApp and Book. */}
         <div className="mt-7 hidden flex-wrap justify-center gap-3 md:flex">
