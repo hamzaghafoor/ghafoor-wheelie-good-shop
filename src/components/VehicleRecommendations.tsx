@@ -4,6 +4,9 @@ import { Link } from "@tanstack/react-router";
 import { getVehicleRecommendationsPublic } from "@/lib/recommendations.functions";
 import { waLink } from "@/lib/business";
 import { MessageCircle } from "lucide-react";
+import { BookingButton } from "@/components/BookingButton";
+import { track } from "@/lib/analytics";
+
 
 type Props = {
   modelId: string;
@@ -89,14 +92,16 @@ function RecCard({ r, vehicleLabel, staleDays }: { r: any; vehicleLabel?: string
           )}
           {stale && <div className="mt-1 text-[11px] text-amber-700">Please confirm today's availability</div>}
         </div>
-        <div className="mt-3 flex gap-2">
+        <div className="mt-3 flex flex-wrap gap-2">
           <Link to="/search" search={{ q: r.family_name } as any} className="flex-1 rounded-full border border-border px-3 py-1.5 text-center text-xs font-medium hover:border-primary hover:text-primary">
             View details
           </Link>
-          <a href={waLink(msg)} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 rounded-full bg-primary px-3 py-1.5 text-xs font-medium text-white hover:bg-primary/90">
+          <a href={waLink(msg)} target="_blank" rel="noreferrer" onClick={() => track("whatsapp_click", { source: "recommendation", family: r.family_name, vehicle: vehicleLabel })} className="inline-flex items-center gap-1 rounded-full bg-primary px-3 py-1.5 text-xs font-medium text-white hover:bg-primary/90">
             <MessageCircle className="h-3 w-3" /> WhatsApp
           </a>
+          <BookingButton size="sm" context={{ source: "recommendation", family: r.family_name, vehicle: vehicleLabel ?? undefined }} label="Book" />
         </div>
+
       </div>
     </div>
   );

@@ -3,6 +3,9 @@ import { Phone, Menu, X, Search } from "lucide-react";
 import { useState } from "react";
 import logo from "@/assets/logo.png";
 import { business, telLink, waLink } from "@/lib/business";
+import { BookingButton } from "@/components/BookingButton";
+import { track } from "@/lib/analytics";
+
 
 const nav: { to: string; label: string; exact?: boolean }[] = [
   { to: "/", label: "Home", exact: true },
@@ -78,10 +81,13 @@ export function Header() {
               href={waLink("Assalam-o-Alaikum, please share today's price for tyres suitable for my car.")}
               target="_blank"
               rel="noreferrer"
+              onClick={() => track("whatsapp_click", { source: "header" })}
               className="btn-primary hidden text-sm md:inline-flex"
             >
-              Get Today's Price
+              WhatsApp Now
             </a>
+            <BookingButton className="hidden md:inline-flex" context={{ source: "header" }} />
+
             <button
               className="grid h-10 w-10 place-items-center rounded-md border border-border lg:hidden"
               onClick={() => setOpen((v) => !v)}

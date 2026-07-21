@@ -7,7 +7,10 @@ export type AnalyticsEvent =
   | "whatsapp_click"
   | "call_click"
   | "lead_submitted"
-  | "no_results";
+  | "no_results"
+  | "booking_started"
+  | "booking_completed";
+
 
 function sessionId(): string {
   if (typeof window === "undefined") return "ssr";

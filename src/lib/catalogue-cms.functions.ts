@@ -477,6 +477,9 @@ export const updateCatalogueSettings = createServerFn({ method: "POST" })
     catalogue_phone: z.string().max(40).nullable().optional(),
     nav_categories: z.array(z.enum(CATEGORY_ENUM)).optional(),
     category_order: z.array(z.enum(CATEGORY_ENUM)).optional(),
+    booking_enabled: z.boolean().optional(),
+    default_calendly_url: z.string().url().regex(/^https:\/\/([a-z0-9-]+\.)*calendly\.com\//i, "Must be a https://calendly.com URL").nullable().optional().or(z.literal("").transform(() => null)),
+    service_calendly_links: z.record(z.string().url().regex(/^https:\/\/([a-z0-9-]+\.)*calendly\.com\//i, "Must be a https://calendly.com URL")).optional(),
   }).parse(d))
   .handler(async ({ data, context }) => {
     await assertAdmin(context);
@@ -484,6 +487,7 @@ export const updateCatalogueSettings = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     return { ok: true as const };
   });
+
 
 // ============================================================================
 // HOMEPAGE CATALOGUE SECTIONS

@@ -4,6 +4,10 @@ import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useState } from "react";
 import { getCatalogueSettings, updateCatalogueSettings, listLookups, upsertPackagingPreset, deletePackagingPreset, updateUnitVisibility } from "@/lib/catalogue-cms.functions";
 import { Trash2, Plus } from "lucide-react";
+import { services as servicesList } from "@/lib/services";
+
+const SERVICE_KEYS: string[] = servicesList.map((s) => s.id);
+
 
 export const Route = createFileRoute("/_authenticated/admin/catalogue/settings")({
   component: SettingsPage,
@@ -30,7 +34,7 @@ function SettingsPage() {
   useEffect(() => { if (settings.data) setS(settings.data); }, [settings.data]);
 
   const save = useMutation({
-    mutationFn: () => upd({ data: { default_availability: s.default_availability, default_import_status: s.default_import_status, products_per_page: s.products_per_page, whatsapp_cta_text: s.whatsapp_cta_text, empty_catalogue_message: s.empty_catalogue_message, price_confirm_text: s.price_confirm_text, catalogue_phone: s.catalogue_phone ?? null, nav_categories: s.nav_categories, category_order: s.category_order } }),
+    mutationFn: () => upd({ data: { default_availability: s.default_availability, default_import_status: s.default_import_status, products_per_page: s.products_per_page, whatsapp_cta_text: s.whatsapp_cta_text, empty_catalogue_message: s.empty_catalogue_message, price_confirm_text: s.price_confirm_text, catalogue_phone: s.catalogue_phone ?? null, nav_categories: s.nav_categories, category_order: s.category_order, booking_enabled: !!s.booking_enabled, default_calendly_url: (s.default_calendly_url ?? "") || null, service_calendly_links: Object.fromEntries(Object.entries(s.service_calendly_links ?? {}).filter(([, v]) => typeof v === "string" && (v as string).trim() !== "")) } }),
     onSuccess: () => { setMsg({ ok: "Saved." }); qc.invalidateQueries({ queryKey: ["cat-settings"] }); },
     onError: (e: any) => setMsg({ err: e.message }),
   });
@@ -82,9 +86,32 @@ function SettingsPage() {
           </div>
         </div>
 
+        <div className="rounded-md border border-border bg-surface-2/40 p-3 space-y-3">
+          <div className="flex items-center justify-between">
+            <h3 className="font-display text-base">Booking (Calendly)</h3>
+            <label className="text-xs"><input type="checkbox" checked={!!s.booking_enabled} onChange={(e) => setS({ ...s, booking_enabled: e.target.checked })} className="accent-primary" /> Enabled</label>
+          </div>
+          <label className="block text-sm"><span className="mb-1 block font-medium">Default Calendly URL</span>
+            <input value={s.default_calendly_url ?? ""} placeholder="https://calendly.com/your-handle/appointment" onChange={(e) => setS({ ...s, default_calendly_url: e.target.value })} className={inp} />
+          </label>
+          <div>
+            <div className="mb-1 text-sm font-medium">Service-specific links (optional)</div>
+            <div className="space-y-1.5">
+              {SERVICE_KEYS.map((k) => (
+                <div key={k} className="flex items-center gap-2">
+                  <span className="w-24 text-xs text-muted-foreground capitalize">{k}</span>
+                  <input value={(s.service_calendly_links ?? {})[k] ?? ""} placeholder="https://calendly.com/..." onChange={(e) => setS({ ...s, service_calendly_links: { ...(s.service_calendly_links ?? {}), [k]: e.target.value } })} className={inp} />
+                </div>
+              ))}
+            </div>
+            <p className="mt-1 text-[11px] text-muted-foreground">Leave blank to use the default URL. If booking is disabled or no URL is set, the Book button is hidden.</p>
+          </div>
+        </div>
+
         {msg.err && <div className="rounded-md bg-red-50 p-2 text-sm text-red-700">{msg.err}</div>}
         {msg.ok && <div className="rounded-md bg-green-50 p-2 text-sm text-green-700">{msg.ok}</div>}
         <button disabled={save.isPending} onClick={() => save.mutate()} className="btn-primary text-sm">Save settings</button>
+
       </div>
 
       <div className="space-y-6">

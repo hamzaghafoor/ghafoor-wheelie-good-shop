@@ -292,45 +292,54 @@ export type Database = {
       catalogue_settings: {
         Row: {
           availability_stale_days: number
+          booking_enabled: boolean
           catalogue_phone: string | null
           category_order: string[]
           default_availability: string
+          default_calendly_url: string | null
           default_import_status: string
           empty_catalogue_message: string
           id: number
           nav_categories: string[]
           price_confirm_text: string
           products_per_page: number
+          service_calendly_links: Json
           updated_at: string
           updated_by: string | null
           whatsapp_cta_text: string
         }
         Insert: {
           availability_stale_days?: number
+          booking_enabled?: boolean
           catalogue_phone?: string | null
           category_order?: string[]
           default_availability?: string
+          default_calendly_url?: string | null
           default_import_status?: string
           empty_catalogue_message?: string
           id?: number
           nav_categories?: string[]
           price_confirm_text?: string
           products_per_page?: number
+          service_calendly_links?: Json
           updated_at?: string
           updated_by?: string | null
           whatsapp_cta_text?: string
         }
         Update: {
           availability_stale_days?: number
+          booking_enabled?: boolean
           catalogue_phone?: string | null
           category_order?: string[]
           default_availability?: string
+          default_calendly_url?: string | null
           default_import_status?: string
           empty_catalogue_message?: string
           id?: number
           nav_categories?: string[]
           price_confirm_text?: string
           products_per_page?: number
+          service_calendly_links?: Json
           updated_at?: string
           updated_by?: string | null
           whatsapp_cta_text?: string
