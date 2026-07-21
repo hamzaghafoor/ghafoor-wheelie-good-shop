@@ -166,7 +166,8 @@ export function TyreFinderShared({ variant = "page", initial, onSubmit }: Props)
       {emptyInventory ? (
         <EmptyInventoryPrompt />
       ) : (
-        <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-4">
+        <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-4 animate-in fade-in duration-300">
+
           {mode === "size" ? (
             <>
               <Field label="Width">
