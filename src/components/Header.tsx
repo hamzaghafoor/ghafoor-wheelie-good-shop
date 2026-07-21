@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { Phone, Menu, X, Search } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import logo from "@/assets/logo.png";
 import { business, telLink, waLink } from "@/lib/business";
 import { BookingButton } from "@/components/BookingButton";
@@ -27,6 +27,14 @@ const moreNav = [
 
 export function Header() {
   const [open, setOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 8);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
   return (
     <>
@@ -41,7 +49,7 @@ export function Header() {
         </div>
       </div>
 
-      <header className="sticky top-0 z-40 border-b border-border bg-surface/95 backdrop-blur">
+      <header className={`sticky top-0 z-40 border-b border-border bg-surface/95 backdrop-blur transition-shadow duration-300 ${scrolled ? "header-scrolled" : ""}`}>
         <div className="container-x flex h-16 items-center justify-between gap-4 md:h-20">
           <Link to="/" className="flex items-center gap-2.5" aria-label="Ghafoor Motors home">
             <img src={logo} alt="Ghafoor Motors Tyres & Lubricants" className="h-11 w-11 rounded-full object-contain md:h-12 md:w-12" width={48} height={48} />
