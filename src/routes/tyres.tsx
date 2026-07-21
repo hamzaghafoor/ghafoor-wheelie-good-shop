@@ -11,6 +11,7 @@ import { searchTyres, finderOemSizes, finderMakes, finderModels, finderConfigura
 import { waTyreLink } from "@/lib/whatsapp";
 import { business, telLink, waLink } from "@/lib/business";
 import { track } from "@/lib/analytics";
+import { dedupeBy } from "@/lib/dedupe";
 
 const searchSchema = z.object({
   mode: z.enum(["size", "vehicle"]).optional(),
@@ -335,7 +336,7 @@ function ResultsBlock({ title, subtitle, loading, error, onRetry, rows, total, p
       ) : (
         <>
           <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-            {rows.map((r) => <TyreCard key={r.variant_id} r={r} />)}
+            {dedupeBy(rows, (r) => r.variant_id).map((r) => <TyreCard key={r.variant_id} r={r} />)}
           </div>
           {pages > 1 && (
             <nav aria-label="Pagination" className="mt-6 flex items-center justify-center gap-2">

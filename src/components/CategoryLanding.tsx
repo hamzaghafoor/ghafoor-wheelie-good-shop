@@ -4,6 +4,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { MessageCircle, Phone, ShieldCheck, Sparkles, ArrowRight } from "lucide-react";
 import { listBrandsPublic } from "@/lib/brands.functions";
 import { business, waLink } from "@/lib/business";
+import { dedupeBrands } from "@/lib/dedupe";
 
 type Props = {
   category: string;             // slug like "lubricants"
@@ -17,7 +18,7 @@ type Props = {
 export function CategoryLanding({ category, eyebrow, title, intro, waMessage, chips = [] }: Props) {
   const fetchBrands = useServerFn(listBrandsPublic);
   const { data: brands } = useQuery({ queryKey: ["public-brands"], queryFn: () => fetchBrands() });
-  const relevant = (brands ?? []).filter((b: any) => Array.isArray(b.categories) && b.categories.includes(category)).slice(0, 12);
+  const relevant = dedupeBrands((brands ?? []).filter((b: any) => Array.isArray(b.categories) && b.categories.includes(category))).slice(0, 12);
 
   return (
     <>

@@ -8,6 +8,7 @@ import {
   finderMakes, finderModels, finderYears, finderConfigurations,
 } from "@/lib/finder.functions";
 import { track } from "@/lib/analytics";
+import { dedupeBy, dedupeById } from "@/lib/dedupe";
 
 type Mode = "size" | "vehicle";
 type Props = {
@@ -174,7 +175,7 @@ export function TyreFinderShared({ variant = "page", initial, onSubmit }: Props)
                   onChange={(e) => { const v = e.target.value ? Number(e.target.value) : null; setW(v); setP(null); setR(null); }}
                   className="finder-select">
                   <option value="">{widths.isLoading ? "Loading…" : "Select width"}</option>
-                  {(widths.data ?? []).map((x: number) => <option key={x} value={x}>{x}</option>)}
+                  {dedupeBy(widths.data as number[] | undefined, (x) => x).map((x: number) => <option key={x} value={x}>{x}</option>)}
                 </select>
               </Field>
               <Field label="Profile">
@@ -183,7 +184,7 @@ export function TyreFinderShared({ variant = "page", initial, onSubmit }: Props)
                   onChange={(e) => { const v = e.target.value ? Number(e.target.value) : null; setP(v); setR(null); }}
                   className="finder-select">
                   <option value="">{!w ? "Select width first" : profiles.isLoading ? "Loading…" : "Select profile"}</option>
-                  {(profiles.data ?? []).map((x: number) => <option key={x} value={x}>{x}</option>)}
+                  {dedupeBy(profiles.data as number[] | undefined, (x) => x).map((x: number) => <option key={x} value={x}>{x}</option>)}
                 </select>
               </Field>
               <Field label="Rim (R)">
@@ -192,7 +193,7 @@ export function TyreFinderShared({ variant = "page", initial, onSubmit }: Props)
                   onChange={(e) => setR(e.target.value ? Number(e.target.value) : null)}
                   className="finder-select">
                   <option value="">{!p ? "Select profile first" : rims.isLoading ? "Loading…" : "Select rim"}</option>
-                  {(rims.data ?? []).map((x: number) => <option key={x} value={x}>{x}</option>)}
+                  {dedupeBy(rims.data as number[] | undefined, (x) => x).map((x: number) => <option key={x} value={x}>{x}</option>)}
                 </select>
               </Field>
               <button
@@ -209,7 +210,7 @@ export function TyreFinderShared({ variant = "page", initial, onSubmit }: Props)
                   onChange={(e) => { const v = e.target.value || null; setMakeId(v); setModelId(null); setYear(null); setConfigId(null); }}
                   className="finder-select">
                   <option value="">{makes.isLoading ? "Loading…" : "Select make"}</option>
-                  {(makes.data ?? []).map((x: any) => <option key={x.id} value={x.id}>{x.name}</option>)}
+                  {dedupeById((makes.data ?? []) as any[]).map((x: any) => <option key={x.id} value={x.id}>{x.name}</option>)}
                 </select>
               </Field>
               <Field label="Model">
@@ -218,7 +219,7 @@ export function TyreFinderShared({ variant = "page", initial, onSubmit }: Props)
                   onChange={(e) => { const v = e.target.value || null; setModelId(v); setYear(null); setConfigId(null); }}
                   className="finder-select">
                   <option value="">{!makeId ? "Select make first" : models.isLoading ? "Loading…" : "Select model"}</option>
-                  {(models.data ?? []).map((x: any) => <option key={x.id} value={x.id}>{x.name}</option>)}
+                  {dedupeById((models.data ?? []) as any[]).map((x: any) => <option key={x.id} value={x.id}>{x.name}</option>)}
                 </select>
               </Field>
               <Field label="Year">
@@ -237,7 +238,7 @@ export function TyreFinderShared({ variant = "page", initial, onSubmit }: Props)
                     onChange={(e) => setConfigId(e.target.value || null)}
                     className="finder-select">
                     <option value="">Any configuration</option>
-                    {(configs.data ?? []).map((c: any) => (
+                    {dedupeById((configs.data ?? []) as any[]).map((c: any) => (
                       <option key={c.id} value={c.id}>
                         {[c.trim_name, c.engine_name, c.engine_capacity_cc ? `${c.engine_capacity_cc}cc` : null].filter(Boolean).join(" · ") || "Configuration"}
                       </option>

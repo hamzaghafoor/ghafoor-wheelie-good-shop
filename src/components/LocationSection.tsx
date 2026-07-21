@@ -36,7 +36,8 @@ export function LocationSection() {
               </span>
             </p>
           </div>
-          <div className="mt-6 flex flex-wrap gap-3">
+          {/* Hidden on mobile — the fixed MobileActionBar already offers Call / WhatsApp / Directions. */}
+          <div className="mt-6 hidden flex-wrap gap-3 md:flex">
             <a href={business.mapsUrl} target="_blank" rel="noreferrer" className="btn-primary text-sm">
               <MapPin className="h-4 w-4" /> Get Directions
             </a>
