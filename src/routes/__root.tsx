@@ -16,6 +16,7 @@ import { Footer } from "@/components/Footer";
 import { WhatsAppButton } from "@/components/WhatsAppButton";
 import { MobileActionBar } from "@/components/MobileActionBar";
 import { ChatLauncher } from "@/components/chat/ChatLauncher";
+import { ScrollProgress } from "@/components/ui/ScrollProgress";
 import { useCalendlyCompletionTracker } from "@/lib/booking";
 
 
@@ -99,6 +100,7 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       <div className="flex min-h-screen flex-col">
+        <ScrollProgress />
         <Header />
         <main className="flex-1 pb-16 md:pb-0"><Outlet /></main>
         <Footer />
