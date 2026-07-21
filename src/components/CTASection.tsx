@@ -10,7 +10,8 @@ export function CTASection() {
         <p className="mx-auto mt-4 max-w-xl text-white/70">
           Send us your car make, model, year, or current tyre size. Our team will help you compare suitable options.
         </p>
-        <div className="mt-7 flex flex-wrap justify-center gap-3">
+        {/* Hidden on mobile — the fixed MobileActionBar already offers Call and WhatsApp. */}
+        <div className="mt-7 hidden flex-wrap justify-center gap-3 md:flex">
           <a href={waLink("Assalam-o-Alaikum, please help me choose suitable tyres. My car is:")} target="_blank" rel="noreferrer" className="btn-primary">
             <MessageCircle className="h-4 w-4" /> Ask on WhatsApp
           </a>
