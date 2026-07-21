@@ -64,9 +64,9 @@ function HomePage() {
 function Hero({ c }: { c: any }) {
   const ease = [0.22, 1, 0.36, 1] as const;
   const eyebrow = c.eyebrow || "Tyres • Lubricants • Wheel Care";
-  const line1 = c.heading_line1 || "The Right Tyres for a";
-  const line2 = c.heading_line2 || "Safer, Smoother Drive.";
-  const description = c.description || "Get genuine tyres, expert recommendations, quality lubricants, and professional wheel-care services at Ghafoor Motors Tyres & Lubricants in PECHS, Karachi.";
+  const line1 = c.heading_line1 || "Find the Right Tyres";
+  const line2 = c.heading_line2 || "for a Safer, Smoother Drive.";
+  const description = c.description || "Genuine tyres, quality lubricants and professional wheel care in PECHS, Karachi.";
   const primaryLabel = c.primary_cta_label || "Find Tyres for My Car";
   const primaryHref = c.primary_cta_href || "/tyres";
   const secondaryLabel = c.secondary_cta_label || "WhatsApp for Today's Price";
