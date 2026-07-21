@@ -18,6 +18,7 @@ import { MobileActionBar } from "@/components/MobileActionBar";
 import { ChatLauncher } from "@/components/chat/ChatLauncher";
 import { ScrollProgress } from "@/components/ui/ScrollProgress";
 import { useCalendlyCompletionTracker } from "@/lib/booking";
+import { PWAHost } from "@/components/pwa/PWAHost";
 
 
 
@@ -70,6 +71,8 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     links: [
       { rel: "stylesheet", href: appCss },
       { rel: "icon", href: "/favicon.ico", type: "image/x-icon" },
+      { rel: "manifest", href: "/manifest.webmanifest" },
+      { rel: "apple-touch-icon", href: "/icons/apple-touch-icon.png" },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
       { rel: "stylesheet", href: "https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" },
@@ -107,6 +110,7 @@ function RootComponent() {
         <WhatsAppButton />
         <ChatLauncher />
         <MobileActionBar />
+        <PWAHost />
       </div>
     </QueryClientProvider>
   );
