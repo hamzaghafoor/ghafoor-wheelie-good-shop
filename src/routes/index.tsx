@@ -195,6 +195,7 @@ function FeaturedTyres({ c }: { c: any }) {
   const models = allModels.filter((m) => mode === "manual" ? (c.model_ids ?? []).includes(m.id) : m.is_featured);
   const withStock = c.in_stock_only ? models.filter((m) => (m.variants ?? []).some((v: any) => v.availability === "in_stock")) : models;
   const list = withStock.slice(0, max);
+  if (list.length === 0) return null;
 
   return (
     <section className="py-16 md:py-20">
@@ -203,37 +204,29 @@ function FeaturedTyres({ c }: { c: any }) {
           <div className="max-w-xl"><p className="eyebrow">Featured</p><h2 className="mt-2 font-display text-3xl md:text-4xl">{heading}</h2><p className="mt-2 text-muted-foreground">{subtitle}</p></div>
           <Link to="/tyres" className="text-sm font-semibold text-primary hover:underline">{ctaLabel} →</Link>
         </div>
-        {list.length === 0 ? (
-          <div className="card-surface mt-8 p-10 text-center">
-            <h3 className="font-display text-2xl text-ink">Our online catalogue is being updated.</h3>
-            <p className="mx-auto mt-2 max-w-xl text-sm text-muted-foreground">Share your vehicle and tyre size with us on WhatsApp — we'll suggest suitable options and today's price.</p>
-            <div className="mt-4"><Link to="/tyres" className="btn-primary text-sm">Browse tyres</Link></div>
-          </div>
-        ) : (
-          <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {list.map((m: any) => {
-              const vs: any[] = m.variants ?? [];
-              const priced = vs.find((v) => v.price != null);
-              const img = m.images?.main?.url || null;
-              return (
-                <Link key={m.id} to="/tyres" className="card-surface group overflow-hidden">
-                  <div className="aspect-[4/3] overflow-hidden bg-surface-2">
-                    {img ? <img src={img} alt={m.name} loading="lazy" className="h-full w-full object-cover transition group-hover:scale-105" /> : <div className="flex h-full items-center justify-center text-xs text-muted-foreground">No image</div>}
+        <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          {list.map((m: any) => {
+            const vs: any[] = m.variants ?? [];
+            const priced = vs.find((v) => v.price != null);
+            const img = m.images?.main?.url || null;
+            return (
+              <Link key={m.id} to="/tyres" className="card-surface group overflow-hidden transition hover:-translate-y-0.5 hover:shadow-lg">
+                <div className="aspect-[4/3] overflow-hidden bg-surface-2">
+                  {img ? <img src={img} alt={m.name} loading="lazy" className="h-full w-full object-cover transition duration-500 group-hover:scale-105" /> : <div className="flex h-full items-center justify-center text-xs text-muted-foreground">No image</div>}
+                </div>
+                <div className="p-4">
+                  <div className="text-xs font-semibold uppercase tracking-wider text-primary">{m.brand?.name ?? ""}</div>
+                  <h3 className="mt-1 font-display text-lg text-ink">{m.name}</h3>
+                  {m.short_desc && <p className="mt-1 text-sm text-muted-foreground line-clamp-2">{m.short_desc}</p>}
+                  <div className="mt-2 flex items-center justify-between text-xs">
+                    <span className="text-muted-foreground">{vs.length} size{vs.length === 1 ? "" : "s"}</span>
+                    {priced && <span className="font-semibold text-ink">from PKR {Number(priced.price).toLocaleString()}</span>}
                   </div>
-                  <div className="p-4">
-                    <div className="text-xs font-semibold uppercase tracking-wider text-primary">{m.brand?.name ?? ""}</div>
-                    <h3 className="mt-1 font-display text-lg text-ink">{m.name}</h3>
-                    {m.short_desc && <p className="mt-1 text-sm text-muted-foreground line-clamp-2">{m.short_desc}</p>}
-                    <div className="mt-2 flex items-center justify-between text-xs">
-                      <span className="text-muted-foreground">{vs.length} size{vs.length === 1 ? "" : "s"}</span>
-                      {priced && <span className="font-semibold text-ink">from PKR {Number(priced.price).toLocaleString()}</span>}
-                    </div>
-                  </div>
-                </Link>
-              );
-            })}
-          </div>
-        )}
+                </div>
+              </Link>
+            );
+          })}
+        </div>
       </div>
     </section>
   );
