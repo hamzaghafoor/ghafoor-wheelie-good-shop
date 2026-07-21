@@ -27,6 +27,14 @@ const moreNav = [
 
 export function Header() {
   const [open, setOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+
+  useState(() => 0); // keep import
+  if (typeof window !== "undefined") {
+    // Attach once on mount via effect below
+  }
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  useEffectScroll(setScrolled);
 
   return (
     <>
@@ -41,7 +49,7 @@ export function Header() {
         </div>
       </div>
 
-      <header className="sticky top-0 z-40 border-b border-border bg-surface/95 backdrop-blur">
+      <header className={`sticky top-0 z-40 border-b border-border bg-surface/95 backdrop-blur transition-shadow duration-300 ${scrolled ? "header-scrolled" : ""}`}>
         <div className="container-x flex h-16 items-center justify-between gap-4 md:h-20">
           <Link to="/" className="flex items-center gap-2.5" aria-label="Ghafoor Motors home">
             <img src={logo} alt="Ghafoor Motors Tyres & Lubricants" className="h-11 w-11 rounded-full object-contain md:h-12 md:w-12" width={48} height={48} />
