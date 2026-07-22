@@ -36,7 +36,7 @@ const ORIGIN = "https://gmtl.ink";
 const distDir = path.resolve("dist");
 const clientDir = path.join(distDir, "client");
 const outputDir = path.resolve(".output");
-const staticOutputDir = path.join(outputDir, "public");
+const staticOutputCandidates = [path.join(outputDir, "public"), clientDir];
 const serverEntryCandidates = [
   path.join(outputDir, "server", "index.mjs"),
   path.join(distDir, "server", "index.mjs"),
@@ -60,12 +60,21 @@ async function assertExists(p, label) {
   }
 }
 
-await assertExists(staticOutputDir, "Nitro static output directory");
+const staticOutputDir = staticOutputCandidates.find((candidate) => existsSync(candidate));
+if (!staticOutputDir) {
+  throw new Error(
+    `Nitro static output was not found. Checked:\n${staticOutputCandidates
+      .map((candidate) => `  - ${candidate}`)
+      .join("\n")}`,
+  );
+}
 await fs.mkdir(clientDir, { recursive: true });
-await fs.cp(staticOutputDir, clientDir, { recursive: true, force: true });
-console.log(
-  `Copied static output: ${path.relative(process.cwd(), staticOutputDir)} → ${path.relative(process.cwd(), clientDir)}`,
-);
+if (path.resolve(staticOutputDir) !== path.resolve(clientDir)) {
+  await fs.cp(staticOutputDir, clientDir, { recursive: true, force: true });
+  console.log(
+    `Copied static output: ${path.relative(process.cwd(), staticOutputDir)} → ${path.relative(process.cwd(), clientDir)}`,
+  );
+}
 
 const mod = await import(pathToFileURL(serverEntry).href);
 const handler = mod.default ?? mod;
@@ -105,7 +114,7 @@ console.log("  ✓ 404.html (SPA fallback)");
 
 // Copy PWA artifacts into the uploaded client directory. They normally live in
 // .output/public, but also check .output for compatibility with the PWA emitter.
-const pwaSourceDirs = [staticOutputDir, outputDir];
+const pwaSourceDirs = [staticOutputDir, outputDir, distDir];
 const pwaSources = [];
 for (const sourceDir of pwaSourceDirs) {
   if (!existsSync(sourceDir)) continue;
