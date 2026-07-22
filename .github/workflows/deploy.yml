@@ -42,18 +42,34 @@ jobs:
           bun run build
           bun scripts/prerender.mjs
 
-      - name: Verify upload artifacts
-        run: |
-          test -f ./dist/client/index.html
-          test -f ./dist/client/sw.js
-          ls ./dist/client/workbox-*.js >/dev/null
-          ls -la ./dist/client/index.html ./dist/client/sw.js ./dist/client/workbox-*.js
-
       - name: Setup Pages
         uses: actions/configure-pages@v5
 
       - name: Add custom domain
         run: printf 'gmtl.ink\n' > ./dist/client/CNAME
+
+      - name: Ensure .nojekyll and copy PWA artifacts into upload dir
+        run: |
+          UPLOAD_PATH=./dist/client
+          touch "$UPLOAD_PATH/.nojekyll"
+          # Copy sw.js / workbox-*.js from wherever vite-plugin-pwa emitted them.
+          for src in ./dist ./.output/public ./.output; do
+            [ -d "$src" ] || continue
+            [ -f "$src/sw.js" ] && cp -f "$src/sw.js" "$UPLOAD_PATH/sw.js" || true
+            for wb in "$src"/workbox-*.js "$src"/workbox-*.js.map; do
+              [ -f "$wb" ] && cp -f "$wb" "$UPLOAD_PATH/" || true
+            done
+          done
+
+      - name: Verify upload artifacts (exact upload directory)
+        run: |
+          UPLOAD_PATH=./dist/client
+          echo "Listing $UPLOAD_PATH:"
+          ls -la "$UPLOAD_PATH"
+          test -f "$UPLOAD_PATH/index.html"
+          test -f "$UPLOAD_PATH/sw.js"
+          test -f "$UPLOAD_PATH/.nojekyll"
+          find "$UPLOAD_PATH" -maxdepth 1 -name 'workbox-*.js' | grep -q .
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
