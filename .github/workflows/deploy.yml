@@ -16,10 +16,6 @@ concurrency:
 
 jobs:
   deploy:
-    permissions:
-      contents: read
-      pages: write
-      id-token: write
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
@@ -36,46 +32,98 @@ jobs:
       - name: Install dependencies
         run: bun install
 
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
       - name: Build and generate static HTML
         run: |
           rm -rf dist .output
           bun run build
           bun scripts/prerender.mjs
 
-      - name: Setup Pages
-        uses: actions/configure-pages@v5
-
-      - name: Add custom domain
-        run: printf 'gmtl.ink\n' > ./dist/client/CNAME
-
-      - name: Ensure .nojekyll and copy PWA artifacts into upload dir
+      - name: Finalize and verify upload root
         run: |
+          set -euo pipefail
           UPLOAD_PATH=./dist/client
+          printf 'gmtl.ink\n' > "$UPLOAD_PATH/CNAME"
           touch "$UPLOAD_PATH/.nojekyll"
-          # Copy sw.js / workbox-*.js from wherever vite-plugin-pwa emitted them.
-          for src in ./dist ./.output/public ./.output; do
-            [ -d "$src" ] || continue
-            [ -f "$src/sw.js" ] && cp -f "$src/sw.js" "$UPLOAD_PATH/sw.js" || true
-            for wb in "$src"/workbox-*.js "$src"/workbox-*.js.map; do
-              [ -f "$wb" ] && cp -f "$wb" "$UPLOAD_PATH/" || true
-            done
-          done
-
-      - name: Verify upload artifacts (exact upload directory)
-        run: |
-          UPLOAD_PATH=./dist/client
-          echo "Listing $UPLOAD_PATH:"
+          echo "Listing final $UPLOAD_PATH:"
           ls -la "$UPLOAD_PATH"
           test -f "$UPLOAD_PATH/index.html"
           test -f "$UPLOAD_PATH/sw.js"
+          test -f "$UPLOAD_PATH/manifest.webmanifest"
           test -f "$UPLOAD_PATH/.nojekyll"
+          test -f "$UPLOAD_PATH/CNAME"
           find "$UPLOAD_PATH" -maxdepth 1 -name 'workbox-*.js' | grep -q .
 
-      - name: Upload artifact
+      # No step may modify dist/client between final verification and this upload.
+      - name: Upload verified Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
           path: './dist/client'
 
+      - name: Download uploaded Pages artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: github-pages
+          path: /tmp/github-pages-artifact
+
+      - name: Verify actual uploaded tar
+        run: |
+          set -euo pipefail
+          ARTIFACT=/tmp/github-pages-artifact/artifact.tar
+          EXTRACTED=/tmp/github-pages-extracted
+          test -f "$ARTIFACT"
+          echo "Actual uploaded artifact contents:"
+          tar -tf "$ARTIFACT"
+          mkdir -p "$EXTRACTED"
+          tar -xf "$ARTIFACT" -C "$EXTRACTED"
+          test -f "$EXTRACTED/index.html"
+          test -f "$EXTRACTED/sw.js"
+          test -f "$EXTRACTED/manifest.webmanifest"
+          test -f "$EXTRACTED/.nojekyll"
+          test -f "$EXTRACTED/CNAME"
+          find "$EXTRACTED" -maxdepth 1 -name 'workbox-*.js' | grep -q .
+
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+
+      - name: Verify deployed PWA assets
+        run: |
+          set -euo pipefail
+          ORIGIN=https://gmtl.ink
+          WORKBOX_FILE=$(find ./dist/client -maxdepth 1 -name 'workbox-*.js' -printf '%f\n' | head -n 1)
+          test -n "$WORKBOX_FILE"
+
+          verify_asset() {
+            path="$1"
+            kind="$2"
+            body=$(mktemp)
+            headers=$(mktemp)
+            status=""
+            valid=false
+            for attempt in 1 2 3 4 5 6 7 8 9 10 11 12; do
+              status=$(curl --silent --show-error --location --output "$body" \
+                --dump-header "$headers" --write-out '%{http_code}' "$ORIGIN/$path")
+              content_type=$(awk 'BEGIN{IGNORECASE=1} /^content-type:/{gsub("\\r", ""); value=$0} END{sub(/^[^:]+:[[:space:]]*/, "", value); print value}' "$headers")
+              if [ "$status" = "200" ] && [ -s "$body" ] && ! grep -Eiq '<!doctype html|<html|page not found' "$body"; then
+                if [ "$kind" = javascript ] && echo "$content_type" | grep -Eiq '^(application|text)/(javascript|x-javascript)'; then
+                  valid=true
+                  break
+                fi
+                if [ "$kind" = manifest ] && echo "$content_type" | grep -Eiq '^(application/manifest\+json|application/json)' && grep -q '"name"' "$body"; then
+                  valid=true
+                  break
+                fi
+              fi
+              echo "Waiting for deployment: $ORIGIN/$path -> HTTP $status, $content_type (attempt $attempt/12)"
+              sleep 10
+            done
+            echo "$ORIGIN/$path -> HTTP $status, $content_type"
+            test "$valid" = true
+          }
+
+          verify_asset sw.js javascript
+          verify_asset "$WORKBOX_FILE" javascript
+          verify_asset manifest.webmanifest manifest
