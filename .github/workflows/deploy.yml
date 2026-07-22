@@ -38,6 +38,7 @@ jobs:
 
       - name: Build and generate static HTML
         run: |
+          rm -rf dist
           bun run build
           bun scripts/prerender.mjs
 
