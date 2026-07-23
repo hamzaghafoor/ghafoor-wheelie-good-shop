@@ -1918,6 +1918,98 @@ export type Database = {
           },
         ]
       }
+      vehicle_fitments: {
+        Row: {
+          approved: boolean
+          created_at: string
+          created_by: string | null
+          engine: string | null
+          id: string
+          make_id: string
+          market: string
+          model_id: string
+          notes: string | null
+          product_id: string | null
+          source: Database["public"]["Enums"]["vehicle_fitment_source"]
+          status: Database["public"]["Enums"]["vehicle_fitment_status"]
+          trim: string | null
+          updated_at: string
+          updated_by: string | null
+          variant_id: string | null
+          year_from: number | null
+          year_to: number | null
+        }
+        Insert: {
+          approved?: boolean
+          created_at?: string
+          created_by?: string | null
+          engine?: string | null
+          id?: string
+          make_id: string
+          market?: string
+          model_id: string
+          notes?: string | null
+          product_id?: string | null
+          source?: Database["public"]["Enums"]["vehicle_fitment_source"]
+          status?: Database["public"]["Enums"]["vehicle_fitment_status"]
+          trim?: string | null
+          updated_at?: string
+          updated_by?: string | null
+          variant_id?: string | null
+          year_from?: number | null
+          year_to?: number | null
+        }
+        Update: {
+          approved?: boolean
+          created_at?: string
+          created_by?: string | null
+          engine?: string | null
+          id?: string
+          make_id?: string
+          market?: string
+          model_id?: string
+          notes?: string | null
+          product_id?: string | null
+          source?: Database["public"]["Enums"]["vehicle_fitment_source"]
+          status?: Database["public"]["Enums"]["vehicle_fitment_status"]
+          trim?: string | null
+          updated_at?: string
+          updated_by?: string | null
+          variant_id?: string | null
+          year_from?: number | null
+          year_to?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "vehicle_fitments_make_id_fkey"
+            columns: ["make_id"]
+            isOneToOne: false
+            referencedRelation: "vehicle_makes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "vehicle_fitments_model_id_fkey"
+            columns: ["model_id"]
+            isOneToOne: false
+            referencedRelation: "vehicle_models"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "vehicle_fitments_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "vehicle_fitments_variant_id_fkey"
+            columns: ["variant_id"]
+            isOneToOne: false
+            referencedRelation: "product_variants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       vehicle_lubricant_matches: {
         Row: {
           admin_notes: string | null
@@ -2671,6 +2763,16 @@ export type Database = {
       }
       normalize_tag_key: { Args: { _raw: string }; Returns: string }
       purge_import_payloads: { Args: never; Returns: number }
+      rank_products_for_vehicle: {
+        Args: { _engine?: string; _model_id: string; _year?: number }
+        Returns: {
+          best_rank: number
+          matched_fitment_id: string
+          needs_year_confirmation: boolean
+          product_id: string
+          verified: boolean
+        }[]
+      }
       resolve_tag_by_alias: { Args: { _raw: string }; Returns: string }
       rollback_catalogue_import_batch: {
         Args: { _batch_id: string }
@@ -2866,6 +2968,11 @@ export type Database = {
         | "commercial"
         | "motorcycle"
         | "other"
+      vehicle_fitment_source: "admin" | "import"
+      vehicle_fitment_status:
+        | "verified"
+        | "commonly_used"
+        | "needs_confirmation"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -3117,6 +3224,12 @@ export const Constants = {
         "commercial",
         "motorcycle",
         "other",
+      ],
+      vehicle_fitment_source: ["admin", "import"],
+      vehicle_fitment_status: [
+        "verified",
+        "commonly_used",
+        "needs_confirmation",
       ],
     },
   },
