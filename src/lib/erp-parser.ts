@@ -36,13 +36,45 @@ const VISCOSITY_RES = [
 
 // Cell/spreadsheet safety limits.
 export const LIMITS = {
-  maxFileBytes: 6_000_000,
+  maxFileBytes: 10_000_000, // raised so Digitley PDFs (~2-8 MB) fit
   maxSheets: 10,
   maxRows: 5_000,
   maxCellChars: 500,
 } as const;
 
 export type SheetTable = { name: string; rows: string[][] };
+
+// --------- Category & tyre detection ---------
+// Tyre size: 205/55R16, 265/70R17, 33x12.5R15, 195/60 R 15, LT265/70R17
+const TYRE_SIZE_RE = /\b(?:LT)?\d{3}\/\d{2}\s*R\s*\d{2}\b/i;
+const FLIP_TYRE_RE = /\b\d{2}(?:\.\d)?x\d{1,2}(?:\.\d)?\s*R\s*\d{2}\b/i;
+
+export function detectTyreSize(desc: string): string | null {
+  const m = desc.match(TYRE_SIZE_RE) ?? desc.match(FLIP_TYRE_RE);
+  return m ? m[0].replace(/\s+/g, "").toUpperCase() : null;
+}
+
+/**
+ * Suggest a product_category enum literal from description + UOM.
+ * Returns null when the row is ambiguous — admin still confirms in review.
+ */
+export function suggestCategory(desc: string, uom?: string | null):
+  | "tyres" | "lubricants" | "filters" | "additives" | "car_care" | "accessories" | "maintenance_parts" | null
+{
+  const d = (desc || "").toLowerCase();
+  const u = (uom || "").toLowerCase();
+  if (detectTyreSize(desc)) return "tyres";
+  if (/\btyre|tire|tubeless|run\s*flat\b/.test(d)) return "tyres";
+  if (/\bad\s*blue\b/.test(d)) return "additives";
+  if (/\b(oil|lubric|atf|gear\s*oil|coolant|antifreeze|brake\s*fluid|hydraulic)\b/.test(d)) return "lubricants";
+  if (/\b(filter|element)\b/.test(d)) return "filters";
+  if (/\b(cleaner|polish|wax|shampoo|degreaser|car\s*care)\b/.test(d)) return "car_care";
+  if (/\b(additive|booster|treatment|flush)\b/.test(d)) return "additives";
+  // Falls back on UOM when description gives no hint
+  if (u === "ltr" || u === "l" || u === "ml") return "lubricants";
+  return null;
+}
+
 
 // --------- Sanitization ---------
 export function sanitizeCell(v: unknown): string {
