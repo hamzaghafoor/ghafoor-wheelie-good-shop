@@ -75,6 +75,105 @@ export function suggestCategory(desc: string, uom?: string | null):
   return null;
 }
 
+// --------- Tag suggestion (internal metadata, never public) ---------
+// Suggests canonical tag keys with confidence based on description, category
+// and pack. Tags never replace structured fields (brand, size, viscosity,
+// API/ACEA spec, pack, or vehicle compatibility) — they only annotate.
+// Every suggested key must exist in the seeded `public.tags` catalogue or be
+// resolvable via `public.tag_aliases`; unknown keys are silently dropped on commit.
+export type SuggestedTag = { key: string; group: string; confidence: number };
+
+const VISC_RE_ANY = /\b(\d{1,3})W[-\s]?(\d{1,3})\b/i;
+
+export function suggestTags(
+  desc: string,
+  category: string | null | undefined,
+  uom?: string | null,
+  packValueL?: number | null,
+): SuggestedTag[] {
+  const out: SuggestedTag[] = [];
+  const seen = new Set<string>();
+  const add = (key: string, group: string, confidence: number) => {
+    if (seen.has(key)) return;
+    seen.add(key);
+    out.push({ key, group, confidence: Math.max(0, Math.min(1, confidence)) });
+  };
+  const d = (desc || "").toLowerCase();
+
+  // ---- TYRES ----
+  if (category === "tyres" || detectTyreSize(desc)) {
+    add("wheel-alignment", "related_service", 0.95);
+    add("wheel-balancing", "related_service", 0.9);
+    if (/\brun[-\s]*flat\b/.test(d)) add("performance", "use_case", 0.8);
+    if (/\bhp\b|performance|sport|uhp/.test(d)) add("performance", "use_case", 0.7);
+    if (/\ball[-\s]*terrain|\bat\b/.test(d)) add("all-terrain", "use_case", 0.8);
+    if (/\bmud[-\s]*terrain|\bmt\b/.test(d)) add("off-road", "use_case", 0.85);
+    if (/\bhighway\b/.test(d)) add("highway", "use_case", 0.8);
+    if (/\bsuv\b/.test(d)) add("suv", "vehicle_class", 0.85);
+    if (/\bpickup|truck|\blt\d{3}/.test(d)) add("pickup", "vehicle_class", 0.75);
+    if (/\bcomfort|touring/.test(d)) add("comfort", "benefit", 0.7);
+    if (/\beco|fuel[-\s]*saving|fuel[-\s]*efficient/.test(d)) add("fuel-efficient", "benefit", 0.75);
+    add("daily-driving", "use_case", 0.55);
+    return out;
+  }
+
+  // ---- LUBRICANTS / OIL ----
+  if (category === "lubricants" || /\boil|atf|coolant|antifreeze|brake\s*fluid|gear\s*oil\b/.test(d)) {
+    add("oil-change", "related_service", 0.95);
+    add("oil-filter", "related_service", 0.85);
+
+    const m = desc.match(VISC_RE_ANY);
+    if (m) {
+      const w = parseInt(m[1], 10);
+      const h = parseInt(m[2], 10);
+      // Low winter grades → cold-start + fuel-efficient
+      if (w <= 5) add("cold-start", "benefit", 0.7);
+      if (w === 0 && h <= 20) { add("fuel-efficient", "benefit", 0.9); add("premium", "product_tier", 0.75); }
+      // High hot-side viscosity → heat resistance / older engines
+      if (h >= 50) { add("heat-resistant", "benefit", 0.8); add("long-life", "benefit", 0.5); }
+      if (h >= 40 && h < 50) add("daily-driving", "use_case", 0.7);
+    }
+
+    if (/\bdiesel|cf-4|ci-4|cj-4|ck-4\b/.test(d)) {
+      add("commercial", "vehicle_class", 0.65);
+      add("fleet", "customer_segment", 0.5);
+    }
+    if (/\bsp\b|\bsn\s*plus|\bc3-sn\b|premium/.test(d)) add("premium", "product_tier", 0.85);
+    if (/superstar|superlight|s\/r\b|racing/.test(d)) add("performance", "use_case", 0.6);
+    if (/\bmo\s*tech|semi[-\s]*synth/.test(d)) add("mid-range", "product_tier", 0.7);
+    if (/\bad\s*blue\b/.test(d)) { add("commercial", "vehicle_class", 0.9); add("fleet", "customer_segment", 0.7); }
+    if (/\batf|cvt|dct|transmission/.test(d)) { add("engine-protection", "benefit", 0.5); add("daily-driving", "use_case", 0.7); }
+    if (/\bgear\s*oil|75w/.test(d)) add("long-life", "benefit", 0.6);
+
+    if (packValueL != null) {
+      if (packValueL >= 4) add("workshop", "customer_segment", 0.55);
+      if (packValueL <= 1) add("family", "customer_segment", 0.4);
+    }
+    add("engine-protection", "benefit", 0.55);
+    return out;
+  }
+
+  // ---- FILTERS / ADDITIVES / OTHER ----
+  if (/\bad\s*blue\b/.test(d)) {
+    add("commercial", "vehicle_class", 0.9);
+    add("fleet", "customer_segment", 0.7);
+    add("engine-protection", "benefit", 0.6);
+    return out;
+  }
+  if (category === "filters" || /\bfilter\b/.test(d)) {
+    add("oil-change", "related_service", 0.85);
+    add("daily-driving", "use_case", 0.5);
+  }
+  if (category === "additives" || /\badditive|booster|treatment|flush\b/.test(d)) {
+    add("engine-protection", "benefit", 0.7);
+  }
+  if (category === "car_care") add("comfort", "benefit", 0.4);
+
+
+  return out;
+}
+
+
 
 // --------- Sanitization ---------
 export function sanitizeCell(v: unknown): string {

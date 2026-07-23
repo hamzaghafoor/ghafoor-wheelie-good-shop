@@ -307,8 +307,41 @@ function PreviewPage() {
                   <td className="p-1 text-[10px]">
                     {r.status !== "pending" && <div className="text-muted-foreground">status: {r.status}</div>}
                     {(p.warnings ?? []).map((w: string, i: number) => <div key={i} className="text-amber-700"><AlertTriangle className="inline h-3 w-3" /> {w}</div>)}
+                    {Array.isArray(p.suggested_tags) && p.suggested_tags.length > 0 && (
+                      <div className="mt-1 flex flex-wrap gap-1">
+                        <span className="text-[9px] uppercase tracking-wider text-muted-foreground">Tags:</span>
+                        {p.suggested_tags.map((t: any) => (
+                          <span key={t.key} title={`${t.group} · confidence ${Math.round((t.confidence ?? 0) * 100)}%`}
+                            className={`inline-flex items-center gap-1 rounded-full border px-1.5 py-[1px] text-[10px] ${
+                              (t.confidence ?? 0) >= 0.75 ? "border-emerald-300 bg-emerald-50 text-emerald-800"
+                              : (t.confidence ?? 0) >= 0.5 ? "border-amber-300 bg-amber-50 text-amber-800"
+                              : "border-slate-300 bg-slate-50 text-slate-700"}`}>
+                            {t.key}
+                            {isEditable && (
+                              <button
+                                onClick={() => patchRow(r.id, { suggested_tags: (p.suggested_tags ?? []).filter((x: any) => x.key !== t.key) })}
+                                className="ml-0.5 text-[10px] leading-none opacity-60 hover:opacity-100" title="Remove tag">×</button>
+                            )}
+                          </span>
+                        ))}
+                        {isEditable && (
+                          <button
+                            onClick={() => {
+                              const k = window.prompt("Add tag key (e.g. daily-driving, premium, suv):");
+                              if (!k) return;
+                              const key = k.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-+)|(-+$)/g, "");
+                              if (!key) return;
+                              const existing = (p.suggested_tags ?? []) as any[];
+                              if (existing.some((x) => x.key === key)) return;
+                              patchRow(r.id, { suggested_tags: [...existing, { key, group: "admin", confidence: 1 }] });
+                            }}
+                            className="rounded-full border border-dashed border-border px-1.5 py-[1px] text-[10px] text-muted-foreground hover:border-primary hover:text-primary">+ tag</button>
+                        )}
+                      </div>
+                    )}
                     {r.error_message && <div className="text-red-700">{r.error_message}</div>}
                   </td>
+
                 </tr>
               );
             })}

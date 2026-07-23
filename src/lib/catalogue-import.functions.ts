@@ -2,9 +2,10 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import {
-  parseCSV, parseSheet, sanitizeCell, LIMITS, suggestCategory, parseDigitleyPdfText,
+  parseCSV, parseSheet, sanitizeCell, LIMITS, suggestCategory, suggestTags, parseDigitleyPdfText,
   type SheetTable, type ParsedRow, type BrandCandidate, type DigitleyMeta,
 } from "@/lib/erp-parser";
+
 import * as XLSX from "xlsx";
 
 
@@ -169,6 +170,11 @@ export const previewCatalogueImport = createServerFn({ method: "POST" })
       const categoryHint = suggestCategory(r.erpDescription, uom);
       const warnings = [...r.warnings];
       if (!categoryHint) warnings.push("Category could not be inferred — pick one before commit.");
+      // Tag suggestion (internal metadata only; never rendered publicly).
+      // Convert pack to litres for lubricant volume heuristics.
+      const packL = r.pack.ok && (r.pack.unit === "L" ? r.pack.value
+        : r.pack.unit === "ml" ? r.pack.value / 1000 : null);
+      const suggestedTags = suggestTags(r.erpDescription, categoryHint, uom, packL || null);
       return {
         action,
         include: !isInvalid,
@@ -188,9 +194,11 @@ export const previewCatalogueImport = createServerFn({ method: "POST" })
         },
         // stored for audit; commit RPC ignores unknown fields
         ...({ stock } as any),
+        suggested_tags: suggestedTags,
         warnings,
       };
     });
+
 
     // Insert batch (draft) + rows
     const supabase = (context as any).supabase;
@@ -326,7 +334,13 @@ const rowPatchSchema = z.object({
     pack_label: z.string().max(80).nullable().optional(),
     no_pack_required: z.boolean().optional(),
   }).partial().optional(),
+  suggested_tags: z.array(z.object({
+    key: z.string().min(1).max(60),
+    group: z.string().max(40).optional(),
+    confidence: z.number().min(0).max(1).optional(),
+  })).max(30).optional(),
 });
+
 
 export const updateCataloguePreviewRow = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -344,9 +358,11 @@ export const updateCataloguePreviewRow = createServerFn({ method: "POST" })
     if (p.include !== undefined) merged.include = p.include;
     if (p.product) merged.product = { ...merged.product, ...p.product };
     if (p.variant) merged.variant = { ...merged.variant, ...p.variant };
+    if (p.suggested_tags !== undefined) merged.suggested_tags = p.suggested_tags;
     await supabase.from("import_batch_rows").update({ source_payload: merged }).eq("id", data.rowId);
     return { ok: true, row: merged };
   });
+
 
 export const bulkUpdateCataloguePreviewRows = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
