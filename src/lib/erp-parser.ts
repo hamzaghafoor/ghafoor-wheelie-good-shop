@@ -154,6 +154,12 @@ export function suggestTags(
   }
 
   // ---- FILTERS / ADDITIVES / OTHER ----
+  if (/\bad\s*blue\b/.test(d)) {
+    add("commercial", "vehicle_class", 0.9);
+    add("fleet", "customer_segment", 0.7);
+    add("engine-protection", "benefit", 0.6);
+    return out;
+  }
   if (category === "filters" || /\bfilter\b/.test(d)) {
     add("oil-change", "related_service", 0.85);
     add("daily-driving", "use_case", 0.5);
@@ -162,6 +168,7 @@ export function suggestTags(
     add("engine-protection", "benefit", 0.7);
   }
   if (category === "car_care") add("comfort", "benefit", 0.4);
+
 
   return out;
 }
