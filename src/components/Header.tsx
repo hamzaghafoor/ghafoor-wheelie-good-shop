@@ -1,10 +1,11 @@
 import { Link } from "@tanstack/react-router";
-import { Phone, Menu, X, Search } from "lucide-react";
+import { Phone, Menu, X, Search, Shield } from "lucide-react";
 import { useEffect, useState } from "react";
 import logo from "@/assets/logo.png";
 import { business, telLink, waLink } from "@/lib/business";
 import { BookingButton } from "@/components/BookingButton";
 import { track } from "@/lib/analytics";
+import { supabase } from "@/integrations/supabase/client";
 
 
 const nav: { to: string; label: string; exact?: boolean }[] = [
