@@ -26,10 +26,29 @@ async function unregisterMatching() {
     regs
       .filter((r) => {
         const url = r.active?.scriptURL || r.installing?.scriptURL || r.waiting?.scriptURL || "";
-        return url.endsWith(SW_URL);
+        // Match our own SW and legacy names used by prior builds.
+        return (
+          url.endsWith(SW_URL) ||
+          url.endsWith("/service-worker.js") ||
+          url.endsWith("/workbox-sw.js")
+        );
       })
       .map((r) => r.unregister()),
   );
+}
+
+async function purgeAppCaches() {
+  if (typeof caches === "undefined") return;
+  try {
+    const names = await caches.keys();
+    await Promise.allSettled(
+      names
+        .filter((n) => /workbox|precache|runtime|html-pages|images|google-fonts/i.test(n))
+        .map((n) => caches.delete(n)),
+    );
+  } catch {
+    /* ignore */
+  }
 }
 
 export type PWAUpdateHandler = (reload: () => Promise<void>) => void;
@@ -38,6 +57,7 @@ export async function registerPWA(onUpdate?: PWAUpdateHandler): Promise<void> {
   if (typeof window === "undefined") return;
   if (isPreviewOrDevHost()) {
     await unregisterMatching();
+    await purgeAppCaches();
     return;
   }
   if (!("serviceWorker" in navigator)) return;
