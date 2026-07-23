@@ -31,8 +31,8 @@ const groups: Group[] = [
     { to: "/admin/appointments", label: "Appointment Requests", icon: Calendar, soon: true },
     { to: "/admin/chatbot", label: "Chatbot Inquiries", icon: MessageSquare, soon: true },
   ]},
-  { label: "Data Import", items: [
-    { to: "/admin/vehicles/import", label: "Vehicle/OEM Import", icon: Upload },
+  { label: "Data Imports", items: [
+    { to: "/admin/vehicles/import", label: "Vehicle & OEM Import", icon: Upload },
     { to: "/admin/vehicles/review", label: "Import Review Queue", icon: ClipboardCheck },
   ]},
   { label: "Settings", items: [
