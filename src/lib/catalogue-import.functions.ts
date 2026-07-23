@@ -358,9 +358,11 @@ export const updateCataloguePreviewRow = createServerFn({ method: "POST" })
     if (p.include !== undefined) merged.include = p.include;
     if (p.product) merged.product = { ...merged.product, ...p.product };
     if (p.variant) merged.variant = { ...merged.variant, ...p.variant };
+    if (p.suggested_tags !== undefined) merged.suggested_tags = p.suggested_tags;
     await supabase.from("import_batch_rows").update({ source_payload: merged }).eq("id", data.rowId);
     return { ok: true, row: merged };
   });
+
 
 export const bulkUpdateCataloguePreviewRows = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
