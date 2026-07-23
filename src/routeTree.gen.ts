@@ -38,6 +38,7 @@ import { Route as AuthenticatedAdminVehiclesRouteImport } from './routes/_authen
 import { Route as AuthenticatedAdminTyresRouteImport } from './routes/_authenticated/admin.tyres'
 import { Route as AuthenticatedAdminSectionsRouteImport } from './routes/_authenticated/admin.sections'
 import { Route as AuthenticatedAdminReviewsRouteImport } from './routes/_authenticated/admin.reviews'
+import { Route as AuthenticatedAdminReviewRequestsRouteImport } from './routes/_authenticated/admin.review-requests'
 import { Route as AuthenticatedAdminMediaRouteImport } from './routes/_authenticated/admin.media'
 import { Route as AuthenticatedAdminLeadsRouteImport } from './routes/_authenticated/admin.leads'
 import { Route as AuthenticatedAdminChangePasswordRouteImport } from './routes/_authenticated/admin.change-password'
@@ -216,6 +217,12 @@ const AuthenticatedAdminReviewsRoute =
   AuthenticatedAdminReviewsRouteImport.update({
     id: '/reviews',
     path: '/reviews',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminReviewRequestsRoute =
+  AuthenticatedAdminReviewRequestsRouteImport.update({
+    id: '/review-requests',
+    path: '/review-requests',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
 const AuthenticatedAdminMediaRoute = AuthenticatedAdminMediaRouteImport.update({
@@ -434,6 +441,7 @@ export interface FileRoutesByFullPath {
   '/admin/change-password': typeof AuthenticatedAdminChangePasswordRoute
   '/admin/leads': typeof AuthenticatedAdminLeadsRoute
   '/admin/media': typeof AuthenticatedAdminMediaRoute
+  '/admin/review-requests': typeof AuthenticatedAdminReviewRequestsRoute
   '/admin/reviews': typeof AuthenticatedAdminReviewsRoute
   '/admin/sections': typeof AuthenticatedAdminSectionsRouteWithChildren
   '/admin/tyres': typeof AuthenticatedAdminTyresRouteWithChildren
@@ -492,6 +500,7 @@ export interface FileRoutesByTo {
   '/admin/change-password': typeof AuthenticatedAdminChangePasswordRoute
   '/admin/leads': typeof AuthenticatedAdminLeadsRoute
   '/admin/media': typeof AuthenticatedAdminMediaRoute
+  '/admin/review-requests': typeof AuthenticatedAdminReviewRequestsRoute
   '/admin/reviews': typeof AuthenticatedAdminReviewsRoute
   '/admin/vehicles': typeof AuthenticatedAdminVehiclesRouteWithChildren
   '/admin/videos': typeof AuthenticatedAdminVideosRoute
@@ -553,6 +562,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/change-password': typeof AuthenticatedAdminChangePasswordRoute
   '/_authenticated/admin/leads': typeof AuthenticatedAdminLeadsRoute
   '/_authenticated/admin/media': typeof AuthenticatedAdminMediaRoute
+  '/_authenticated/admin/review-requests': typeof AuthenticatedAdminReviewRequestsRoute
   '/_authenticated/admin/reviews': typeof AuthenticatedAdminReviewsRoute
   '/_authenticated/admin/sections': typeof AuthenticatedAdminSectionsRouteWithChildren
   '/_authenticated/admin/tyres': typeof AuthenticatedAdminTyresRouteWithChildren
@@ -616,6 +626,7 @@ export interface FileRouteTypes {
     | '/admin/change-password'
     | '/admin/leads'
     | '/admin/media'
+    | '/admin/review-requests'
     | '/admin/reviews'
     | '/admin/sections'
     | '/admin/tyres'
@@ -674,6 +685,7 @@ export interface FileRouteTypes {
     | '/admin/change-password'
     | '/admin/leads'
     | '/admin/media'
+    | '/admin/review-requests'
     | '/admin/reviews'
     | '/admin/vehicles'
     | '/admin/videos'
@@ -734,6 +746,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/change-password'
     | '/_authenticated/admin/leads'
     | '/_authenticated/admin/media'
+    | '/_authenticated/admin/review-requests'
     | '/_authenticated/admin/reviews'
     | '/_authenticated/admin/sections'
     | '/_authenticated/admin/tyres'
@@ -991,6 +1004,13 @@ declare module '@tanstack/react-router' {
       path: '/reviews'
       fullPath: '/admin/reviews'
       preLoaderRoute: typeof AuthenticatedAdminReviewsRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/review-requests': {
+      id: '/_authenticated/admin/review-requests'
+      path: '/review-requests'
+      fullPath: '/admin/review-requests'
+      preLoaderRoute: typeof AuthenticatedAdminReviewRequestsRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
     '/_authenticated/admin/media': {
@@ -1376,6 +1396,7 @@ interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminChangePasswordRoute: typeof AuthenticatedAdminChangePasswordRoute
   AuthenticatedAdminLeadsRoute: typeof AuthenticatedAdminLeadsRoute
   AuthenticatedAdminMediaRoute: typeof AuthenticatedAdminMediaRoute
+  AuthenticatedAdminReviewRequestsRoute: typeof AuthenticatedAdminReviewRequestsRoute
   AuthenticatedAdminReviewsRoute: typeof AuthenticatedAdminReviewsRoute
   AuthenticatedAdminSectionsRoute: typeof AuthenticatedAdminSectionsRouteWithChildren
   AuthenticatedAdminTyresRoute: typeof AuthenticatedAdminTyresRouteWithChildren
@@ -1394,6 +1415,7 @@ const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
   AuthenticatedAdminChangePasswordRoute: AuthenticatedAdminChangePasswordRoute,
   AuthenticatedAdminLeadsRoute: AuthenticatedAdminLeadsRoute,
   AuthenticatedAdminMediaRoute: AuthenticatedAdminMediaRoute,
+  AuthenticatedAdminReviewRequestsRoute: AuthenticatedAdminReviewRequestsRoute,
   AuthenticatedAdminReviewsRoute: AuthenticatedAdminReviewsRoute,
   AuthenticatedAdminSectionsRoute: AuthenticatedAdminSectionsRouteWithChildren,
   AuthenticatedAdminTyresRoute: AuthenticatedAdminTyresRouteWithChildren,
