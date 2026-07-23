@@ -5,6 +5,7 @@ import { useNavigate } from "@tanstack/react-router";
 import { upsertVariant, upsertModel } from "@/lib/catalogue.functions";
 import { AVAILABILITY_STATUSES, PRICE_MODES } from "@/lib/tyre-sizes";
 import { VariantCompatManager } from "./VariantCompatManager";
+import { FitmentManager } from "./FitmentManager";
 
 
 export function VariantEditor({ variant, model, brand }: { variant: any; model: any; brand: any }) {
