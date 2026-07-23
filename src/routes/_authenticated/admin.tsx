@@ -30,7 +30,7 @@ function AdminLayout() {
 
   useEffect(() => {
     if (!data) return;
-    if (!data.isAdmin) { navigate({ to: "/" }); return; }
+    if (!data.isAdmin) { navigate({ to: "/", replace: true }); return; }
     if (data.profile?.must_change_password && !location.pathname.endsWith("/change-password")) {
       navigate({ to: "/admin/change-password" as any });
     }
@@ -38,7 +38,7 @@ function AdminLayout() {
 
   async function signOut() {
     await supabase.auth.signOut();
-    navigate({ to: "/auth", replace: true });
+    navigate({ to: "/", replace: true });
   }
 
   if (isLoading) return <div className="p-8 text-sm text-muted-foreground">Loading…</div>;
