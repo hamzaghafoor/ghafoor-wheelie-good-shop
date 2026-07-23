@@ -32,9 +32,12 @@ const groups: Group[] = [
     { to: "/admin/chatbot", label: "Chatbot Inquiries", icon: MessageSquare, soon: true },
   ]},
   { label: "Data Imports", items: [
+    { to: "/admin/products/import", label: "Product Stock Import", icon: Upload },
+    { to: "/admin/products/import/review", label: "Product Import Review", icon: ClipboardCheck },
     { to: "/admin/vehicles/import", label: "Vehicle & OEM Import", icon: Upload },
-    { to: "/admin/vehicles/review", label: "Import Review Queue", icon: ClipboardCheck },
+    { to: "/admin/vehicles/review", label: "Vehicle Import Review", icon: ClipboardCheck },
   ]},
+
   { label: "Settings", items: [
     { to: "/admin/business", label: "Business Information", icon: Building2 },
     { to: "/admin/users", label: "Users & Roles", icon: Users, soon: true },

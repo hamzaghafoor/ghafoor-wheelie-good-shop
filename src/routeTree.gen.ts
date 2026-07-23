@@ -57,6 +57,7 @@ import { Route as AuthenticatedAdminVehiclesModelIdRouteImport } from './routes/
 import { Route as AuthenticatedAdminTyresNewRouteImport } from './routes/_authenticated/admin.tyres.new'
 import { Route as AuthenticatedAdminTyresIdRouteImport } from './routes/_authenticated/admin.tyres.$id'
 import { Route as AuthenticatedAdminSectionsIdRouteImport } from './routes/_authenticated/admin.sections.$id'
+import { Route as AuthenticatedAdminProductsImportRouteImport } from './routes/_authenticated/admin.products.import'
 import { Route as AuthenticatedAdminCatalogueTypesRouteImport } from './routes/_authenticated/admin.catalogue.types'
 import { Route as AuthenticatedAdminCatalogueSettingsRouteImport } from './routes/_authenticated/admin.catalogue.settings'
 import { Route as AuthenticatedAdminCatalogueReviewRouteImport } from './routes/_authenticated/admin.catalogue.review'
@@ -331,6 +332,12 @@ const AuthenticatedAdminSectionsIdRoute =
     path: '/$id',
     getParentRoute: () => AuthenticatedAdminSectionsRoute,
   } as any)
+const AuthenticatedAdminProductsImportRoute =
+  AuthenticatedAdminProductsImportRouteImport.update({
+    id: '/products/import',
+    path: '/products/import',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
 const AuthenticatedAdminCatalogueTypesRoute =
   AuthenticatedAdminCatalogueTypesRouteImport.update({
     id: '/types',
@@ -457,6 +464,7 @@ export interface FileRoutesByFullPath {
   '/admin/catalogue/review': typeof AuthenticatedAdminCatalogueReviewRoute
   '/admin/catalogue/settings': typeof AuthenticatedAdminCatalogueSettingsRoute
   '/admin/catalogue/types': typeof AuthenticatedAdminCatalogueTypesRoute
+  '/admin/products/import': typeof AuthenticatedAdminProductsImportRoute
   '/admin/sections/$id': typeof AuthenticatedAdminSectionsIdRoute
   '/admin/tyres/$id': typeof AuthenticatedAdminTyresIdRouteWithChildren
   '/admin/tyres/new': typeof AuthenticatedAdminTyresNewRoute
@@ -514,6 +522,7 @@ export interface FileRoutesByTo {
   '/admin/catalogue/review': typeof AuthenticatedAdminCatalogueReviewRoute
   '/admin/catalogue/settings': typeof AuthenticatedAdminCatalogueSettingsRoute
   '/admin/catalogue/types': typeof AuthenticatedAdminCatalogueTypesRoute
+  '/admin/products/import': typeof AuthenticatedAdminProductsImportRoute
   '/admin/sections/$id': typeof AuthenticatedAdminSectionsIdRoute
   '/admin/tyres/$id': typeof AuthenticatedAdminTyresIdRouteWithChildren
   '/admin/tyres/new': typeof AuthenticatedAdminTyresNewRoute
@@ -578,6 +587,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/catalogue/review': typeof AuthenticatedAdminCatalogueReviewRoute
   '/_authenticated/admin/catalogue/settings': typeof AuthenticatedAdminCatalogueSettingsRoute
   '/_authenticated/admin/catalogue/types': typeof AuthenticatedAdminCatalogueTypesRoute
+  '/_authenticated/admin/products/import': typeof AuthenticatedAdminProductsImportRoute
   '/_authenticated/admin/sections/$id': typeof AuthenticatedAdminSectionsIdRoute
   '/_authenticated/admin/tyres/$id': typeof AuthenticatedAdminTyresIdRouteWithChildren
   '/_authenticated/admin/tyres/new': typeof AuthenticatedAdminTyresNewRoute
@@ -642,6 +652,7 @@ export interface FileRouteTypes {
     | '/admin/catalogue/review'
     | '/admin/catalogue/settings'
     | '/admin/catalogue/types'
+    | '/admin/products/import'
     | '/admin/sections/$id'
     | '/admin/tyres/$id'
     | '/admin/tyres/new'
@@ -699,6 +710,7 @@ export interface FileRouteTypes {
     | '/admin/catalogue/review'
     | '/admin/catalogue/settings'
     | '/admin/catalogue/types'
+    | '/admin/products/import'
     | '/admin/sections/$id'
     | '/admin/tyres/$id'
     | '/admin/tyres/new'
@@ -762,6 +774,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/catalogue/review'
     | '/_authenticated/admin/catalogue/settings'
     | '/_authenticated/admin/catalogue/types'
+    | '/_authenticated/admin/products/import'
     | '/_authenticated/admin/sections/$id'
     | '/_authenticated/admin/tyres/$id'
     | '/_authenticated/admin/tyres/new'
@@ -1139,6 +1152,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminSectionsIdRouteImport
       parentRoute: typeof AuthenticatedAdminSectionsRoute
     }
+    '/_authenticated/admin/products/import': {
+      id: '/_authenticated/admin/products/import'
+      path: '/products/import'
+      fullPath: '/admin/products/import'
+      preLoaderRoute: typeof AuthenticatedAdminProductsImportRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
     '/_authenticated/admin/catalogue/types': {
       id: '/_authenticated/admin/catalogue/types'
       path: '/types'
@@ -1403,6 +1423,7 @@ interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminVehiclesRoute: typeof AuthenticatedAdminVehiclesRouteWithChildren
   AuthenticatedAdminVideosRoute: typeof AuthenticatedAdminVideosRoute
   AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
+  AuthenticatedAdminProductsImportRoute: typeof AuthenticatedAdminProductsImportRoute
 }
 
 const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
@@ -1422,6 +1443,7 @@ const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
   AuthenticatedAdminVehiclesRoute: AuthenticatedAdminVehiclesRouteWithChildren,
   AuthenticatedAdminVideosRoute: AuthenticatedAdminVideosRoute,
   AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
+  AuthenticatedAdminProductsImportRoute: AuthenticatedAdminProductsImportRoute,
 }
 
 const AuthenticatedAdminRouteWithChildren =
