@@ -334,7 +334,13 @@ const rowPatchSchema = z.object({
     pack_label: z.string().max(80).nullable().optional(),
     no_pack_required: z.boolean().optional(),
   }).partial().optional(),
+  suggested_tags: z.array(z.object({
+    key: z.string().min(1).max(60),
+    group: z.string().max(40).optional(),
+    confidence: z.number().min(0).max(1).optional(),
+  })).max(30).optional(),
 });
+
 
 export const updateCataloguePreviewRow = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
