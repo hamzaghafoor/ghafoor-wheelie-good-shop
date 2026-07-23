@@ -5,7 +5,7 @@ import { useMemo, useState } from "react";
 import { listVehiclesAdmin, upsertMake, upsertVehicleModel, upsertVehicleYear, archiveVehicle } from "@/lib/vehicles.functions";
 import { ChevronDown, ChevronRight, Plus, Archive, RotateCcw } from "lucide-react";
 
-export const Route = createFileRoute("/_authenticated/admin/vehicles")({
+export const Route = createFileRoute("/_authenticated/admin/vehicles/")({
   component: VehiclesAdmin,
 });
 
