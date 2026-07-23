@@ -4,18 +4,20 @@ export const Route = createFileRoute("/_authenticated/admin/catalogue")({
   component: CatalogueLayout,
 });
 
-const TABS = [
-  { to: "/admin/catalogue", label: "Products", match: /^\/admin\/catalogue(\/(new|[^/]+)?)?$/ },
+const EXCLUDE = /^\/admin\/catalogue\/(types|settings|homepage|fitments)/;
+type Tab = { to: string; label: string; match?: (p: string) => boolean };
+const TABS: Tab[] = [
+  { to: "/admin/catalogue", label: "Products", match: (p) => /^\/admin\/catalogue(\/|$)/.test(p) && !EXCLUDE.test(p) },
   { to: "/admin/catalogue/types", label: "Types & Labels" },
   { to: "/admin/catalogue/settings", label: "Settings & Packaging" },
   { to: "/admin/catalogue/homepage", label: "Homepage Sections" },
+  { to: "/admin/catalogue/fitments", label: "Vehicle Fitments" },
 ];
 
 function CatalogueLayout() {
   const loc = useLocation();
   const path = loc.pathname;
-  const isActive = (t: typeof TABS[number]) =>
-    t.match ? t.match.test(path) : path.startsWith(t.to);
+  const isActive = (t: Tab) => (t.match ? t.match(path) : path.startsWith(t.to));
   return (
     <div>
       <div className="mb-4 flex gap-1 border-b border-border">
