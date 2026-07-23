@@ -159,6 +159,9 @@ function EditProduct() {
       </div>
 
       <VariantsPanel productId={id} initial={q.data?.variants ?? []} units={lookups.data?.units ?? []} presets={lookups.data?.presets ?? []} />
+
+      <FitmentManager productId={id} title="Vehicle fitments (product-level)" />
+
     </div>
   );
 }
