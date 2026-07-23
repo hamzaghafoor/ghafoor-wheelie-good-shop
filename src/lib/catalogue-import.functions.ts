@@ -2,10 +2,11 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import {
-  parseCSV, parseSheet, sanitizeCell, LIMITS,
-  type SheetTable, type ParsedRow, type BrandCandidate,
+  parseCSV, parseSheet, sanitizeCell, LIMITS, suggestCategory, parseDigitleyPdfText,
+  type SheetTable, type ParsedRow, type BrandCandidate, type DigitleyMeta,
 } from "@/lib/erp-parser";
 import * as XLSX from "xlsx";
+
 
 // --------- Helpers ---------
 async function assertAdmin(ctx: { supabase: any; userId: string }) {
