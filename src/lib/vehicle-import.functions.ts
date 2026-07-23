@@ -233,7 +233,10 @@ export const previewImport = createServerFn({ method: "POST" })
     if (rows.length - 1 > 2000) throw new Error("Max 2000 data rows per import");
 
     const headers = rows[0].map(h => h.trim().toLowerCase());
-    const unknownHeaders = headers.filter(h => h && !(CSV_COLUMNS as readonly string[]).includes(h));
+    // Client normaliser passes these through so the "or" warning still fires;
+    // they are already mapped into canonical fields, so exclude from unknown list.
+    const KNOWN_PASSTHROUGH = new Set(["front_tyre_size","rear_tyre_size","spare_tyre_size","verification_status"]);
+    const unknownHeaders = headers.filter(h => h && !(CSV_COLUMNS as readonly string[]).includes(h) && !KNOWN_PASSTHROUGH.has(h));
     const dataRows = rows.slice(1);
 
     // Preload makes/models for match hints
