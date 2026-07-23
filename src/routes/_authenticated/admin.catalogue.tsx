@@ -4,15 +4,14 @@ export const Route = createFileRoute("/_authenticated/admin/catalogue")({
   component: CatalogueLayout,
 });
 
+const EXCLUDE = /^\/admin\/catalogue\/(types|settings|homepage|fitments)/;
 const TABS = [
-  { to: "/admin/catalogue", label: "Products", match: /^\/admin\/catalogue(\/(new|[^/]+)?)?$/ ,
-    // Excluded sub-paths handled by explicit tabs below
-  },
+  { to: "/admin/catalogue", label: "Products", match: (p: string) => /^\/admin\/catalogue(\/|$)/.test(p) && !EXCLUDE.test(p) },
   { to: "/admin/catalogue/types", label: "Types & Labels" },
   { to: "/admin/catalogue/settings", label: "Settings & Packaging" },
   { to: "/admin/catalogue/homepage", label: "Homepage Sections" },
   { to: "/admin/catalogue/fitments", label: "Vehicle Fitments" },
-];
+] as const;
 
 function CatalogueLayout() {
   const loc = useLocation();
