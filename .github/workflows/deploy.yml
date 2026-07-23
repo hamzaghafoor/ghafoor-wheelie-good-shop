@@ -63,32 +63,10 @@ jobs:
         with:
           path: './dist/client'
 
-      - name: Download uploaded Pages artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: github-pages
-          path: /tmp/github-pages-artifact
-
-      - name: Verify actual uploaded tar
-        run: |
-          set -euo pipefail
-          ARTIFACT=/tmp/github-pages-artifact/artifact.tar
-          EXTRACTED=/tmp/github-pages-extracted
-          test -f "$ARTIFACT"
-          echo "Actual uploaded artifact contents:"
-          tar -tf "$ARTIFACT"
-          mkdir -p "$EXTRACTED"
-          tar -xf "$ARTIFACT" -C "$EXTRACTED"
-          test -f "$EXTRACTED/index.html"
-          test -f "$EXTRACTED/sw.js"
-          test -f "$EXTRACTED/manifest.webmanifest"
-          test -f "$EXTRACTED/.nojekyll"
-          test -f "$EXTRACTED/CNAME"
-          find "$EXTRACTED" -maxdepth 1 -name 'workbox-*.js' | grep -q .
-
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+
 
       - name: Verify deployed PWA assets
         run: |
