@@ -58,8 +58,8 @@ function ImportLanding() {
   });
 
   function onFile(f: File) {
-    if (f.size > 6_000_000) { setMsg("File too large (max 6 MB)."); return; }
-    if (!/\.(csv|xlsx|xls)$/i.test(f.name)) { setMsg("Only .csv, .xls or .xlsx files are supported."); return; }
+    if (f.size > 10_000_000) { setMsg("File too large (max 10 MB)."); return; }
+    if (!/\.(csv|xlsx|xls|pdf)$/i.test(f.name)) { setMsg("Only .csv, .xls, .xlsx or .pdf files are supported."); return; }
     setFile(f); setMsg(null);
   }
 
@@ -68,7 +68,7 @@ function ImportLanding() {
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h1 className="font-display text-2xl">Import Catalogue</h1>
-          <p className="mt-1 text-sm text-muted-foreground">Upload an ERP export (.xls, .xlsx or .csv). Every imported product stays in <b>Draft</b> with availability <b>Check Availability</b>. Files are parsed in memory and not stored.</p>
+          <p className="mt-1 text-sm text-muted-foreground">Upload a spreadsheet (.xls, .xlsx, .csv) or a Digitley Stock Check <b>PDF</b>. Every imported product stays in <b>Draft</b> with availability <b>Check Availability</b>. Files are parsed in memory and not stored.</p>
         </div>
         <div className="flex gap-2">
           <Link to="/admin/catalogue/review" className="btn-outline text-sm">Review queue</Link>
@@ -85,10 +85,11 @@ function ImportLanding() {
           onDrop={(e) => { e.preventDefault(); const f = e.dataTransfer.files?.[0]; if (f) onFile(f); }}
         >
           <Upload className="mx-auto h-8 w-8 text-muted-foreground" />
-          <div className="mt-2 text-sm font-medium">Drop a spreadsheet or click to select</div>
-          <div className="text-xs text-muted-foreground">Max 6 MB · up to 10 worksheets · up to 5,000 rows per sheet</div>
-          <input ref={inputRef} type="file" accept=".csv,.xls,.xlsx,text/csv" className="hidden" onChange={(e) => e.target.files?.[0] && onFile(e.target.files[0])} />
+          <div className="mt-2 text-sm font-medium">Drop a spreadsheet or Digitley PDF, or click to select</div>
+          <div className="text-xs text-muted-foreground">Max 10 MB · up to 10 worksheets · up to 5,000 rows per sheet</div>
+          <input ref={inputRef} type="file" accept=".csv,.xls,.xlsx,.pdf,application/pdf,text/csv" className="hidden" onChange={(e) => e.target.files?.[0] && onFile(e.target.files[0])} />
         </label>
+
         {file && (
           <div className="mt-3 flex items-center justify-between rounded-md border border-border p-3 text-sm">
             <div>
