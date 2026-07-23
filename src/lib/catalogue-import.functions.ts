@@ -21,23 +21,35 @@ function b64ToBytes(b64: string): Uint8Array {
   return out;
 }
 
-function readWorkbookTables(bytes: Uint8Array, filename: string): SheetTable[] {
+async function readWorkbookTables(bytes: Uint8Array, filename: string): Promise<{ tables: SheetTable[]; pdfMeta?: DigitleyMeta; pdfExcluded?: string[]; pdfUnparsed?: string[] }> {
   const isCSV = /\.csv$/i.test(filename);
+  const isPDF = /\.pdf$/i.test(filename);
   if (isCSV) {
     const text = new TextDecoder("utf-8").decode(bytes);
-    return [{ name: "sheet1", rows: parseCSV(text) }];
+    return { tables: [{ name: "sheet1", rows: parseCSV(text) }] };
+  }
+  if (isPDF) {
+    // unpdf is Worker/edge safe (no Node built-ins). Extract text per page,
+    // then reduce Digitley layout to a SheetTable the header detector understands.
+    const { extractText, getDocumentProxy } = await import("unpdf");
+    const pdf = await getDocumentProxy(bytes);
+    const { text } = await extractText(pdf, { mergePages: false });
+    const pages = Array.isArray(text) ? text : [String(text ?? "")];
+    const parsed = parseDigitleyPdfText(pages);
+    return { tables: [parsed.table], pdfMeta: parsed.meta, pdfExcluded: parsed.excludedHeadings, pdfUnparsed: parsed.unparsedLines };
   }
   // xlsx/xls
   const wb = XLSX.read(bytes, { type: "array", cellFormula: false, cellHTML: false, cellDates: false });
   const names = wb.SheetNames.slice(0, LIMITS.maxSheets);
-  return names.map((name) => {
+  const tables = names.map((name) => {
     const ws = wb.Sheets[name];
     const aoa = XLSX.utils.sheet_to_json<any[]>(ws, { header: 1, defval: "", blankrows: true, raw: false });
-    // Sanitize every cell defensively (formulas are already dropped by SheetJS with cellFormula:false).
     const rows = (aoa as any[][]).slice(0, LIMITS.maxRows).map((r) => r.map(sanitizeCell));
     return { name, rows };
   });
+  return { tables };
 }
+
 
 // --------- Row payload shape (stored in import_batch_rows.source_payload) ---------
 export type RowPayload = {
