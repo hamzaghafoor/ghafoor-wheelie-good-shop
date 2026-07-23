@@ -92,10 +92,27 @@ function ImportPage() {
 
   async function onFile(f: File) {
     if (!f) return;
-    if (f.size > 4_000_000) { setMsg("File too large (max 4 MB)"); return; }
-    if (!/\.csv$/i.test(f.name) && f.type !== "text/csv") { setMsg("CSV files only"); return; }
-    const text = await f.text();
-    setFilename(f.name); setFileSize(f.size); setCsvText(text); setMsg(null);
+    if (f.size > 8_000_000) { setMsg("File too large (max 8 MB)"); return; }
+    const isXlsx = /\.(xlsx|xls)$/i.test(f.name);
+    const isCsv = /\.csv$/i.test(f.name) || f.type === "text/csv";
+    if (!isXlsx && !isCsv) { setMsg("CSV, XLS or XLSX files only"); return; }
+    setMsg(null);
+    try {
+      let text: string;
+      if (isXlsx) {
+        const XLSX = await import("xlsx");
+        const buf = await f.arrayBuffer();
+        const wb = XLSX.read(buf, { type: "array" });
+        const ws = wb.Sheets[wb.SheetNames[0]];
+        text = XLSX.utils.sheet_to_csv(ws);
+      } else {
+        text = await f.text();
+      }
+      const normalised = normaliseWorkbookCsv(text);
+      setFilename(f.name); setFileSize(f.size); setCsvText(normalised);
+    } catch (err: any) {
+      setMsg(`Could not read file: ${err?.message ?? err}`);
+    }
   }
 
   const filtered = useMemo(() => {
