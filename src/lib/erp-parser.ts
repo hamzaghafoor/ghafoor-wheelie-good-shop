@@ -341,3 +341,81 @@ export function parseSheet(table: SheetTable, brandHintOverride?: string | null)
   }
   return { header, brandCandidates, productRows, blankRows, totalRows: rows.length, warnings };
 }
+
+// --------- Digitley Stock Check PDF parser ---------
+// Converts the raw text of a Digitley "Stock Check Sheets" PDF into a SheetTable
+// that the existing detectHeader/parseSheet pipeline can consume.
+// Layout-agnostic — identifies rows by content, not by page coordinates.
+const DIGITLEY_UOM_TOKENS = ["Ltr", "each", "Pcs", "Pc", "Kg", "Kgs", "Ml", "Set", "Nos", "Unit"];
+const DIGITLEY_UOM_RE = new RegExp(`\\b(?:${DIGITLEY_UOM_TOKENS.join("|")})\\b`, "i");
+const DIGITLEY_ROW_RE = new RegExp(
+  `^(\\d{2,})\\s+(.+?)\\s+(${DIGITLEY_UOM_TOKENS.join("|")})\\s+(-?[\\d.,]+)\\s+(-?[\\d.,]+)\\s+(-?[\\d.,]+)\\s+(-?[\\d.,]+)\\s*$`,
+  "i",
+);
+const DIGITLEY_HEADER_RE = /stock\s*id.*description.*uom.*quantity/i;
+
+export type DigitleyMeta = {
+  brand: string | null;
+  location: string | null;
+  printDate: string | null;
+  fiscalYear: string | null;
+  pages: number;
+};
+
+export type DigitleyPdfParse = {
+  table: SheetTable;
+  meta: DigitleyMeta;
+  excludedHeadings: string[];
+  unparsedLines: string[];
+};
+
+export function parseDigitleyPdfText(pagesText: string[], sheetName = "digitley-pdf"): DigitleyPdfParse {
+  const meta: DigitleyMeta = { brand: null, location: null, printDate: null, fiscalYear: null, pages: pagesText.length };
+  const dataRows: string[][] = [];
+  const excludedHeadings: string[] = [];
+  const unparsedLines: string[] = [];
+  let sawHeader = false;
+
+  const setMeta = (line: string) => {
+    let m: RegExpMatchArray | null;
+    if (!meta.brand && (m = line.match(/brand\s*[:\-]\s*(.+)$/i))) meta.brand = sanitizeCell(m[1].trim());
+    if (!meta.location && (m = line.match(/location\s*[:\-]\s*(.+)$/i))) meta.location = sanitizeCell(m[1].trim());
+    if (!meta.printDate && (m = line.match(/print\s*out\s*date\s*[:\-]\s*(.+?)(?:\s{2,}|$)/i))) meta.printDate = sanitizeCell(m[1].trim());
+    if (!meta.fiscalYear && (m = line.match(/fiscal\s*year\s*[:\-]\s*(.+?)(?:\s{2,}|$)/i))) meta.fiscalYear = sanitizeCell(m[1].trim());
+  };
+
+  for (const raw of pagesText) {
+    const lines = (raw || "").split(/\r?\n/).map((l) => l.replace(/\s+$/g, ""));
+    for (const line of lines) {
+      const trimmed = line.trim();
+      if (!trimmed) continue;
+      setMeta(trimmed);
+      if (DIGITLEY_HEADER_RE.test(trimmed)) { sawHeader = true; continue; }
+      if (!sawHeader) continue;
+      if (/^page\s+\d+/i.test(trimmed)) continue;
+      if (/^total\b/i.test(trimmed)) { excludedHeadings.push(trimmed); continue; }
+      const m = trimmed.match(DIGITLEY_ROW_RE);
+      if (m) {
+        dataRows.push([m[1], m[2].trim(), m[3], m[4], m[5], m[6], m[7]].map(sanitizeCell));
+        continue;
+      }
+      // Heading rows like "28  ADDINOL ( GSA 2)" — numeric prefix, no UOM tail
+      if (/^\d+\s+[A-Za-z]/.test(trimmed) && !DIGITLEY_UOM_RE.test(trimmed)) {
+        excludedHeadings.push(trimmed);
+        continue;
+      }
+      unparsedLines.push(trimmed);
+    }
+  }
+
+  const rows: string[][] = [];
+  if (meta.brand) rows.push([meta.brand]);
+  if (meta.location) rows.push([`Location: ${meta.location}`]);
+  if (meta.printDate) rows.push([`Print Out Date: ${meta.printDate}`]);
+  rows.push([""]);
+  rows.push(["Stock ID", "Description", "UOM", "Quantity", "Demand", "Available", "On Order"]);
+  for (const r of dataRows) rows.push(r);
+
+  return { table: { name: sheetName, rows }, meta, excludedHeadings, unparsedLines };
+}
+
