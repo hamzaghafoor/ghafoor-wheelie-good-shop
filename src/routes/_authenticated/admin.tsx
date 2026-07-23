@@ -1,8 +1,6 @@
 import { createFileRoute, Outlet, Link, useNavigate, useLocation } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { useServerFn } from "@tanstack/react-start";
 import { LogOut } from "lucide-react";
-import { getMyAuthStatus } from "@/lib/auth.functions";
 import { supabase } from "@/integrations/supabase/client";
 import { useEffect } from "react";
 import { AdminSidebar } from "@/components/admin/AdminSidebar";
@@ -18,15 +16,32 @@ export const Route = createFileRoute("/_authenticated/admin")({
   component: AdminLayout,
 });
 
+async function fetchAuthStatus() {
+  const { data: userData, error: userErr } = await supabase.auth.getUser();
+  if (userErr || !userData.user) throw new Error("Not signed in");
+  const userId = userData.user.id;
+
+  const { data: isAdminData, error: adminErr } = await supabase.rpc("is_admin", { _user_id: userId });
+  if (adminErr) throw new Error(adminErr.message);
+
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("id, email, full_name, must_change_password")
+    .eq("id", userId)
+    .maybeSingle();
+
+  return { userId, isAdmin: !!isAdminData, profile: profile ?? null };
+}
+
 function AdminLayout() {
-  const fetchStatus = useServerFn(getMyAuthStatus);
   const navigate = useNavigate();
   const location = useLocation();
   const { data, isLoading, error } = useQuery({
     queryKey: ["auth-status"],
-    queryFn: () => fetchStatus(),
+    queryFn: fetchAuthStatus,
     retry: false,
   });
+
 
   useEffect(() => {
     if (!data) return;
