@@ -9,6 +9,7 @@ const TABS = [
   { to: "/admin/catalogue/types", label: "Types & Labels" },
   { to: "/admin/catalogue/settings", label: "Settings & Packaging" },
   { to: "/admin/catalogue/homepage", label: "Homepage Sections" },
+  { to: "/admin/catalogue/fitments", label: "Vehicle Fitments" },
 ];
 
 function CatalogueLayout() {
