@@ -63,6 +63,7 @@ export function VariantEditor({ variant, model, brand }: { variant: any; model: 
       </div>
 
       {v.id && <VariantCompatManager variantId={v.id} variantSize={v.normalized_size} />}
+      {v.id && <FitmentManager variantId={v.id} title="Vehicle fitments (variant-level)" />}
     </div>
   );
 }
