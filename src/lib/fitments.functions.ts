@@ -120,7 +120,7 @@ export const bulkApplyFitment = createServerFn({ method: "POST" })
 
 // Given a vehicle, return product ranking metadata (used by search).
 export const rankProductsForVehiclePublic = createServerFn({ method: "GET" })
-  .inputValidator((d: { model_id: string; year?: number | null; engine?: string | null }) =>
+  .inputValidator((d: unknown) =>
     z.object({ model_id: z.string().uuid(), year: z.number().int().nullable().optional(), engine: z.string().max(80).nullable().optional() }).parse(d))
   .handler(async ({ data }) => {
     const sb = publicClient();
