@@ -35,10 +35,114 @@ const badge = (status: string) => {
 
 const esc = (v: string) => v.replace(/[<>&]/g, c => ({ "<":"&lt;", ">":"&gt;", "&":"&amp;" }[c]!));
 
+// Map incoming workbook headers to the canonical CSV schema the server understands.
+const HEADER_ALIASES: Record<string, string> = {
+  configuration_name: "trim_name",
+  trim: "trim_name",
+  engine: "engine_name",
+  cc: "engine_capacity_cc",
+  year_from: "pk_year_from",
+  year_to: "pk_year_to",
+  oil_approvals: "manufacturer_approvals",
+  approvals: "manufacturer_approvals",
+  research_notes: "public_notes",
+  notes: "public_notes",
+  sae: "sae_grade",
+};
+
+// Split a tyre-size string like "195/65R15" or "225/45/17" into [width, profile, rim].
+function splitTyreSize(v: string): [string, string, string] | null {
+  if (!v) return null;
+  const m = String(v).trim().match(/^\s*(\d{3})\s*[\/x]\s*(\d{2,3})\s*[\/rR\-]\s*(\d{2})/);
+  return m ? [m[1], m[2], m[3]] : null;
+}
+
+// Parse CSV → 2D array, remap headers, expand front/rear/spare tyre-size cells, re-serialise as CSV.
+function normaliseWorkbookCsv(text: string): string {
+  if (text.charCodeAt(0) === 0xfeff) text = text.slice(1);
+  const rows: string[][] = [];
+  let row: string[] = []; let cur = ""; let inQ = false;
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i];
+    if (inQ) {
+      if (c === '"') { if (text[i+1] === '"') { cur += '"'; i++; } else inQ = false; }
+      else cur += c;
+    } else {
+      if (c === '"') inQ = true;
+      else if (c === ",") { row.push(cur); cur = ""; }
+      else if (c === "\n") { row.push(cur); rows.push(row); row = []; cur = ""; }
+      else if (c === "\r") { /* skip */ }
+      else cur += c;
+    }
+  }
+  if (cur.length > 0 || row.length > 0) { row.push(cur); rows.push(row); }
+  const filtered = rows.filter(r => r.some(v => (v ?? "").trim() !== ""));
+  if (filtered.length < 1) return text;
+
+  const rawHeaders = filtered[0].map(h => h.trim().toLowerCase().replace(/\s+/g, "_"));
+  const mappedHeaders = rawHeaders.map(h => HEADER_ALIASES[h] ?? h);
+
+  const idxOf = (name: string) => mappedHeaders.indexOf(name);
+  const iFront = idxOf("front_tyre_size");
+  const iRear = idxOf("rear_tyre_size");
+  const iSpare = idxOf("spare_tyre_size");
+  const iNotes = idxOf("public_notes");
+  const iVer = idxOf("verification_status");
+
+  // Add expanded columns if tyre-size sources are present.
+  const outHeaders = [...mappedHeaders];
+  const addCol = (name: string): number => {
+    let idx = outHeaders.indexOf(name);
+    if (idx === -1) { outHeaders.push(name); idx = outHeaders.length - 1; }
+    return idx;
+  };
+  const iFW = iFront !== -1 ? addCol("front_width") : -1;
+  const iFP = iFront !== -1 ? addCol("front_profile") : -1;
+  const iFR = iFront !== -1 ? addCol("front_rim") : -1;
+  const iRW = iRear !== -1 ? addCol("rear_width") : -1;
+  const iRP = iRear !== -1 ? addCol("rear_profile") : -1;
+  const iRR = iRear !== -1 ? addCol("rear_rim") : -1;
+  const iLayout = (iFront !== -1 || iRear !== -1) ? addCol("tyre_layout") : -1;
+  const iNotesOut = iNotes !== -1 ? iNotes : (iSpare !== -1 || iVer !== -1 ? addCol("public_notes") : -1);
+
+  const outRows: string[][] = [outHeaders];
+  for (let r = 1; r < filtered.length; r++) {
+    const src = filtered[r];
+    const row: string[] = new Array(outHeaders.length).fill("");
+    for (let c = 0; c < mappedHeaders.length; c++) row[c] = src[c] ?? "";
+
+    if (iFront !== -1) {
+      const parts = splitTyreSize(src[iFront] ?? "");
+      if (parts) { row[iFW] = parts[0]; row[iFP] = parts[1]; row[iFR] = parts[2]; }
+    }
+    let hasRear = false;
+    if (iRear !== -1) {
+      const parts = splitTyreSize(src[iRear] ?? "");
+      if (parts) { row[iRW] = parts[0]; row[iRP] = parts[1]; row[iRR] = parts[2]; hasRear = true; }
+    }
+    if (iLayout !== -1 && !row[iLayout]) row[iLayout] = hasRear ? "staggered" : "same";
+
+    // Preserve spare-tyre and verification-status as free-text notes since the server schema has no dedicated column.
+    const extras: string[] = [];
+    if (iSpare !== -1 && (src[iSpare] ?? "").trim()) extras.push(`Spare tyre: ${src[iSpare].trim()}`);
+    if (iVer !== -1 && (src[iVer] ?? "").trim()) extras.push(`Requested verification: ${src[iVer].trim()}`);
+    if (extras.length && iNotesOut !== -1) {
+      const existing = (row[iNotesOut] ?? "").trim();
+      row[iNotesOut] = existing ? `${existing} | ${extras.join(" | ")}` : extras.join(" | ");
+    }
+    outRows.push(row);
+  }
+
+  return outRows.map(r => r.map(cell => {
+    const s = String(cell ?? "");
+    const safe = /^[=+\-@\t]/.test(s) ? `'${s}` : s;
+    return /["\n,]/.test(safe) ? `"${safe.replace(/"/g, '""')}"` : safe;
+  }).join(",")).join("\n");
+}
+
 function downloadCSV(name: string, rows: string[][]) {
   const csv = rows.map(r => r.map(cell => {
     const s = String(cell ?? "");
-    // neutralize formula prefixes for safe re-open in spreadsheets
     const safe = /^[=+\-@\t]/.test(s) ? `'${s}` : s;
     return /["\n,]/.test(safe) ? `"${safe.replace(/"/g, '""')}"` : safe;
   }).join(",")).join("\n");
@@ -92,10 +196,27 @@ function ImportPage() {
 
   async function onFile(f: File) {
     if (!f) return;
-    if (f.size > 4_000_000) { setMsg("File too large (max 4 MB)"); return; }
-    if (!/\.csv$/i.test(f.name) && f.type !== "text/csv") { setMsg("CSV files only"); return; }
-    const text = await f.text();
-    setFilename(f.name); setFileSize(f.size); setCsvText(text); setMsg(null);
+    if (f.size > 8_000_000) { setMsg("File too large (max 8 MB)"); return; }
+    const isXlsx = /\.(xlsx|xls)$/i.test(f.name);
+    const isCsv = /\.csv$/i.test(f.name) || f.type === "text/csv";
+    if (!isXlsx && !isCsv) { setMsg("CSV, XLS or XLSX files only"); return; }
+    setMsg(null);
+    try {
+      let text: string;
+      if (isXlsx) {
+        const XLSX = await import("xlsx");
+        const buf = await f.arrayBuffer();
+        const wb = XLSX.read(buf, { type: "array" });
+        const ws = wb.Sheets[wb.SheetNames[0]];
+        text = XLSX.utils.sheet_to_csv(ws);
+      } else {
+        text = await f.text();
+      }
+      const normalised = normaliseWorkbookCsv(text);
+      setFilename(f.name); setFileSize(f.size); setCsvText(normalised);
+    } catch (err: any) {
+      setMsg(`Could not read file: ${err?.message ?? err}`);
+    }
   }
 
   const filtered = useMemo(() => {
@@ -167,9 +288,9 @@ function ImportPage() {
         <div className="card-surface mt-4 bg-white p-6">
           <label className="block cursor-pointer rounded-lg border-2 border-dashed border-border p-8 text-center hover:border-primary" onDragOver={(e)=>e.preventDefault()} onDrop={(e)=>{e.preventDefault(); const f=e.dataTransfer.files?.[0]; if (f) onFile(f);}}>
             <Upload className="mx-auto h-8 w-8 text-muted-foreground" />
-            <div className="mt-2 text-sm font-medium">Drop a CSV or click to select</div>
-            <div className="text-xs text-muted-foreground">Max 4 MB · UTF-8 · up to 2000 rows</div>
-            <input ref={inputRef} type="file" accept=".csv,text/csv" className="hidden" onChange={(e)=>e.target.files?.[0] && onFile(e.target.files[0])} />
+            <div className="mt-2 text-sm font-medium">Drop a CSV / XLS / XLSX file or click to select</div>
+            <div className="text-xs text-muted-foreground">Max 8 MB · up to 2000 rows · headers auto-mapped (configuration_name, front_tyre_size, oil_approvals…)</div>
+            <input ref={inputRef} type="file" accept=".csv,.xls,.xlsx,text/csv,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" className="hidden" onChange={(e)=>e.target.files?.[0] && onFile(e.target.files[0])} />
           </label>
           {filename && (
             <div className="mt-4 rounded-md border border-border p-3 text-sm">
