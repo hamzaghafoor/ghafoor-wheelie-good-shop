@@ -96,17 +96,22 @@ export const previewCatalogueImport = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     await assertAdmin(context as any);
     const { filename, fileB64 } = data;
-    if (!/\.(csv|xlsx|xls)$/i.test(filename)) throw new Error("Only .csv, .xls or .xlsx files are supported.");
+    if (!/\.(csv|xlsx|xls|pdf)$/i.test(filename)) throw new Error("Only .csv, .xls, .xlsx or .pdf files are supported.");
     const bytes = b64ToBytes(fileB64);
     if (bytes.byteLength > LIMITS.maxFileBytes) throw new Error(`File too large (max ${(LIMITS.maxFileBytes / 1_000_000).toFixed(1)} MB).`);
 
     let tables: SheetTable[];
+    let pdfMeta: DigitleyMeta | undefined;
+    let pdfExcluded: string[] | undefined;
+    let pdfUnparsed: string[] | undefined;
     try {
-      tables = readWorkbookTables(bytes, filename);
+      const read = await readWorkbookTables(bytes, filename);
+      tables = read.tables; pdfMeta = read.pdfMeta; pdfExcluded = read.pdfExcluded; pdfUnparsed = read.pdfUnparsed;
     } catch (e: any) {
-      throw new Error(`Could not read spreadsheet: ${e?.message ?? "unknown error"}`);
+      throw new Error(`Could not read file: ${e?.message ?? "unknown error"}`);
     }
     if (tables.length === 0) throw new Error("No worksheets found.");
+
 
     // Parse every sheet; pick the first with a valid header + rows as default.
     const sheetSummaries = tables.map((t) => {
