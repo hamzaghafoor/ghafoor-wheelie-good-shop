@@ -125,7 +125,7 @@ export const rankProductsForVehiclePublic = createServerFn({ method: "GET" })
   .handler(async ({ data }) => {
     const sb = publicClient();
     const { data: rows, error } = await sb.rpc("rank_products_for_vehicle", {
-      _model_id: data.model_id, _year: data.year ?? null, _engine: data.engine ?? null,
+      _model_id: data.model_id, _year: data.year ?? undefined, _engine: data.engine ?? undefined,
     });
     if (error) throw new Error(error.message);
     return rows ?? [];
