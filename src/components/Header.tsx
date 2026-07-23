@@ -93,6 +93,10 @@ export function Header() {
                 {moreNav.map((n) => (
                   <Link key={n.to} to={n.to} className="block rounded px-3 py-2 text-sm text-foreground/70 hover:bg-muted hover:text-ink">{n.label}</Link>
                 ))}
+                <div className="my-1 border-t border-border" />
+                <Link to={adminHref as any} className="flex items-center gap-2 rounded px-3 py-2 text-sm font-medium text-foreground/80 hover:bg-muted hover:text-primary">
+                  <Shield className="h-3.5 w-3.5" /> {adminDesktopLabel}
+                </Link>
               </div>
             </div>
           </nav>
