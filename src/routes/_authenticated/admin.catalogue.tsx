@@ -5,7 +5,9 @@ export const Route = createFileRoute("/_authenticated/admin/catalogue")({
 });
 
 const TABS = [
-  { to: "/admin/catalogue", label: "Products", match: /^\/admin\/catalogue(\/(new|[^/]+)?)?$/ },
+  { to: "/admin/catalogue", label: "Products", match: /^\/admin\/catalogue(\/(new|[^/]+)?)?$/ ,
+    // Excluded sub-paths handled by explicit tabs below
+  },
   { to: "/admin/catalogue/types", label: "Types & Labels" },
   { to: "/admin/catalogue/settings", label: "Settings & Packaging" },
   { to: "/admin/catalogue/homepage", label: "Homepage Sections" },
