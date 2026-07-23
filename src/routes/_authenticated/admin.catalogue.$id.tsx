@@ -4,6 +4,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { useState, useEffect } from "react";
 import { getProductAdmin, upsertProduct, listLookups, upsertVariant, deleteVariant, setVariantStatus, uploadCatalogueImage } from "@/lib/catalogue-cms.functions";
 import { Trash2, Star, Eye, EyeOff, Plus } from "lucide-react";
+import { FitmentManager } from "@/components/admin/FitmentManager";
 
 export const Route = createFileRoute("/_authenticated/admin/catalogue/$id")({
   component: EditProduct,
