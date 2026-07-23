@@ -30,7 +30,7 @@ export const business = {
     rating: 4.9, // editable — verify before launch
     reviewCount: 0, // set once verified
     reviewsUrl: "https://www.google.com/search?q=Ghafoor+Motors+Tyres+Lubricants+PECHS+Karachi",
-    submitReviewUrl: "https://search.google.com/local/writereview?placeid=",
+    writeReviewUrl: "https://g.page/r/CWmjhUF5GiY3EBM/review",
   },
 };
 
