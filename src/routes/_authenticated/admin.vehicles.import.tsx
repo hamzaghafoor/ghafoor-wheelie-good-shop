@@ -104,6 +104,7 @@ function normaliseWorkbookCsv(text: string): string {
   const iSpare = idxOf("spare_tyre_size");
   const iNotes = idxOf("public_notes");
   const iVer = idxOf("verification_status");
+  const iSae = idxOf("sae_grade");
 
   // Add expanded columns if tyre-size sources are present.
   const outHeaders = [...mappedHeaders];
@@ -119,7 +120,7 @@ function normaliseWorkbookCsv(text: string): string {
   const iRP = iRear !== -1 ? addCol("rear_profile") : -1;
   const iRR = iRear !== -1 ? addCol("rear_rim") : -1;
   const iLayout = (iFront !== -1 || iRear !== -1) ? addCol("tyre_layout") : -1;
-  const iNotesOut = iNotes !== -1 ? iNotes : (iSpare !== -1 || iVer !== -1 ? addCol("public_notes") : -1);
+  const iNotesOut = iNotes !== -1 ? iNotes : addCol("public_notes");
 
   const outRows: string[][] = [outHeaders];
   for (let r = 1; r < filtered.length; r++) {
@@ -127,21 +128,36 @@ function normaliseWorkbookCsv(text: string): string {
     const row: string[] = new Array(outHeaders.length).fill("");
     for (let c = 0; c < mappedHeaders.length; c++) row[c] = src[c] ?? "";
 
-    if (iFront !== -1) {
-      const parts = splitTyreSize(src[iFront] ?? "");
-      if (parts) { row[iFW] = parts[0]; row[iFP] = parts[1]; row[iFR] = parts[2]; }
-    }
-    let hasRear = false;
-    if (iRear !== -1) {
-      const parts = splitTyreSize(src[iRear] ?? "");
-      if (parts) { row[iRW] = parts[0]; row[iRP] = parts[1]; row[iRR] = parts[2]; hasRear = true; }
-    }
-    if (iLayout !== -1 && !row[iLayout]) row[iLayout] = hasRear ? "staggered" : "same";
+    const frontRaw = iFront !== -1 ? (src[iFront] ?? "").trim() : "";
+    const rearRaw = iRear !== -1 ? (src[iRear] ?? "").trim() : "";
+    const frontAlt = hasAlternatives(frontRaw);
+    const rearAlt = hasAlternatives(rearRaw);
+    const anyAlt = frontAlt || rearAlt;
 
-    // Preserve spare-tyre and verification-status as free-text notes since the server schema has no dedicated column.
+    // Only expand into structured width/profile/rim when there are no alternatives.
+    // Alternatives require a human to split into separate trims — never guess.
+    let hasRear = false;
+    if (!anyAlt) {
+      if (iFront !== -1) {
+        const parts = splitTyreSize(frontRaw);
+        if (parts) { row[iFW] = parts[0]; row[iFP] = parts[1]; row[iFR] = parts[2]; }
+      }
+      if (iRear !== -1) {
+        const parts = splitTyreSize(rearRaw);
+        if (parts) { row[iRW] = parts[0]; row[iRP] = parts[1]; row[iRR] = parts[2]; hasRear = true; }
+      }
+      if (iLayout !== -1 && !row[iLayout]) row[iLayout] = hasRear ? "staggered" : "same";
+    }
+
+    // Normalise SAE grade in-place (e.g. "10w40" → "10W-40").
+    if (iSae !== -1 && (row[iSae] ?? "").trim()) row[iSae] = normaliseSaeGrade(row[iSae]);
+
+    // Preserve spare, verification-status, and alternatives as structured review notes.
     const extras: string[] = [];
     if (iSpare !== -1 && (src[iSpare] ?? "").trim()) extras.push(`Spare tyre: ${src[iSpare].trim()}`);
     if (iVer !== -1 && (src[iVer] ?? "").trim()) extras.push(`Requested verification: ${src[iVer].trim()}`);
+    if (frontAlt) extras.push(`Front tyre alternatives (needs manual trim split): ${frontRaw}`);
+    if (rearAlt) extras.push(`Rear tyre alternatives (needs manual trim split): ${rearRaw}`);
     if (extras.length && iNotesOut !== -1) {
       const existing = (row[iNotesOut] ?? "").trim();
       row[iNotesOut] = existing ? `${existing} | ${extras.join(" | ")}` : extras.join(" | ");
