@@ -1,10 +1,11 @@
 import { Link } from "@tanstack/react-router";
-import { Phone, Menu, X, Search } from "lucide-react";
+import { Phone, Menu, X, Search, Shield } from "lucide-react";
 import { useEffect, useState } from "react";
 import logo from "@/assets/logo.png";
 import { business, telLink, waLink } from "@/lib/business";
 import { BookingButton } from "@/components/BookingButton";
 import { track } from "@/lib/analytics";
+import { supabase } from "@/integrations/supabase/client";
 
 
 const nav: { to: string; label: string; exact?: boolean }[] = [
@@ -28,6 +29,7 @@ const moreNav = [
 export function Header() {
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [signedIn, setSignedIn] = useState(false);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 8);
@@ -35,6 +37,21 @@ export function Header() {
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
+
+  useEffect(() => {
+    let mounted = true;
+    supabase.auth.getSession().then(({ data }) => {
+      if (mounted) setSignedIn(!!data.session);
+    });
+    const { data: sub } = supabase.auth.onAuthStateChange((_e, session) => {
+      setSignedIn(!!session);
+    });
+    return () => { mounted = false; sub.subscription.unsubscribe(); };
+  }, []);
+
+  const adminHref = signedIn ? "/admin" : "/auth";
+  const adminDesktopLabel = signedIn ? "Admin Dashboard" : "Admin";
+  const adminMobileLabel = signedIn ? "Admin Dashboard" : "Admin Login";
 
   return (
     <>
@@ -76,6 +93,10 @@ export function Header() {
                 {moreNav.map((n) => (
                   <Link key={n.to} to={n.to} className="block rounded px-3 py-2 text-sm text-foreground/70 hover:bg-muted hover:text-ink">{n.label}</Link>
                 ))}
+                <div className="my-1 border-t border-border" />
+                <Link to={adminHref as any} className="flex items-center gap-2 rounded px-3 py-2 text-sm font-medium text-foreground/80 hover:bg-muted hover:text-primary">
+                  <Shield className="h-3.5 w-3.5" /> {adminDesktopLabel}
+                </Link>
               </div>
             </div>
           </nav>
@@ -122,6 +143,13 @@ export function Header() {
                 </Link>
               ))}
               <Link to="/search" onClick={() => setOpen(false)} className="py-3 text-sm font-medium text-foreground/80">Search</Link>
+              <Link
+                to={adminHref as any}
+                onClick={() => setOpen(false)}
+                className="flex items-center gap-2 py-3 text-sm font-semibold text-primary"
+              >
+                <Shield className="h-4 w-4" /> {adminMobileLabel}
+              </Link>
             </div>
           </div>
         )}
