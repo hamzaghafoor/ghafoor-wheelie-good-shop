@@ -133,7 +133,18 @@ function normaliseWorkbookCsv(text: string): string {
     outRows.push(row);
   }
 
-  return outRows.map(r => r.map(cell => {
+  // Drop source columns fully mapped into canonical schema fields so the server
+  // validator no longer flags them as "ignored unknown columns".
+  const dropCols = new Set<number>();
+  for (const name of ["front_tyre_size", "rear_tyre_size", "spare_tyre_size", "verification_status"]) {
+    const idx = outHeaders.indexOf(name);
+    if (idx !== -1) dropCols.add(idx);
+  }
+  const finalRows = dropCols.size === 0
+    ? outRows
+    : outRows.map(r => r.filter((_, i) => !dropCols.has(i)));
+
+  return finalRows.map(r => r.map(cell => {
     const s = String(cell ?? "");
     const safe = /^[=+\-@\t]/.test(s) ? `'${s}` : s;
     return /["\n,]/.test(safe) ? `"${safe.replace(/"/g, '""')}"` : safe;
