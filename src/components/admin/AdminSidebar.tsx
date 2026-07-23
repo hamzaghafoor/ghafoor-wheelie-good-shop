@@ -1,5 +1,5 @@
 import { Link, useLocation } from "@tanstack/react-router";
-import { LayoutDashboard, Package, Tag, Image, LayoutTemplate, Building2, Activity, Users, Settings, Megaphone, FileText, Search, Navigation, Phone, Calendar, MessageSquare, DollarSign, Star, Video, BookOpen } from "lucide-react";
+import { LayoutDashboard, Package, Tag, Image, LayoutTemplate, Building2, Activity, Users, Settings, Megaphone, FileText, Search, Navigation, Phone, Calendar, MessageSquare, DollarSign, Star, Video, BookOpen, Upload, ClipboardCheck } from "lucide-react";
 
 type Item = { to: string; label: string; icon: any; soon?: boolean };
 type Group = { label: string; items: Item[] };
@@ -29,6 +29,10 @@ const groups: Group[] = [
     { to: "/admin/price-requests", label: "Price Requests", icon: DollarSign, soon: true },
     { to: "/admin/appointments", label: "Appointment Requests", icon: Calendar, soon: true },
     { to: "/admin/chatbot", label: "Chatbot Inquiries", icon: MessageSquare, soon: true },
+  ]},
+  { label: "Data Import", items: [
+    { to: "/admin/vehicles/import", label: "Vehicle/OEM Import", icon: Upload },
+    { to: "/admin/vehicles/review", label: "Import Review Queue", icon: ClipboardCheck },
   ]},
   { label: "Settings", items: [
     { to: "/admin/business", label: "Business Information", icon: Building2 },
