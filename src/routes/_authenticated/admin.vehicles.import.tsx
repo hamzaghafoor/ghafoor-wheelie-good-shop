@@ -50,11 +50,27 @@ const HEADER_ALIASES: Record<string, string> = {
   sae: "sae_grade",
 };
 
+// Detect alternatives like "235/65R17 or 235/60R18" — never guess a single size.
+function hasAlternatives(v: string): boolean {
+  if (!v) return false;
+  return /\s+or\s+|,|;|\bou\b/i.test(String(v).trim());
+}
+
 // Split a tyre-size string like "195/65R15" or "225/45/17" into [width, profile, rim].
 function splitTyreSize(v: string): [string, string, string] | null {
   if (!v) return null;
+  if (hasAlternatives(v)) return null;
   const m = String(v).trim().match(/^\s*(\d{3})\s*[\/x]\s*(\d{2,3})\s*[\/rR\-]\s*(\d{2})/);
   return m ? [m[1], m[2], m[3]] : null;
+}
+
+// Normalise SAE grades: "10w40" → "10W-40", "5w-30" → "5W-30", "0w20" → "0W-20".
+function normaliseSaeGrade(v: string): string {
+  if (!v) return "";
+  const s = String(v).trim();
+  const m = s.match(/^\s*(\d{1,2})\s*w\s*-?\s*(\d{1,3})\s*$/i);
+  if (m) return `${m[1]}W-${m[2]}`;
+  return s;
 }
 
 // Parse CSV → 2D array, remap headers, expand front/rear/spare tyre-size cells, re-serialise as CSV.
