@@ -170,6 +170,11 @@ export const previewCatalogueImport = createServerFn({ method: "POST" })
       const categoryHint = suggestCategory(r.erpDescription, uom);
       const warnings = [...r.warnings];
       if (!categoryHint) warnings.push("Category could not be inferred — pick one before commit.");
+      // Tag suggestion (internal metadata only; never rendered publicly).
+      // Convert pack to litres for lubricant volume heuristics.
+      const packL = r.pack.ok && (r.pack.unit === "L" ? r.pack.value
+        : r.pack.unit === "ml" ? r.pack.value / 1000 : null);
+      const suggestedTags = suggestTags(r.erpDescription, categoryHint, uom, packL || null);
       return {
         action,
         include: !isInvalid,
@@ -189,9 +194,11 @@ export const previewCatalogueImport = createServerFn({ method: "POST" })
         },
         // stored for audit; commit RPC ignores unknown fields
         ...({ stock } as any),
+        suggested_tags: suggestedTags,
         warnings,
       };
     });
+
 
     // Insert batch (draft) + rows
     const supabase = (context as any).supabase;
