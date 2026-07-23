@@ -84,6 +84,12 @@ function normalizeRow(headers: string[], rawRow: string[]) {
   const warnings: Warn[] = [];
   const errors: Warn[] = [];
 
+  for (const [field, value] of Object.entries(rec)) {
+    if (/\s+or\s+/i.test(value)) {
+      warnings.push({ field, message: `${field} contains combined alternatives (“${safeDisplay(value)}”); split and verify before import` });
+    }
+  }
+
   const make = rec.make || "";
   const model = rec.model || "";
   if (!make) errors.push({ field: "make", message: "Required" });

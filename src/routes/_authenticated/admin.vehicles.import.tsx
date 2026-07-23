@@ -37,7 +37,7 @@ const esc = (v: string) => v.replace(/[<>&]/g, c => ({ "<":"&lt;", ">":"&gt;", "
 
 // Map incoming workbook headers to the canonical CSV schema the server understands.
 const HEADER_ALIASES: Record<string, string> = {
-  configuration_name: "trim_name",
+  configuration_name: "model",
   trim: "trim_name",
   engine: "engine_name",
   cc: "engine_capacity_cc",
@@ -163,6 +163,8 @@ function ImportPage() {
   const [csvText, setCsvText] = useState<string>("");
   const [filename, setFilename] = useState<string>("");
   const [fileSize, setFileSize] = useState<number>(0);
+  const [isReading, setIsReading] = useState(false);
+  const [selectedSheet, setSelectedSheet] = useState<string>("");
   const [conflictStrategy, setConflictStrategy] = useState<"skip"|"update">("skip");
   const [allowPartial, setAllowPartial] = useState(false);
   const [preview, setPreview] = useState<any>(null);
@@ -201,21 +203,29 @@ function ImportPage() {
     const isCsv = /\.csv$/i.test(f.name) || f.type === "text/csv";
     if (!isXlsx && !isCsv) { setMsg("CSV, XLS or XLSX files only"); return; }
     setMsg(null);
+    setIsReading(true);
     try {
       let text: string;
       if (isXlsx) {
         const XLSX = await import("xlsx");
         const buf = await f.arrayBuffer();
         const wb = XLSX.read(buf, { type: "array" });
-        const ws = wb.Sheets[wb.SheetNames[0]];
+        const sheetName = wb.SheetNames.find((name) => name.trim().toLowerCase() === "vehicle specs");
+        if (!sheetName) throw new Error('Workbook must contain a sheet named “Vehicle Specs”.');
+        const ws = wb.Sheets[sheetName];
         text = XLSX.utils.sheet_to_csv(ws);
+        setSelectedSheet(sheetName);
       } else {
         text = await f.text();
+        setSelectedSheet("");
       }
       const normalised = normaliseWorkbookCsv(text);
       setFilename(f.name); setFileSize(f.size); setCsvText(normalised);
     } catch (err: any) {
+      setFilename(""); setFileSize(0); setCsvText(""); setSelectedSheet("");
       setMsg(`Could not read file: ${err?.message ?? err}`);
+    } finally {
+      setIsReading(false);
     }
   }
 
@@ -286,15 +296,15 @@ function ImportPage() {
 
       {step === "upload" && (
         <div className="card-surface mt-4 bg-white p-6">
-          <label className="block cursor-pointer rounded-lg border-2 border-dashed border-border p-8 text-center hover:border-primary" onDragOver={(e)=>e.preventDefault()} onDrop={(e)=>{e.preventDefault(); const f=e.dataTransfer.files?.[0]; if (f) onFile(f);}}>
+          <label htmlFor="vehicle-import-file" className="block cursor-pointer rounded-lg border-2 border-dashed border-border p-8 text-center hover:border-primary" onDragOver={(e)=>e.preventDefault()} onDrop={(e)=>{e.preventDefault(); const f=e.dataTransfer.files?.[0]; if (f) onFile(f);}}>
             <Upload className="mx-auto h-8 w-8 text-muted-foreground" />
-            <div className="mt-2 text-sm font-medium">Drop a CSV / XLS / XLSX file or click to select</div>
+            <div className="mt-2 text-sm font-medium">{isReading ? "Reading workbook…" : "Drop a CSV / XLS / XLSX file or click to select"}</div>
             <div className="text-xs text-muted-foreground">Max 8 MB · up to 2000 rows · headers auto-mapped (configuration_name, front_tyre_size, oil_approvals…)</div>
-            <input ref={inputRef} type="file" accept=".csv,.xls,.xlsx,text/csv,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" className="hidden" onChange={(e)=>e.target.files?.[0] && onFile(e.target.files[0])} />
+            <input id="vehicle-import-file" ref={inputRef} type="file" accept=".csv,.xls,.xlsx,text/csv,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" className="sr-only" onChange={(e)=>{ const f=e.target.files?.[0]; if (f) onFile(f); e.currentTarget.value=""; }} />
           </label>
           {filename && (
             <div className="mt-4 rounded-md border border-border p-3 text-sm">
-              <div className="flex items-center gap-2"><FileText className="h-4 w-4" /><span className="font-medium">{esc(filename)}</span><span className="text-xs text-muted-foreground">· {(fileSize/1024).toFixed(1)} KB</span></div>
+              <div className="flex items-center gap-2"><FileText className="h-4 w-4" /><span className="font-medium">{esc(filename)}</span><span className="text-xs text-muted-foreground">· {(fileSize/1024).toFixed(1)} KB{selectedSheet ? ` · ${selectedSheet} sheet` : ""}</span></div>
             </div>
           )}
           <div className="mt-4 grid gap-3 md:grid-cols-2">
@@ -311,7 +321,7 @@ function ImportPage() {
             </label>
           </div>
           <div className="mt-5 flex justify-end">
-            <button disabled={!csvText || pMut.isPending} onClick={() => pMut.mutate()} className="btn-primary text-sm">
+            <button disabled={!csvText || isReading || pMut.isPending} onClick={() => pMut.mutate()} className="btn-primary text-sm">
               {pMut.isPending ? <><Loader2 className="h-4 w-4 animate-spin"/> Validating…</> : "Validate & Preview"}
             </button>
           </div>
