@@ -4,11 +4,12 @@ import { LayoutDashboard, Package, Users, Image as ImageIcon, Settings, Upload }
 const items = [
   { to: "/admin", label: "Home", icon: LayoutDashboard, match: (p: string) => p === "/admin" },
   { to: "/admin/catalogue", label: "Products", icon: Package, match: (p: string) => p.startsWith("/admin/catalogue") || p.startsWith("/admin/tyres") || p.startsWith("/admin/brands") },
-  { to: "/admin/vehicles/import", label: "Import", icon: Upload, match: (p: string) => p.startsWith("/admin/vehicles/import") || p.startsWith("/admin/vehicles/review") },
+  { to: "/admin/products/import", label: "Import", icon: Upload, match: (p: string) => p.startsWith("/admin/products/import") || p.startsWith("/admin/catalogue/import") || p.startsWith("/admin/catalogue/review") || p.startsWith("/admin/vehicles/import") || p.startsWith("/admin/vehicles/review") },
   { to: "/admin/leads", label: "Leads", icon: Users, match: (p: string) => p.startsWith("/admin/leads") || p.startsWith("/admin/appointments") },
   { to: "/admin/media", label: "Media", icon: ImageIcon, match: (p: string) => p.startsWith("/admin/media") || p.startsWith("/admin/sections") || p.startsWith("/admin/articles") || p.startsWith("/admin/videos") || p.startsWith("/admin/reviews") },
   { to: "/admin/business", label: "Settings", icon: Settings, match: (p: string) => p.startsWith("/admin/business") || p.startsWith("/admin/catalogue/settings") || p.startsWith("/admin/activity") },
 ];
+
 
 export function AdminBottomNav() {
   const loc = useLocation();

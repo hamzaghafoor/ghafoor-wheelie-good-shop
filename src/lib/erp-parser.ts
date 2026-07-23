@@ -36,13 +36,45 @@ const VISCOSITY_RES = [
 
 // Cell/spreadsheet safety limits.
 export const LIMITS = {
-  maxFileBytes: 6_000_000,
+  maxFileBytes: 10_000_000, // raised so Digitley PDFs (~2-8 MB) fit
   maxSheets: 10,
   maxRows: 5_000,
   maxCellChars: 500,
 } as const;
 
 export type SheetTable = { name: string; rows: string[][] };
+
+// --------- Category & tyre detection ---------
+// Tyre size: 205/55R16, 265/70R17, 33x12.5R15, 195/60 R 15, LT265/70R17
+const TYRE_SIZE_RE = /\b(?:LT)?\d{3}\/\d{2}\s*R\s*\d{2}\b/i;
+const FLIP_TYRE_RE = /\b\d{2}(?:\.\d)?x\d{1,2}(?:\.\d)?\s*R\s*\d{2}\b/i;
+
+export function detectTyreSize(desc: string): string | null {
+  const m = desc.match(TYRE_SIZE_RE) ?? desc.match(FLIP_TYRE_RE);
+  return m ? m[0].replace(/\s+/g, "").toUpperCase() : null;
+}
+
+/**
+ * Suggest a product_category enum literal from description + UOM.
+ * Returns null when the row is ambiguous — admin still confirms in review.
+ */
+export function suggestCategory(desc: string, uom?: string | null):
+  | "tyres" | "lubricants" | "filters" | "additives" | "car_care" | "accessories" | "maintenance_parts" | null
+{
+  const d = (desc || "").toLowerCase();
+  const u = (uom || "").toLowerCase();
+  if (detectTyreSize(desc)) return "tyres";
+  if (/\btyre|tire|tubeless|run\s*flat\b/.test(d)) return "tyres";
+  if (/\bad\s*blue\b/.test(d)) return "additives";
+  if (/\b(oil|lubric|atf|gear\s*oil|coolant|antifreeze|brake\s*fluid|hydraulic)\b/.test(d)) return "lubricants";
+  if (/\b(filter|element)\b/.test(d)) return "filters";
+  if (/\b(cleaner|polish|wax|shampoo|degreaser|car\s*care)\b/.test(d)) return "car_care";
+  if (/\b(additive|booster|treatment|flush)\b/.test(d)) return "additives";
+  // Falls back on UOM when description gives no hint
+  if (u === "ltr" || u === "l" || u === "ml") return "lubricants";
+  return null;
+}
+
 
 // --------- Sanitization ---------
 export function sanitizeCell(v: unknown): string {
@@ -309,3 +341,81 @@ export function parseSheet(table: SheetTable, brandHintOverride?: string | null)
   }
   return { header, brandCandidates, productRows, blankRows, totalRows: rows.length, warnings };
 }
+
+// --------- Digitley Stock Check PDF parser ---------
+// Converts the raw text of a Digitley "Stock Check Sheets" PDF into a SheetTable
+// that the existing detectHeader/parseSheet pipeline can consume.
+// Layout-agnostic — identifies rows by content, not by page coordinates.
+const DIGITLEY_UOM_TOKENS = ["Ltr", "each", "Pcs", "Pc", "Kg", "Kgs", "Ml", "Set", "Nos", "Unit"];
+const DIGITLEY_UOM_RE = new RegExp(`\\b(?:${DIGITLEY_UOM_TOKENS.join("|")})\\b`, "i");
+const DIGITLEY_ROW_RE = new RegExp(
+  `^(\\d{2,})\\s+(.+?)\\s+(${DIGITLEY_UOM_TOKENS.join("|")})\\s+(-?[\\d.,]+)\\s+(-?[\\d.,]+)\\s+(-?[\\d.,]+)\\s+(-?[\\d.,]+)\\s*$`,
+  "i",
+);
+const DIGITLEY_HEADER_RE = /stock\s*id.*description.*uom.*quantity/i;
+
+export type DigitleyMeta = {
+  brand: string | null;
+  location: string | null;
+  printDate: string | null;
+  fiscalYear: string | null;
+  pages: number;
+};
+
+export type DigitleyPdfParse = {
+  table: SheetTable;
+  meta: DigitleyMeta;
+  excludedHeadings: string[];
+  unparsedLines: string[];
+};
+
+export function parseDigitleyPdfText(pagesText: string[], sheetName = "digitley-pdf"): DigitleyPdfParse {
+  const meta: DigitleyMeta = { brand: null, location: null, printDate: null, fiscalYear: null, pages: pagesText.length };
+  const dataRows: string[][] = [];
+  const excludedHeadings: string[] = [];
+  const unparsedLines: string[] = [];
+  let sawHeader = false;
+
+  const setMeta = (line: string) => {
+    let m: RegExpMatchArray | null;
+    if (!meta.brand && (m = line.match(/brand\s*[:\-]\s*(.+)$/i))) meta.brand = sanitizeCell(m[1].trim());
+    if (!meta.location && (m = line.match(/location\s*[:\-]\s*(.+)$/i))) meta.location = sanitizeCell(m[1].trim());
+    if (!meta.printDate && (m = line.match(/print\s*out\s*date\s*[:\-]\s*(.+?)(?:\s{2,}|$)/i))) meta.printDate = sanitizeCell(m[1].trim());
+    if (!meta.fiscalYear && (m = line.match(/fiscal\s*year\s*[:\-]\s*(.+?)(?:\s{2,}|$)/i))) meta.fiscalYear = sanitizeCell(m[1].trim());
+  };
+
+  for (const raw of pagesText) {
+    const lines = (raw || "").split(/\r?\n/).map((l) => l.replace(/\s+$/g, ""));
+    for (const line of lines) {
+      const trimmed = line.trim();
+      if (!trimmed) continue;
+      setMeta(trimmed);
+      if (DIGITLEY_HEADER_RE.test(trimmed)) { sawHeader = true; continue; }
+      if (!sawHeader) continue;
+      if (/^page\s+\d+/i.test(trimmed)) continue;
+      if (/^total\b/i.test(trimmed)) { excludedHeadings.push(trimmed); continue; }
+      const m = trimmed.match(DIGITLEY_ROW_RE);
+      if (m) {
+        dataRows.push([m[1], m[2].trim(), m[3], m[4], m[5], m[6], m[7]].map(sanitizeCell));
+        continue;
+      }
+      // Heading rows like "28  ADDINOL ( GSA 2)" — numeric prefix, no UOM tail
+      if (/^\d+\s+[A-Za-z]/.test(trimmed) && !DIGITLEY_UOM_RE.test(trimmed)) {
+        excludedHeadings.push(trimmed);
+        continue;
+      }
+      unparsedLines.push(trimmed);
+    }
+  }
+
+  const rows: string[][] = [];
+  if (meta.brand) rows.push([meta.brand]);
+  if (meta.location) rows.push([`Location: ${meta.location}`]);
+  if (meta.printDate) rows.push([`Print Out Date: ${meta.printDate}`]);
+  rows.push([""]);
+  rows.push(["Stock ID", "Description", "UOM", "Quantity", "Demand", "Available", "On Order"]);
+  for (const r of dataRows) rows.push(r);
+
+  return { table: { name: sheetName, rows }, meta, excludedHeadings, unparsedLines };
+}
+

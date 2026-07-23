@@ -2,10 +2,11 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import {
-  parseCSV, parseSheet, sanitizeCell, LIMITS,
-  type SheetTable, type ParsedRow, type BrandCandidate,
+  parseCSV, parseSheet, sanitizeCell, LIMITS, suggestCategory, parseDigitleyPdfText,
+  type SheetTable, type ParsedRow, type BrandCandidate, type DigitleyMeta,
 } from "@/lib/erp-parser";
 import * as XLSX from "xlsx";
+
 
 // --------- Helpers ---------
 async function assertAdmin(ctx: { supabase: any; userId: string }) {
@@ -20,23 +21,35 @@ function b64ToBytes(b64: string): Uint8Array {
   return out;
 }
 
-function readWorkbookTables(bytes: Uint8Array, filename: string): SheetTable[] {
+async function readWorkbookTables(bytes: Uint8Array, filename: string): Promise<{ tables: SheetTable[]; pdfMeta?: DigitleyMeta; pdfExcluded?: string[]; pdfUnparsed?: string[] }> {
   const isCSV = /\.csv$/i.test(filename);
+  const isPDF = /\.pdf$/i.test(filename);
   if (isCSV) {
     const text = new TextDecoder("utf-8").decode(bytes);
-    return [{ name: "sheet1", rows: parseCSV(text) }];
+    return { tables: [{ name: "sheet1", rows: parseCSV(text) }] };
+  }
+  if (isPDF) {
+    // unpdf is Worker/edge safe (no Node built-ins). Extract text per page,
+    // then reduce Digitley layout to a SheetTable the header detector understands.
+    const { extractText, getDocumentProxy } = await import("unpdf");
+    const pdf = await getDocumentProxy(bytes);
+    const { text } = await extractText(pdf, { mergePages: false });
+    const pages = Array.isArray(text) ? text : [String(text ?? "")];
+    const parsed = parseDigitleyPdfText(pages);
+    return { tables: [parsed.table], pdfMeta: parsed.meta, pdfExcluded: parsed.excludedHeadings, pdfUnparsed: parsed.unparsedLines };
   }
   // xlsx/xls
   const wb = XLSX.read(bytes, { type: "array", cellFormula: false, cellHTML: false, cellDates: false });
   const names = wb.SheetNames.slice(0, LIMITS.maxSheets);
-  return names.map((name) => {
+  const tables = names.map((name) => {
     const ws = wb.Sheets[name];
     const aoa = XLSX.utils.sheet_to_json<any[]>(ws, { header: 1, defval: "", blankrows: true, raw: false });
-    // Sanitize every cell defensively (formulas are already dropped by SheetJS with cellFormula:false).
     const rows = (aoa as any[][]).slice(0, LIMITS.maxRows).map((r) => r.map(sanitizeCell));
     return { name, rows };
   });
+  return { tables };
 }
+
 
 // --------- Row payload shape (stored in import_batch_rows.source_payload) ---------
 export type RowPayload = {
@@ -83,17 +96,22 @@ export const previewCatalogueImport = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     await assertAdmin(context as any);
     const { filename, fileB64 } = data;
-    if (!/\.(csv|xlsx|xls)$/i.test(filename)) throw new Error("Only .csv, .xls or .xlsx files are supported.");
+    if (!/\.(csv|xlsx|xls|pdf)$/i.test(filename)) throw new Error("Only .csv, .xls, .xlsx or .pdf files are supported.");
     const bytes = b64ToBytes(fileB64);
     if (bytes.byteLength > LIMITS.maxFileBytes) throw new Error(`File too large (max ${(LIMITS.maxFileBytes / 1_000_000).toFixed(1)} MB).`);
 
     let tables: SheetTable[];
+    let pdfMeta: DigitleyMeta | undefined;
+    let pdfExcluded: string[] | undefined;
+    let pdfUnparsed: string[] | undefined;
     try {
-      tables = readWorkbookTables(bytes, filename);
+      const read = await readWorkbookTables(bytes, filename);
+      tables = read.tables; pdfMeta = read.pdfMeta; pdfExcluded = read.pdfExcluded; pdfUnparsed = read.pdfUnparsed;
     } catch (e: any) {
-      throw new Error(`Could not read spreadsheet: ${e?.message ?? "unknown error"}`);
+      throw new Error(`Could not read file: ${e?.message ?? "unknown error"}`);
     }
     if (tables.length === 0) throw new Error("No worksheets found.");
+
 
     // Parse every sheet; pick the first with a valid header + rows as default.
     const sheetSummaries = tables.map((t) => {
@@ -121,10 +139,36 @@ export const previewCatalogueImport = createServerFn({ method: "POST" })
       return { ...c, existing_brand_id: hit?.id ?? null, existing_brand_name: hit?.name ?? null };
     });
 
-    // Build row payloads (unresolved: brand and category left to admin)
+    // Column index lookup for optional Digitley/ERP fields we want to preserve for audit
+    const colByName = (needle: string) => {
+      const n = needle.toLowerCase().replace(/[^a-z0-9]/g, "");
+      return parsed.header!.columnNames.findIndex((c) => (c ?? "").toString().toLowerCase().replace(/[^a-z0-9]/g, "") === n);
+    };
+    const uomCol = colByName("uom");
+    const qtyCol = colByName("quantity");
+    const demCol = colByName("demand");
+    const availCol = colByName("available");
+    const ooCol = colByName("onorder");
+    const rawRows = chosen.table.rows;
+    const num = (v: any) => { const n = parseFloat(String(v ?? "").replace(/,/g, "")); return Number.isFinite(n) ? n : null; };
+
+    // Build row payloads (unresolved: brand and category left to admin,
+    // but we pre-fill a category hint the admin can accept in one click).
     const rowPayloads: RowPayload[] = parsed.productRows.map((r: ParsedRow) => {
       const isInvalid = !r.erpDescription || r.isPlaceholder;
       const action: RowPayload["action"] = isInvalid ? "skip" : "needs_review";
+      const raw = rawRows[r.rowNumber - 1] ?? [];
+      const uom = uomCol >= 0 ? (raw[uomCol] ?? "").toString().trim() : null;
+      const stock = {
+        uom,
+        quantity: qtyCol >= 0 ? num(raw[qtyCol]) : null,
+        demand: demCol >= 0 ? num(raw[demCol]) : null,
+        available: availCol >= 0 ? num(raw[availCol]) : null,
+        on_order: ooCol >= 0 ? num(raw[ooCol]) : null,
+      };
+      const categoryHint = suggestCategory(r.erpDescription, uom);
+      const warnings = [...r.warnings];
+      if (!categoryHint) warnings.push("Category could not be inferred — pick one before commit.");
       return {
         action,
         include: !isInvalid,
@@ -134,7 +178,7 @@ export const previewCatalogueImport = createServerFn({ method: "POST" })
         product: {
           family_key: r.familyKey,
           name: r.suggestedFamilyName || r.erpDescription,
-          category: null,
+          category: categoryHint,
           erp_description: r.erpDescription,
         },
         variant: {
@@ -142,7 +186,9 @@ export const previewCatalogueImport = createServerFn({ method: "POST" })
           pack_unit_code: r.pack.ok ? r.pack.unit : null,
           no_pack_required: false,
         },
-        warnings: r.warnings,
+        // stored for audit; commit RPC ignores unknown fields
+        ...({ stock } as any),
+        warnings,
       };
     });
 
@@ -165,11 +211,16 @@ export const previewCatalogueImport = createServerFn({ method: "POST" })
           brand_candidates: brandMatches,
           brand_decision: null,
           warnings: parsed.warnings,
+          source_format: /\.pdf$/i.test(filename) ? "digitley_pdf" : /\.csv$/i.test(filename) ? "csv" : "xlsx",
+          pdf_meta: pdfMeta ?? null,
+          pdf_excluded_headings: pdfExcluded ?? [],
+          pdf_unparsed_lines: (pdfUnparsed ?? []).slice(0, 50),
         },
       },
     }).select("id").single();
     if (bErr || !batchIns) throw new Error(bErr?.message ?? "Failed to create import batch");
     const batchId = batchIns.id as string;
+
 
     if (rowPayloads.length > 0) {
       const rowsToInsert = rowPayloads.map((p, i) => ({

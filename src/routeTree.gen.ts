@@ -57,6 +57,7 @@ import { Route as AuthenticatedAdminVehiclesModelIdRouteImport } from './routes/
 import { Route as AuthenticatedAdminTyresNewRouteImport } from './routes/_authenticated/admin.tyres.new'
 import { Route as AuthenticatedAdminTyresIdRouteImport } from './routes/_authenticated/admin.tyres.$id'
 import { Route as AuthenticatedAdminSectionsIdRouteImport } from './routes/_authenticated/admin.sections.$id'
+import { Route as AuthenticatedAdminProductsImportRouteImport } from './routes/_authenticated/admin.products.import'
 import { Route as AuthenticatedAdminCatalogueTypesRouteImport } from './routes/_authenticated/admin.catalogue.types'
 import { Route as AuthenticatedAdminCatalogueSettingsRouteImport } from './routes/_authenticated/admin.catalogue.settings'
 import { Route as AuthenticatedAdminCatalogueReviewRouteImport } from './routes/_authenticated/admin.catalogue.review'
@@ -69,6 +70,7 @@ import { Route as AuthenticatedAdminBrandsIdRouteImport } from './routes/_authen
 import { Route as AuthenticatedAdminVehiclesConfigurationsConfigIdRouteImport } from './routes/_authenticated/admin.vehicles.configurations.$configId'
 import { Route as AuthenticatedAdminVehiclesModelIdRecommendationsRouteImport } from './routes/_authenticated/admin.vehicles.$modelId.recommendations'
 import { Route as AuthenticatedAdminTyresIdCompatRouteImport } from './routes/_authenticated/admin.tyres.$id.compat'
+import { Route as AuthenticatedAdminProductsImportReviewRouteImport } from './routes/_authenticated/admin.products.import.review'
 import { Route as AuthenticatedAdminCatalogueImportBatchIdRouteImport } from './routes/_authenticated/admin.catalogue.import.$batchId'
 
 const TyresRoute = TyresRouteImport.update({
@@ -331,6 +333,12 @@ const AuthenticatedAdminSectionsIdRoute =
     path: '/$id',
     getParentRoute: () => AuthenticatedAdminSectionsRoute,
   } as any)
+const AuthenticatedAdminProductsImportRoute =
+  AuthenticatedAdminProductsImportRouteImport.update({
+    id: '/products/import',
+    path: '/products/import',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
 const AuthenticatedAdminCatalogueTypesRoute =
   AuthenticatedAdminCatalogueTypesRouteImport.update({
     id: '/types',
@@ -403,6 +411,12 @@ const AuthenticatedAdminTyresIdCompatRoute =
     path: '/compat',
     getParentRoute: () => AuthenticatedAdminTyresIdRoute,
   } as any)
+const AuthenticatedAdminProductsImportReviewRoute =
+  AuthenticatedAdminProductsImportReviewRouteImport.update({
+    id: '/review',
+    path: '/review',
+    getParentRoute: () => AuthenticatedAdminProductsImportRoute,
+  } as any)
 const AuthenticatedAdminCatalogueImportBatchIdRoute =
   AuthenticatedAdminCatalogueImportBatchIdRouteImport.update({
     id: '/$batchId',
@@ -457,6 +471,7 @@ export interface FileRoutesByFullPath {
   '/admin/catalogue/review': typeof AuthenticatedAdminCatalogueReviewRoute
   '/admin/catalogue/settings': typeof AuthenticatedAdminCatalogueSettingsRoute
   '/admin/catalogue/types': typeof AuthenticatedAdminCatalogueTypesRoute
+  '/admin/products/import': typeof AuthenticatedAdminProductsImportRouteWithChildren
   '/admin/sections/$id': typeof AuthenticatedAdminSectionsIdRoute
   '/admin/tyres/$id': typeof AuthenticatedAdminTyresIdRouteWithChildren
   '/admin/tyres/new': typeof AuthenticatedAdminTyresNewRoute
@@ -468,6 +483,7 @@ export interface FileRoutesByFullPath {
   '/admin/sections/': typeof AuthenticatedAdminSectionsIndexRoute
   '/admin/tyres/': typeof AuthenticatedAdminTyresIndexRoute
   '/admin/catalogue/import/$batchId': typeof AuthenticatedAdminCatalogueImportBatchIdRoute
+  '/admin/products/import/review': typeof AuthenticatedAdminProductsImportReviewRoute
   '/admin/tyres/$id/compat': typeof AuthenticatedAdminTyresIdCompatRoute
   '/admin/vehicles/$modelId/recommendations': typeof AuthenticatedAdminVehiclesModelIdRecommendationsRoute
   '/admin/vehicles/configurations/$configId': typeof AuthenticatedAdminVehiclesConfigurationsConfigIdRoute
@@ -514,6 +530,7 @@ export interface FileRoutesByTo {
   '/admin/catalogue/review': typeof AuthenticatedAdminCatalogueReviewRoute
   '/admin/catalogue/settings': typeof AuthenticatedAdminCatalogueSettingsRoute
   '/admin/catalogue/types': typeof AuthenticatedAdminCatalogueTypesRoute
+  '/admin/products/import': typeof AuthenticatedAdminProductsImportRouteWithChildren
   '/admin/sections/$id': typeof AuthenticatedAdminSectionsIdRoute
   '/admin/tyres/$id': typeof AuthenticatedAdminTyresIdRouteWithChildren
   '/admin/tyres/new': typeof AuthenticatedAdminTyresNewRoute
@@ -525,6 +542,7 @@ export interface FileRoutesByTo {
   '/admin/sections': typeof AuthenticatedAdminSectionsIndexRoute
   '/admin/tyres': typeof AuthenticatedAdminTyresIndexRoute
   '/admin/catalogue/import/$batchId': typeof AuthenticatedAdminCatalogueImportBatchIdRoute
+  '/admin/products/import/review': typeof AuthenticatedAdminProductsImportReviewRoute
   '/admin/tyres/$id/compat': typeof AuthenticatedAdminTyresIdCompatRoute
   '/admin/vehicles/$modelId/recommendations': typeof AuthenticatedAdminVehiclesModelIdRecommendationsRoute
   '/admin/vehicles/configurations/$configId': typeof AuthenticatedAdminVehiclesConfigurationsConfigIdRoute
@@ -578,6 +596,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/catalogue/review': typeof AuthenticatedAdminCatalogueReviewRoute
   '/_authenticated/admin/catalogue/settings': typeof AuthenticatedAdminCatalogueSettingsRoute
   '/_authenticated/admin/catalogue/types': typeof AuthenticatedAdminCatalogueTypesRoute
+  '/_authenticated/admin/products/import': typeof AuthenticatedAdminProductsImportRouteWithChildren
   '/_authenticated/admin/sections/$id': typeof AuthenticatedAdminSectionsIdRoute
   '/_authenticated/admin/tyres/$id': typeof AuthenticatedAdminTyresIdRouteWithChildren
   '/_authenticated/admin/tyres/new': typeof AuthenticatedAdminTyresNewRoute
@@ -589,6 +608,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/sections/': typeof AuthenticatedAdminSectionsIndexRoute
   '/_authenticated/admin/tyres/': typeof AuthenticatedAdminTyresIndexRoute
   '/_authenticated/admin/catalogue/import/$batchId': typeof AuthenticatedAdminCatalogueImportBatchIdRoute
+  '/_authenticated/admin/products/import/review': typeof AuthenticatedAdminProductsImportReviewRoute
   '/_authenticated/admin/tyres/$id/compat': typeof AuthenticatedAdminTyresIdCompatRoute
   '/_authenticated/admin/vehicles/$modelId/recommendations': typeof AuthenticatedAdminVehiclesModelIdRecommendationsRoute
   '/_authenticated/admin/vehicles/configurations/$configId': typeof AuthenticatedAdminVehiclesConfigurationsConfigIdRoute
@@ -642,6 +662,7 @@ export interface FileRouteTypes {
     | '/admin/catalogue/review'
     | '/admin/catalogue/settings'
     | '/admin/catalogue/types'
+    | '/admin/products/import'
     | '/admin/sections/$id'
     | '/admin/tyres/$id'
     | '/admin/tyres/new'
@@ -653,6 +674,7 @@ export interface FileRouteTypes {
     | '/admin/sections/'
     | '/admin/tyres/'
     | '/admin/catalogue/import/$batchId'
+    | '/admin/products/import/review'
     | '/admin/tyres/$id/compat'
     | '/admin/vehicles/$modelId/recommendations'
     | '/admin/vehicles/configurations/$configId'
@@ -699,6 +721,7 @@ export interface FileRouteTypes {
     | '/admin/catalogue/review'
     | '/admin/catalogue/settings'
     | '/admin/catalogue/types'
+    | '/admin/products/import'
     | '/admin/sections/$id'
     | '/admin/tyres/$id'
     | '/admin/tyres/new'
@@ -710,6 +733,7 @@ export interface FileRouteTypes {
     | '/admin/sections'
     | '/admin/tyres'
     | '/admin/catalogue/import/$batchId'
+    | '/admin/products/import/review'
     | '/admin/tyres/$id/compat'
     | '/admin/vehicles/$modelId/recommendations'
     | '/admin/vehicles/configurations/$configId'
@@ -762,6 +786,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/catalogue/review'
     | '/_authenticated/admin/catalogue/settings'
     | '/_authenticated/admin/catalogue/types'
+    | '/_authenticated/admin/products/import'
     | '/_authenticated/admin/sections/$id'
     | '/_authenticated/admin/tyres/$id'
     | '/_authenticated/admin/tyres/new'
@@ -773,6 +798,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/sections/'
     | '/_authenticated/admin/tyres/'
     | '/_authenticated/admin/catalogue/import/$batchId'
+    | '/_authenticated/admin/products/import/review'
     | '/_authenticated/admin/tyres/$id/compat'
     | '/_authenticated/admin/vehicles/$modelId/recommendations'
     | '/_authenticated/admin/vehicles/configurations/$configId'
@@ -1139,6 +1165,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminSectionsIdRouteImport
       parentRoute: typeof AuthenticatedAdminSectionsRoute
     }
+    '/_authenticated/admin/products/import': {
+      id: '/_authenticated/admin/products/import'
+      path: '/products/import'
+      fullPath: '/admin/products/import'
+      preLoaderRoute: typeof AuthenticatedAdminProductsImportRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
     '/_authenticated/admin/catalogue/types': {
       id: '/_authenticated/admin/catalogue/types'
       path: '/types'
@@ -1222,6 +1255,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/admin/tyres/$id/compat'
       preLoaderRoute: typeof AuthenticatedAdminTyresIdCompatRouteImport
       parentRoute: typeof AuthenticatedAdminTyresIdRoute
+    }
+    '/_authenticated/admin/products/import/review': {
+      id: '/_authenticated/admin/products/import/review'
+      path: '/review'
+      fullPath: '/admin/products/import/review'
+      preLoaderRoute: typeof AuthenticatedAdminProductsImportReviewRouteImport
+      parentRoute: typeof AuthenticatedAdminProductsImportRoute
     }
     '/_authenticated/admin/catalogue/import/$batchId': {
       id: '/_authenticated/admin/catalogue/import/$batchId'
@@ -1387,6 +1427,21 @@ const AuthenticatedAdminVehiclesRouteWithChildren =
     AuthenticatedAdminVehiclesRouteChildren,
   )
 
+interface AuthenticatedAdminProductsImportRouteChildren {
+  AuthenticatedAdminProductsImportReviewRoute: typeof AuthenticatedAdminProductsImportReviewRoute
+}
+
+const AuthenticatedAdminProductsImportRouteChildren: AuthenticatedAdminProductsImportRouteChildren =
+  {
+    AuthenticatedAdminProductsImportReviewRoute:
+      AuthenticatedAdminProductsImportReviewRoute,
+  }
+
+const AuthenticatedAdminProductsImportRouteWithChildren =
+  AuthenticatedAdminProductsImportRoute._addFileChildren(
+    AuthenticatedAdminProductsImportRouteChildren,
+  )
+
 interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminActivityRoute: typeof AuthenticatedAdminActivityRoute
   AuthenticatedAdminArticlesRoute: typeof AuthenticatedAdminArticlesRoute
@@ -1403,6 +1458,7 @@ interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminVehiclesRoute: typeof AuthenticatedAdminVehiclesRouteWithChildren
   AuthenticatedAdminVideosRoute: typeof AuthenticatedAdminVideosRoute
   AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
+  AuthenticatedAdminProductsImportRoute: typeof AuthenticatedAdminProductsImportRouteWithChildren
 }
 
 const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
@@ -1422,6 +1478,8 @@ const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
   AuthenticatedAdminVehiclesRoute: AuthenticatedAdminVehiclesRouteWithChildren,
   AuthenticatedAdminVideosRoute: AuthenticatedAdminVideosRoute,
   AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
+  AuthenticatedAdminProductsImportRoute:
+    AuthenticatedAdminProductsImportRouteWithChildren,
 }
 
 const AuthenticatedAdminRouteWithChildren =
