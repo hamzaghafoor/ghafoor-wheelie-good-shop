@@ -133,6 +133,11 @@ function normaliseWorkbookCsv(text: string): string {
     outRows.push(row);
   }
 
+  // Keep the original front/rear/spare/verification columns in the CSV so the
+  // server-side validator can still surface "combined alternatives" warnings on
+  // strings like "235/65R17 or 235/60R18". They are declared as known
+  // pass-through headers on the server (mapped into canonical fields above and
+  // into public_notes), so they no longer appear in "unknown columns".
   return outRows.map(r => r.map(cell => {
     const s = String(cell ?? "");
     const safe = /^[=+\-@\t]/.test(s) ? `'${s}` : s;
