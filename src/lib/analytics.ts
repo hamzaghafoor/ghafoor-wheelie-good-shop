@@ -9,7 +9,10 @@ export type AnalyticsEvent =
   | "lead_submitted"
   | "no_results"
   | "booking_started"
-  | "booking_completed";
+  | "booking_completed"
+  | "review_request_created"
+  | "review_whatsapp_opened"
+  | "review_link_copied";
 
 
 function sessionId(): string {
