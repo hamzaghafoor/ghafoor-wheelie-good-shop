@@ -6,6 +6,12 @@ import { business } from "@/lib/business";
 const OWNER_EMAIL = "ghafoormotorssprt@gmail.com";
 
 export const Route = createFileRoute("/auth")({
+  validateSearch: (s: Record<string, unknown>) => {
+    const r = typeof s.redirect === "string" ? s.redirect : "";
+    // Only allow same-origin internal paths
+    const safe = r.startsWith("/") && !r.startsWith("//") ? r : "";
+    return { redirect: safe };
+  },
   head: () => ({
     meta: [
       { title: "Staff Sign In | Ghafoor Motors Admin" },
@@ -20,18 +26,20 @@ type Mode = "signin" | "owner-signup" | "forgot";
 function AuthPage() {
   const navigate = useNavigate();
   const router = useRouter();
+  const { redirect } = Route.useSearch();
+  const dest = redirect || "/admin";
   const [mode, setMode] = useState<Mode>("signin");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState<{ ok?: string; err?: string }>({});
 
-  // If already signed in, bounce to /admin
+  // If already signed in, bounce to the intended destination
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
-      if (data.session) navigate({ to: "/admin" as any });
+      if (data.session) navigate({ to: dest as any, replace: true });
     });
-  }, [navigate]);
+  }, [navigate, dest]);
 
   async function onSignIn(e: React.FormEvent) {
     e.preventDefault();
@@ -40,7 +48,7 @@ function AuthPage() {
     setBusy(false);
     if (error) return setMsg({ err: error.message });
     await router.invalidate();
-    navigate({ to: "/admin" as any });
+    navigate({ to: dest as any, replace: true });
   }
 
   async function onOwnerSignup(e: React.FormEvent) {

@@ -50,6 +50,7 @@ export function Header() {
   }, []);
 
   const adminHref = signedIn ? "/admin" : "/auth";
+  const adminSearch = signedIn ? undefined : { redirect: "/admin" };
   const adminDesktopLabel = signedIn ? "Admin Dashboard" : "Admin";
   const adminMobileLabel = signedIn ? "Admin Dashboard" : "Admin Login";
 
@@ -94,7 +95,7 @@ export function Header() {
                   <Link key={n.to} to={n.to} className="block rounded px-3 py-2 text-sm text-foreground/70 hover:bg-muted hover:text-ink">{n.label}</Link>
                 ))}
                 <div className="my-1 border-t border-border" />
-                <Link to={adminHref as any} className="flex items-center gap-2 rounded px-3 py-2 text-sm font-medium text-foreground/80 hover:bg-muted hover:text-primary">
+                <Link to={adminHref as any} search={adminSearch as any} className="flex items-center gap-2 rounded px-3 py-2 text-sm font-medium text-foreground/80 hover:bg-muted hover:text-primary">
                   <Shield className="h-3.5 w-3.5" /> {adminDesktopLabel}
                 </Link>
               </div>
@@ -145,6 +146,7 @@ export function Header() {
               <Link to="/search" onClick={() => setOpen(false)} className="py-3 text-sm font-medium text-foreground/80">Search</Link>
               <Link
                 to={adminHref as any}
+                search={adminSearch as any}
                 onClick={() => setOpen(false)}
                 className="flex items-center gap-2 py-3 text-sm font-semibold text-primary"
               >
