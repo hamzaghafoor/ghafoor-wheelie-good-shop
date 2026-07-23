@@ -5,7 +5,7 @@ import { useMemo, useState } from "react";
 import { z } from "zod";
 import { Search as SearchIcon, ShieldCheck, HelpCircle, CheckCircle2, MessageCircle } from "lucide-react";
 import { searchCatalogue } from "@/lib/search.functions";
-import { searchPublicCatalogue, listVehiclesPublic } from "@/lib/recommendations.functions";
+import { searchPublicCatalogue } from "@/lib/recommendations.functions";
 import { rankProductsForVehiclePublic } from "@/lib/fitments.functions";
 import { listVehiclesPublic as listVehPub } from "@/lib/vehicles.functions";
 import { LeadForm } from "@/components/LeadForm";
