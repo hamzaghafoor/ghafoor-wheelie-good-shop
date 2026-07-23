@@ -288,9 +288,9 @@ function ImportPage() {
         <div className="card-surface mt-4 bg-white p-6">
           <label className="block cursor-pointer rounded-lg border-2 border-dashed border-border p-8 text-center hover:border-primary" onDragOver={(e)=>e.preventDefault()} onDrop={(e)=>{e.preventDefault(); const f=e.dataTransfer.files?.[0]; if (f) onFile(f);}}>
             <Upload className="mx-auto h-8 w-8 text-muted-foreground" />
-            <div className="mt-2 text-sm font-medium">Drop a CSV or click to select</div>
-            <div className="text-xs text-muted-foreground">Max 4 MB · UTF-8 · up to 2000 rows</div>
-            <input ref={inputRef} type="file" accept=".csv,text/csv" className="hidden" onChange={(e)=>e.target.files?.[0] && onFile(e.target.files[0])} />
+            <div className="mt-2 text-sm font-medium">Drop a CSV / XLS / XLSX file or click to select</div>
+            <div className="text-xs text-muted-foreground">Max 8 MB · up to 2000 rows · headers auto-mapped (configuration_name, front_tyre_size, oil_approvals…)</div>
+            <input ref={inputRef} type="file" accept=".csv,.xls,.xlsx,text/csv,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" className="hidden" onChange={(e)=>e.target.files?.[0] && onFile(e.target.files[0])} />
           </label>
           {filename && (
             <div className="mt-4 rounded-md border border-border p-3 text-sm">
