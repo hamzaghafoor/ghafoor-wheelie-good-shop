@@ -2,7 +2,8 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { LocationSection } from "@/components/LocationSection";
 import { waLink, business, telLink } from "@/lib/business";
-import { Instagram, Facebook, MessageCircle, Phone, CheckCircle2 } from "lucide-react";
+import { Instagram, Facebook, MessageCircle, Phone, CheckCircle2, Star } from "lucide-react";
+import { GOOGLE_REVIEW_URL } from "@/lib/review-request";
 
 export const Route = createFileRoute("/contact")({
   head: () => ({
@@ -66,6 +67,12 @@ function ContactPage() {
               <CheckCircle2 className="mx-auto h-12 w-12 text-success" />
               <h3 className="mt-3 font-display text-2xl text-ink">Thanks — message sent</h3>
               <p className="mt-2 text-muted-foreground">We'll get back to you on WhatsApp shortly.</p>
+              <div className="mt-6 border-t border-border pt-5">
+                <p className="text-sm text-foreground/80">Enjoyed working with us before? A quick Google review really helps our team.</p>
+                <a href={GOOGLE_REVIEW_URL} target="_blank" rel="noreferrer" className="btn-primary mt-3 inline-flex text-sm">
+                  <Star className="h-4 w-4" /> Write a Google Review
+                </a>
+              </div>
             </div>
           ) : (
             <form onSubmit={submit} className="card-surface grid gap-3 p-6 md:grid-cols-2 md:p-8">

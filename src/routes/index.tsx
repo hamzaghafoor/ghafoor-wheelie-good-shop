@@ -292,6 +292,7 @@ function WhySection() {
 function ReviewsSection() {
   const { rating, reviewCount, reviewsUrl } = business.google;
   const hasVerified = reviewCount > 0;
+  const writeUrl = "https://g.page/r/CWmjhUF5GiY3EBM/review";
   return (
     <section className="py-16 md:py-20">
       <div className="container-x">
@@ -309,7 +310,7 @@ function ReviewsSection() {
                 <p className="mt-2 text-muted-foreground">Read what our customers say about tyres, fitting and wheel care at our PECHS workshop.</p>
                 <div className="mt-4 flex flex-wrap gap-3">
                   <a href={reviewsUrl} target="_blank" rel="noreferrer" className="btn-primary text-sm"><Users className="h-4 w-4" /> Read Google Reviews</a>
-                  <a href={reviewsUrl} target="_blank" rel="noreferrer" className="btn-outline text-sm">Leave a Review</a>
+                  <a href={writeUrl} target="_blank" rel="noreferrer" className="btn-outline text-sm"><Star className="h-4 w-4" /> Write a Google Review</a>
                 </div>
               </div>
             </div>
@@ -320,6 +321,7 @@ function ReviewsSection() {
               <p className="mx-auto mt-2 max-w-xl text-muted-foreground">See our workshop location, hours and directions on Google. Your feedback helps other Karachi drivers.</p>
               <div className="mt-4 flex flex-wrap justify-center gap-3">
                 <a href={reviewsUrl} target="_blank" rel="noreferrer" className="btn-primary text-sm"><Users className="h-4 w-4" /> View us on Google</a>
+                <a href={writeUrl} target="_blank" rel="noreferrer" className="btn-outline text-sm"><Star className="h-4 w-4" /> Write a Google Review</a>
               </div>
             </div>
           )}
