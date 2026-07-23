@@ -139,10 +139,36 @@ export const previewCatalogueImport = createServerFn({ method: "POST" })
       return { ...c, existing_brand_id: hit?.id ?? null, existing_brand_name: hit?.name ?? null };
     });
 
-    // Build row payloads (unresolved: brand and category left to admin)
+    // Column index lookup for optional Digitley/ERP fields we want to preserve for audit
+    const colByName = (needle: string) => {
+      const n = needle.toLowerCase().replace(/[^a-z0-9]/g, "");
+      return parsed.header!.columnNames.findIndex((c) => (c ?? "").toString().toLowerCase().replace(/[^a-z0-9]/g, "") === n);
+    };
+    const uomCol = colByName("uom");
+    const qtyCol = colByName("quantity");
+    const demCol = colByName("demand");
+    const availCol = colByName("available");
+    const ooCol = colByName("onorder");
+    const rawRows = chosen.table.rows;
+    const num = (v: any) => { const n = parseFloat(String(v ?? "").replace(/,/g, "")); return Number.isFinite(n) ? n : null; };
+
+    // Build row payloads (unresolved: brand and category left to admin,
+    // but we pre-fill a category hint the admin can accept in one click).
     const rowPayloads: RowPayload[] = parsed.productRows.map((r: ParsedRow) => {
       const isInvalid = !r.erpDescription || r.isPlaceholder;
       const action: RowPayload["action"] = isInvalid ? "skip" : "needs_review";
+      const raw = rawRows[r.rowNumber - 1] ?? [];
+      const uom = uomCol >= 0 ? (raw[uomCol] ?? "").toString().trim() : null;
+      const stock = {
+        uom,
+        quantity: qtyCol >= 0 ? num(raw[qtyCol]) : null,
+        demand: demCol >= 0 ? num(raw[demCol]) : null,
+        available: availCol >= 0 ? num(raw[availCol]) : null,
+        on_order: ooCol >= 0 ? num(raw[ooCol]) : null,
+      };
+      const categoryHint = suggestCategory(r.erpDescription, uom);
+      const warnings = [...r.warnings];
+      if (!categoryHint) warnings.push("Category could not be inferred — pick one before commit.");
       return {
         action,
         include: !isInvalid,
@@ -152,7 +178,7 @@ export const previewCatalogueImport = createServerFn({ method: "POST" })
         product: {
           family_key: r.familyKey,
           name: r.suggestedFamilyName || r.erpDescription,
-          category: null,
+          category: categoryHint,
           erp_description: r.erpDescription,
         },
         variant: {
@@ -160,7 +186,9 @@ export const previewCatalogueImport = createServerFn({ method: "POST" })
           pack_unit_code: r.pack.ok ? r.pack.unit : null,
           no_pack_required: false,
         },
-        warnings: r.warnings,
+        // stored for audit; commit RPC ignores unknown fields
+        ...({ stock } as any),
+        warnings,
       };
     });
 
@@ -183,11 +211,16 @@ export const previewCatalogueImport = createServerFn({ method: "POST" })
           brand_candidates: brandMatches,
           brand_decision: null,
           warnings: parsed.warnings,
+          source_format: /\.pdf$/i.test(filename) ? "digitley_pdf" : /\.csv$/i.test(filename) ? "csv" : "xlsx",
+          pdf_meta: pdfMeta ?? null,
+          pdf_excluded_headings: pdfExcluded ?? [],
+          pdf_unparsed_lines: (pdfUnparsed ?? []).slice(0, 50),
         },
       },
     }).select("id").single();
     if (bErr || !batchIns) throw new Error(bErr?.message ?? "Failed to create import batch");
     const batchId = batchIns.id as string;
+
 
     if (rowPayloads.length > 0) {
       const rowsToInsert = rowPayloads.map((p, i) => ({
