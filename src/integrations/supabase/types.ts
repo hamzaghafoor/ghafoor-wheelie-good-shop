@@ -758,6 +758,60 @@ export type Database = {
         }
         Relationships: []
       }
+      product_tags: {
+        Row: {
+          approved: boolean
+          approved_at: string | null
+          approved_by: string | null
+          confidence: number | null
+          created_at: string
+          created_by: string | null
+          product_id: string
+          source: Database["public"]["Enums"]["tag_source"]
+          tag_id: string
+          updated_at: string
+        }
+        Insert: {
+          approved?: boolean
+          approved_at?: string | null
+          approved_by?: string | null
+          confidence?: number | null
+          created_at?: string
+          created_by?: string | null
+          product_id: string
+          source?: Database["public"]["Enums"]["tag_source"]
+          tag_id: string
+          updated_at?: string
+        }
+        Update: {
+          approved?: boolean
+          approved_at?: string | null
+          approved_by?: string | null
+          confidence?: number | null
+          created_at?: string
+          created_by?: string | null
+          product_id?: string
+          source?: Database["public"]["Enums"]["tag_source"]
+          tag_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_tags_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "product_tags_tag_id_fkey"
+            columns: ["tag_id"]
+            isOneToOne: false
+            referencedRelation: "tags"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       product_type_labels: {
         Row: {
           archived: boolean
@@ -843,6 +897,63 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      product_variant_tags: {
+        Row: {
+          approved: boolean
+          approved_at: string | null
+          approved_by: string | null
+          confidence: number | null
+          created_at: string
+          created_by: string | null
+          override_mode: string
+          source: Database["public"]["Enums"]["tag_source"]
+          tag_id: string
+          updated_at: string
+          variant_id: string
+        }
+        Insert: {
+          approved?: boolean
+          approved_at?: string | null
+          approved_by?: string | null
+          confidence?: number | null
+          created_at?: string
+          created_by?: string | null
+          override_mode?: string
+          source?: Database["public"]["Enums"]["tag_source"]
+          tag_id: string
+          updated_at?: string
+          variant_id: string
+        }
+        Update: {
+          approved?: boolean
+          approved_at?: string | null
+          approved_by?: string | null
+          confidence?: number | null
+          created_at?: string
+          created_by?: string | null
+          override_mode?: string
+          source?: Database["public"]["Enums"]["tag_source"]
+          tag_id?: string
+          updated_at?: string
+          variant_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_variant_tags_tag_id_fkey"
+            columns: ["tag_id"]
+            isOneToOne: false
+            referencedRelation: "tags"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "product_variant_tags_variant_id_fkey"
+            columns: ["variant_id"]
+            isOneToOne: false
+            referencedRelation: "product_variants"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       product_variants: {
         Row: {
@@ -1214,6 +1325,77 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      tag_aliases: {
+        Row: {
+          alias_normalized: string
+          alias_text: string
+          created_at: string
+          id: string
+          tag_id: string
+        }
+        Insert: {
+          alias_normalized: string
+          alias_text: string
+          created_at?: string
+          id?: string
+          tag_id: string
+        }
+        Update: {
+          alias_normalized?: string
+          alias_text?: string
+          created_at?: string
+          id?: string
+          tag_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tag_aliases_tag_id_fkey"
+            columns: ["tag_id"]
+            isOneToOne: false
+            referencedRelation: "tags"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tags: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          description: string | null
+          group_name: Database["public"]["Enums"]["tag_group"]
+          id: string
+          is_active: boolean
+          is_public: boolean
+          key: string
+          label: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          group_name: Database["public"]["Enums"]["tag_group"]
+          id?: string
+          is_active?: boolean
+          is_public?: boolean
+          key: string
+          label: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          group_name?: Database["public"]["Enums"]["tag_group"]
+          id?: string
+          is_active?: boolean
+          is_public?: boolean
+          key?: string
+          label?: string
+          updated_at?: string
+        }
+        Relationships: []
       }
       tyre_model_vehicle_compat: {
         Row: {
@@ -2285,6 +2467,12 @@ export type Database = {
         Returns: Json
       }
       apply_vehicle_import_batch: { Args: { _batch_id: string }; Returns: Json }
+      effective_variant_tag_ids: {
+        Args: { _variant_id: string }
+        Returns: {
+          tag_id: string
+        }[]
+      }
       get_family_completeness: { Args: { _family_id: string }; Returns: Json }
       get_public_product_family: { Args: { _slug: string }; Returns: Json }
       get_public_tyre_profiles: {
@@ -2481,7 +2669,9 @@ export type Database = {
         Args: { _from: string; _notes?: string; _to: string }
         Returns: Json
       }
+      normalize_tag_key: { Args: { _raw: string }; Returns: string }
       purge_import_payloads: { Args: never; Returns: number }
+      resolve_tag_by_alias: { Args: { _raw: string }; Returns: string }
       rollback_catalogue_import_batch: {
         Args: { _batch_id: string }
         Returns: Json
@@ -2654,6 +2844,14 @@ export type Database = {
         | "partial"
         | "verified"
         | "disputed"
+      tag_group:
+        | "use_case"
+        | "customer_segment"
+        | "vehicle_class"
+        | "benefit"
+        | "product_tier"
+        | "related_service"
+      tag_source: "seed" | "admin" | "import"
       tube_type: "tubeless" | "tube_type" | "unspecified"
       tyre_layout_type: "same" | "staggered"
       tyre_size_dimension: "width" | "profile" | "rim"
@@ -2896,6 +3094,15 @@ export const Constants = {
         "verified",
         "disputed",
       ],
+      tag_group: [
+        "use_case",
+        "customer_segment",
+        "vehicle_class",
+        "benefit",
+        "product_tier",
+        "related_service",
+      ],
+      tag_source: ["seed", "admin", "import"],
       tube_type: ["tubeless", "tube_type", "unspecified"],
       tyre_layout_type: ["same", "staggered"],
       tyre_size_dimension: ["width", "profile", "rim"],
