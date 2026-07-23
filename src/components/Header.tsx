@@ -143,6 +143,13 @@ export function Header() {
                 </Link>
               ))}
               <Link to="/search" onClick={() => setOpen(false)} className="py-3 text-sm font-medium text-foreground/80">Search</Link>
+              <Link
+                to={adminHref as any}
+                onClick={() => setOpen(false)}
+                className="flex items-center gap-2 py-3 text-sm font-semibold text-primary"
+              >
+                <Shield className="h-4 w-4" /> {adminMobileLabel}
+              </Link>
             </div>
           </div>
         )}
