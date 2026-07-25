@@ -1,0 +1,118 @@
+{
+  "version": 1,
+  "sdk_version": "0.24.0",
+  "path": "/mcp",
+  "auth": {
+    "type": "oauth",
+    "issuer": "https://oflhiuyklnxbdfpqckyu.supabase.co/auth/v1",
+    "accepted_audiences": [
+      "authenticated"
+    ]
+  },
+  "mcp": {
+    "server": {
+      "name": "gmtl-mcp",
+      "version": "0.1.0",
+      "title": "Ghafoor Motors Tyres & Lubricants"
+    },
+    "tools": [
+      {
+        "name": "search_catalogue",
+        "title": "Search product catalogue",
+        "description": "Search Ghafoor Motors' published product catalogue (lubricants, filters, additives, coolants, car-care, accessories, etc.). Returns brand, name, price and availability.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "query": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Free-text query — brand, product name, viscosity, part type."
+            },
+            "category": {
+              "description": "Optional category slug filter (e.g. 'engine-oil').",
+              "type": "string"
+            },
+            "limit": {
+              "description": "Max results, default 20.",
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 50
+            }
+          },
+          "required": [
+            "query"
+          ]
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "search_tyres",
+        "title": "Search tyres by size",
+        "description": "Search Ghafoor Motors' published tyre catalogue by size (width/profile/rim) and optional filters like brand, tyre type, run-flat, or availability.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "width": {
+              "description": "Tyre section width in mm (e.g. 205).",
+              "type": "integer",
+              "minimum": 100,
+              "maximum": 400
+            },
+            "profile": {
+              "description": "Aspect ratio profile (e.g. 55).",
+              "type": "integer",
+              "minimum": 20,
+              "maximum": 90
+            },
+            "rim": {
+              "description": "Rim diameter in inches (e.g. 16).",
+              "type": "integer",
+              "minimum": 10,
+              "maximum": 24
+            },
+            "brand_id": {
+              "description": "Optional brand UUID filter.",
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+            },
+            "tyre_type": {
+              "description": "Optional tyre type filter (e.g. 'passenger', 'suv').",
+              "type": "string"
+            },
+            "run_flat": {
+              "type": "boolean"
+            },
+            "availability": {
+              "description": "Optional availability filter (e.g. 'in_stock').",
+              "type": "string"
+            },
+            "page": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 9007199254740991
+            },
+            "page_size": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 50
+            }
+          }
+        },
+        "outputSchema": null
+      }
+    ]
+  }
+}
