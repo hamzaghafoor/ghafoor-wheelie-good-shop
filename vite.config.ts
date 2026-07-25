@@ -49,6 +49,9 @@ export default defineConfig({
           navigateFallbackDenylist: [
             /^\/admin/,
             /^\/auth/,
+            /^\/mcp(?:\/|$)/,
+            /^\/\.well-known\//,
+            /^\/\.lovable\/oauth\//,
             /^\/reset-password/,
             /^\/api\//,
             /^\/_serverFn\//,
@@ -66,6 +69,9 @@ export default defineConfig({
               urlPattern: ({ url }) =>
                 url.pathname.startsWith("/admin") ||
                 url.pathname.startsWith("/auth") ||
+                url.pathname.startsWith("/mcp") ||
+                url.pathname.startsWith("/.well-known/") ||
+                url.pathname.startsWith("/.lovable/oauth/") ||
                 url.pathname.startsWith("/reset-password") ||
                 url.pathname.startsWith("/api/") ||
                 url.pathname.startsWith("/_serverFn/") ||

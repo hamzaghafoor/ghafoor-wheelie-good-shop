@@ -61,7 +61,7 @@ function AuthPage() {
     const { error } = await supabase.auth.signUp({
       email,
       password,
-      options: { emailRedirectTo: `${window.location.origin}/admin` },
+      options: { emailRedirectTo: `${window.location.origin}${dest}` },
     });
     setBusy(false);
     if (error) return setMsg({ err: error.message });
