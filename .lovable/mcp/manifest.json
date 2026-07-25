@@ -26,7 +26,6 @@
           "openWorldHint": false
         },
         "inputSchema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "type": "object",
           "properties": {
             "query": {
@@ -35,19 +34,21 @@
               "description": "Free-text query — brand, product name, viscosity, part type."
             },
             "category": {
-              "description": "Optional category slug filter (e.g. 'engine-oil').",
-              "type": "string"
+              "type": "string",
+              "description": "Optional category slug filter (e.g. 'engine-oil')."
             },
             "limit": {
-              "description": "Max results, default 20.",
               "type": "integer",
               "minimum": 1,
-              "maximum": 50
+              "maximum": 50,
+              "description": "Max results, default 20."
             }
           },
           "required": [
             "query"
-          ]
+          ],
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
         },
         "outputSchema": null
       },
@@ -61,55 +62,54 @@
           "openWorldHint": false
         },
         "inputSchema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "type": "object",
           "properties": {
             "width": {
-              "description": "Tyre section width in mm (e.g. 205).",
               "type": "integer",
               "minimum": 100,
-              "maximum": 400
+              "maximum": 400,
+              "description": "Tyre section width in mm (e.g. 205)."
             },
             "profile": {
-              "description": "Aspect ratio profile (e.g. 55).",
               "type": "integer",
               "minimum": 20,
-              "maximum": 90
+              "maximum": 90,
+              "description": "Aspect ratio profile (e.g. 55)."
             },
             "rim": {
-              "description": "Rim diameter in inches (e.g. 16).",
               "type": "integer",
               "minimum": 10,
-              "maximum": 24
+              "maximum": 24,
+              "description": "Rim diameter in inches (e.g. 16)."
             },
             "brand_id": {
-              "description": "Optional brand UUID filter.",
               "type": "string",
               "format": "uuid",
-              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+              "description": "Optional brand UUID filter."
             },
             "tyre_type": {
-              "description": "Optional tyre type filter (e.g. 'passenger', 'suv').",
-              "type": "string"
+              "type": "string",
+              "description": "Optional tyre type filter (e.g. 'passenger', 'suv')."
             },
             "run_flat": {
               "type": "boolean"
             },
             "availability": {
-              "description": "Optional availability filter (e.g. 'in_stock').",
-              "type": "string"
+              "type": "string",
+              "description": "Optional availability filter (e.g. 'in_stock')."
             },
             "page": {
               "type": "integer",
-              "minimum": 1,
-              "maximum": 9007199254740991
+              "minimum": 1
             },
             "page_size": {
               "type": "integer",
               "minimum": 1,
               "maximum": 50
             }
-          }
+          },
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
         },
         "outputSchema": null
       }
