@@ -16,6 +16,7 @@ export default defineConfig({
   },
   vite: {
     plugins: [
+      mcpPlugin(),
       VitePWA({
         outDir: "dist/client",
         registerType: "autoUpdate",

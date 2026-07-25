@@ -16,6 +16,7 @@ import { Route as ServicesRouteImport } from './routes/services'
 import { Route as SearchRouteImport } from './routes/search'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as OfflineRouteImport } from './routes/offline'
+import { Route as McpRouteImport } from './routes/mcp'
 import { Route as MaintenancePartsRouteImport } from './routes/maintenance-parts'
 import { Route as LubricantsRouteImport } from './routes/lubricants'
 import { Route as FiltersRouteImport } from './routes/filters'
@@ -32,6 +33,8 @@ import { Route as TyresSlugRouteImport } from './routes/tyres.$slug'
 import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
 import { Route as AdminTestingLabRouteImport } from './routes/admin.testing-lab'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
+import { Route as Char91DotwellKnownChar93OauthProtectedResourceRouteImport } from './routes/[.well-known]/oauth-protected-resource'
+import { Route as Char91DotmcpChar93ListToolsRouteImport } from './routes/[.mcp]/list-tools'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin.index'
 import { Route as AuthenticatedAdminVideosRouteImport } from './routes/_authenticated/admin.videos'
 import { Route as AuthenticatedAdminTyresRouteImport } from './routes/_authenticated/admin.tyres'
@@ -46,6 +49,7 @@ import { Route as AuthenticatedAdminBusinessRouteImport } from './routes/_authen
 import { Route as AuthenticatedAdminBrandsRouteImport } from './routes/_authenticated/admin.brands'
 import { Route as AuthenticatedAdminArticlesRouteImport } from './routes/_authenticated/admin.articles'
 import { Route as AuthenticatedAdminActivityRouteImport } from './routes/_authenticated/admin.activity'
+import { Route as Char91DotmcpChar93InvokeToolToolRouteImport } from './routes/[.mcp]/invoke-tool/$tool'
 import { Route as AuthenticatedAdminVehiclesIndexRouteImport } from './routes/_authenticated/admin.vehicles.index'
 import { Route as AuthenticatedAdminTyresIndexRouteImport } from './routes/_authenticated/admin.tyres.index'
 import { Route as AuthenticatedAdminSectionsIndexRouteImport } from './routes/_authenticated/admin.sections.index'
@@ -107,6 +111,11 @@ const ResetPasswordRoute = ResetPasswordRouteImport.update({
 const OfflineRoute = OfflineRouteImport.update({
   id: '/offline',
   path: '/offline',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const McpRoute = McpRouteImport.update({
+  id: '/mcp',
+  path: '/mcp',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MaintenancePartsRoute = MaintenancePartsRouteImport.update({
@@ -188,6 +197,18 @@ const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
   path: '/admin',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const Char91DotwellKnownChar93OauthProtectedResourceRoute =
+  Char91DotwellKnownChar93OauthProtectedResourceRouteImport.update({
+    id: '/.well-known/oauth-protected-resource',
+    path: '/.well-known/oauth-protected-resource',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const Char91DotmcpChar93ListToolsRoute =
+  Char91DotmcpChar93ListToolsRouteImport.update({
+    id: '/.mcp/list-tools',
+    path: '/.mcp/list-tools',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const AuthenticatedAdminIndexRoute = AuthenticatedAdminIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -267,6 +288,12 @@ const AuthenticatedAdminActivityRoute =
     id: '/activity',
     path: '/activity',
     getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const Char91DotmcpChar93InvokeToolToolRoute =
+  Char91DotmcpChar93InvokeToolToolRouteImport.update({
+    id: '/.mcp/invoke-tool/$tool',
+    path: '/.mcp/invoke-tool/$tool',
+    getParentRoute: () => rootRouteImport,
   } as any)
 const AuthenticatedAdminVehiclesIndexRoute =
   AuthenticatedAdminVehiclesIndexRouteImport.update({
@@ -443,6 +470,7 @@ export interface FileRoutesByFullPath {
   '/filters': typeof FiltersRoute
   '/lubricants': typeof LubricantsRoute
   '/maintenance-parts': typeof MaintenancePartsRoute
+  '/mcp': typeof McpRoute
   '/offline': typeof OfflineRoute
   '/reset-password': typeof ResetPasswordRoute
   '/search': typeof SearchRoute
@@ -450,10 +478,13 @@ export interface FileRoutesByFullPath {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/tyre-guide': typeof TyreGuideRoute
   '/tyres': typeof TyresRouteWithChildren
+  '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
+  '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/admin': typeof AuthenticatedAdminRouteWithChildren
   '/admin/testing-lab': typeof AdminTestingLabRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/tyres/$slug': typeof TyresSlugRoute
+  '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/admin/activity': typeof AuthenticatedAdminActivityRoute
   '/admin/articles': typeof AuthenticatedAdminArticlesRoute
   '/admin/brands': typeof AuthenticatedAdminBrandsRouteWithChildren
@@ -508,6 +539,7 @@ export interface FileRoutesByTo {
   '/filters': typeof FiltersRoute
   '/lubricants': typeof LubricantsRoute
   '/maintenance-parts': typeof MaintenancePartsRoute
+  '/mcp': typeof McpRoute
   '/offline': typeof OfflineRoute
   '/reset-password': typeof ResetPasswordRoute
   '/search': typeof SearchRoute
@@ -515,9 +547,12 @@ export interface FileRoutesByTo {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/tyre-guide': typeof TyreGuideRoute
   '/tyres': typeof TyresRouteWithChildren
+  '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
+  '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/admin/testing-lab': typeof AdminTestingLabRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/tyres/$slug': typeof TyresSlugRoute
+  '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/admin/activity': typeof AuthenticatedAdminActivityRoute
   '/admin/articles': typeof AuthenticatedAdminArticlesRoute
   '/admin/business': typeof AuthenticatedAdminBusinessRoute
@@ -570,6 +605,7 @@ export interface FileRoutesById {
   '/filters': typeof FiltersRoute
   '/lubricants': typeof LubricantsRoute
   '/maintenance-parts': typeof MaintenancePartsRoute
+  '/mcp': typeof McpRoute
   '/offline': typeof OfflineRoute
   '/reset-password': typeof ResetPasswordRoute
   '/search': typeof SearchRoute
@@ -577,10 +613,13 @@ export interface FileRoutesById {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/tyre-guide': typeof TyreGuideRoute
   '/tyres': typeof TyresRouteWithChildren
+  '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
+  '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRouteWithChildren
   '/admin/testing-lab': typeof AdminTestingLabRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/tyres/$slug': typeof TyresSlugRoute
+  '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/_authenticated/admin/activity': typeof AuthenticatedAdminActivityRoute
   '/_authenticated/admin/articles': typeof AuthenticatedAdminArticlesRoute
   '/_authenticated/admin/brands': typeof AuthenticatedAdminBrandsRouteWithChildren
@@ -637,6 +676,7 @@ export interface FileRouteTypes {
     | '/filters'
     | '/lubricants'
     | '/maintenance-parts'
+    | '/mcp'
     | '/offline'
     | '/reset-password'
     | '/search'
@@ -644,10 +684,13 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/tyre-guide'
     | '/tyres'
+    | '/.mcp/list-tools'
+    | '/.well-known/oauth-protected-resource'
     | '/admin'
     | '/admin/testing-lab'
     | '/blog/$slug'
     | '/tyres/$slug'
+    | '/.mcp/invoke-tool/$tool'
     | '/admin/activity'
     | '/admin/articles'
     | '/admin/brands'
@@ -702,6 +745,7 @@ export interface FileRouteTypes {
     | '/filters'
     | '/lubricants'
     | '/maintenance-parts'
+    | '/mcp'
     | '/offline'
     | '/reset-password'
     | '/search'
@@ -709,9 +753,12 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/tyre-guide'
     | '/tyres'
+    | '/.mcp/list-tools'
+    | '/.well-known/oauth-protected-resource'
     | '/admin/testing-lab'
     | '/blog/$slug'
     | '/tyres/$slug'
+    | '/.mcp/invoke-tool/$tool'
     | '/admin/activity'
     | '/admin/articles'
     | '/admin/business'
@@ -763,6 +810,7 @@ export interface FileRouteTypes {
     | '/filters'
     | '/lubricants'
     | '/maintenance-parts'
+    | '/mcp'
     | '/offline'
     | '/reset-password'
     | '/search'
@@ -770,10 +818,13 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/tyre-guide'
     | '/tyres'
+    | '/.mcp/list-tools'
+    | '/.well-known/oauth-protected-resource'
     | '/_authenticated/admin'
     | '/admin/testing-lab'
     | '/blog/$slug'
     | '/tyres/$slug'
+    | '/.mcp/invoke-tool/$tool'
     | '/_authenticated/admin/activity'
     | '/_authenticated/admin/articles'
     | '/_authenticated/admin/brands'
@@ -830,6 +881,7 @@ export interface RootRouteChildren {
   FiltersRoute: typeof FiltersRoute
   LubricantsRoute: typeof LubricantsRoute
   MaintenancePartsRoute: typeof MaintenancePartsRoute
+  McpRoute: typeof McpRoute
   OfflineRoute: typeof OfflineRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   SearchRoute: typeof SearchRoute
@@ -837,7 +889,10 @@ export interface RootRouteChildren {
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   TyreGuideRoute: typeof TyreGuideRoute
   TyresRoute: typeof TyresRouteWithChildren
+  Char91DotmcpChar93ListToolsRoute: typeof Char91DotmcpChar93ListToolsRoute
+  Char91DotwellKnownChar93OauthProtectedResourceRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   AdminTestingLabRoute: typeof AdminTestingLabRoute
+  Char91DotmcpChar93InvokeToolToolRoute: typeof Char91DotmcpChar93InvokeToolToolRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -889,6 +944,13 @@ declare module '@tanstack/react-router' {
       path: '/offline'
       fullPath: '/offline'
       preLoaderRoute: typeof OfflineRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/mcp': {
+      id: '/mcp'
+      path: '/mcp'
+      fullPath: '/mcp'
+      preLoaderRoute: typeof McpRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/maintenance-parts': {
@@ -1003,6 +1065,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/.well-known/oauth-protected-resource': {
+      id: '/.well-known/oauth-protected-resource'
+      path: '/.well-known/oauth-protected-resource'
+      fullPath: '/.well-known/oauth-protected-resource'
+      preLoaderRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/.mcp/list-tools': {
+      id: '/.mcp/list-tools'
+      path: '/.mcp/list-tools'
+      fullPath: '/.mcp/list-tools'
+      preLoaderRoute: typeof Char91DotmcpChar93ListToolsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authenticated/admin/': {
       id: '/_authenticated/admin/'
       path: '/'
@@ -1100,6 +1176,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/admin/activity'
       preLoaderRoute: typeof AuthenticatedAdminActivityRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/.mcp/invoke-tool/$tool': {
+      id: '/.mcp/invoke-tool/$tool'
+      path: '/.mcp/invoke-tool/$tool'
+      fullPath: '/.mcp/invoke-tool/$tool'
+      preLoaderRoute: typeof Char91DotmcpChar93InvokeToolToolRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/_authenticated/admin/vehicles/': {
       id: '/_authenticated/admin/vehicles/'
@@ -1538,6 +1621,7 @@ const rootRouteChildren: RootRouteChildren = {
   FiltersRoute: FiltersRoute,
   LubricantsRoute: LubricantsRoute,
   MaintenancePartsRoute: MaintenancePartsRoute,
+  McpRoute: McpRoute,
   OfflineRoute: OfflineRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   SearchRoute: SearchRoute,
@@ -1545,7 +1629,11 @@ const rootRouteChildren: RootRouteChildren = {
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   TyreGuideRoute: TyreGuideRoute,
   TyresRoute: TyresRouteWithChildren,
+  Char91DotmcpChar93ListToolsRoute: Char91DotmcpChar93ListToolsRoute,
+  Char91DotwellKnownChar93OauthProtectedResourceRoute:
+    Char91DotwellKnownChar93OauthProtectedResourceRoute,
   AdminTestingLabRoute: AdminTestingLabRoute,
+  Char91DotmcpChar93InvokeToolToolRoute: Char91DotmcpChar93InvokeToolToolRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
