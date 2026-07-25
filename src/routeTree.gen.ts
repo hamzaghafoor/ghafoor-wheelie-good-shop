@@ -50,6 +50,7 @@ import { Route as AuthenticatedAdminBrandsRouteImport } from './routes/_authenti
 import { Route as AuthenticatedAdminArticlesRouteImport } from './routes/_authenticated/admin.articles'
 import { Route as AuthenticatedAdminActivityRouteImport } from './routes/_authenticated/admin.activity'
 import { Route as Char91DotmcpChar93InvokeToolToolRouteImport } from './routes/[.mcp]/invoke-tool/$tool'
+import { Route as DotlovableOauthConsentRouteImport } from './routes/[.]lovable.oauth.consent'
 import { Route as AuthenticatedAdminVehiclesIndexRouteImport } from './routes/_authenticated/admin.vehicles.index'
 import { Route as AuthenticatedAdminTyresIndexRouteImport } from './routes/_authenticated/admin.tyres.index'
 import { Route as AuthenticatedAdminSectionsIndexRouteImport } from './routes/_authenticated/admin.sections.index'
@@ -295,6 +296,11 @@ const Char91DotmcpChar93InvokeToolToolRoute =
     path: '/.mcp/invoke-tool/$tool',
     getParentRoute: () => rootRouteImport,
   } as any)
+const DotlovableOauthConsentRoute = DotlovableOauthConsentRouteImport.update({
+  id: '/.lovable/oauth/consent',
+  path: '/.lovable/oauth/consent',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthenticatedAdminVehiclesIndexRoute =
   AuthenticatedAdminVehiclesIndexRouteImport.update({
     id: '/vehicles/',
@@ -484,6 +490,7 @@ export interface FileRoutesByFullPath {
   '/admin/testing-lab': typeof AdminTestingLabRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/tyres/$slug': typeof TyresSlugRoute
+  '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/admin/activity': typeof AuthenticatedAdminActivityRoute
   '/admin/articles': typeof AuthenticatedAdminArticlesRoute
@@ -552,6 +559,7 @@ export interface FileRoutesByTo {
   '/admin/testing-lab': typeof AdminTestingLabRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/tyres/$slug': typeof TyresSlugRoute
+  '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/admin/activity': typeof AuthenticatedAdminActivityRoute
   '/admin/articles': typeof AuthenticatedAdminArticlesRoute
@@ -619,6 +627,7 @@ export interface FileRoutesById {
   '/admin/testing-lab': typeof AdminTestingLabRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/tyres/$slug': typeof TyresSlugRoute
+  '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/_authenticated/admin/activity': typeof AuthenticatedAdminActivityRoute
   '/_authenticated/admin/articles': typeof AuthenticatedAdminArticlesRoute
@@ -690,6 +699,7 @@ export interface FileRouteTypes {
     | '/admin/testing-lab'
     | '/blog/$slug'
     | '/tyres/$slug'
+    | '/.lovable/oauth/consent'
     | '/.mcp/invoke-tool/$tool'
     | '/admin/activity'
     | '/admin/articles'
@@ -758,6 +768,7 @@ export interface FileRouteTypes {
     | '/admin/testing-lab'
     | '/blog/$slug'
     | '/tyres/$slug'
+    | '/.lovable/oauth/consent'
     | '/.mcp/invoke-tool/$tool'
     | '/admin/activity'
     | '/admin/articles'
@@ -824,6 +835,7 @@ export interface FileRouteTypes {
     | '/admin/testing-lab'
     | '/blog/$slug'
     | '/tyres/$slug'
+    | '/.lovable/oauth/consent'
     | '/.mcp/invoke-tool/$tool'
     | '/_authenticated/admin/activity'
     | '/_authenticated/admin/articles'
@@ -892,6 +904,7 @@ export interface RootRouteChildren {
   Char91DotmcpChar93ListToolsRoute: typeof Char91DotmcpChar93ListToolsRoute
   Char91DotwellKnownChar93OauthProtectedResourceRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   AdminTestingLabRoute: typeof AdminTestingLabRoute
+  DotlovableOauthConsentRoute: typeof DotlovableOauthConsentRoute
   Char91DotmcpChar93InvokeToolToolRoute: typeof Char91DotmcpChar93InvokeToolToolRoute
 }
 
@@ -1182,6 +1195,13 @@ declare module '@tanstack/react-router' {
       path: '/.mcp/invoke-tool/$tool'
       fullPath: '/.mcp/invoke-tool/$tool'
       preLoaderRoute: typeof Char91DotmcpChar93InvokeToolToolRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/.lovable/oauth/consent': {
+      id: '/.lovable/oauth/consent'
+      path: '/.lovable/oauth/consent'
+      fullPath: '/.lovable/oauth/consent'
+      preLoaderRoute: typeof DotlovableOauthConsentRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/admin/vehicles/': {
@@ -1633,6 +1653,7 @@ const rootRouteChildren: RootRouteChildren = {
   Char91DotwellKnownChar93OauthProtectedResourceRoute:
     Char91DotwellKnownChar93OauthProtectedResourceRoute,
   AdminTestingLabRoute: AdminTestingLabRoute,
+  DotlovableOauthConsentRoute: DotlovableOauthConsentRoute,
   Char91DotmcpChar93InvokeToolToolRoute: Char91DotmcpChar93InvokeToolToolRoute,
 }
 export const routeTree = rootRouteImport
