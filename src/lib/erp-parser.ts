@@ -470,30 +470,57 @@ export type SheetParse = {
   brandCandidates: BrandCandidate[];
   productRows: ParsedRow[];
   blankRows: number;
+  sectionRows: number;
+  skippedRowNumbers: number[];
   totalRows: number;
   warnings: string[];
 };
 
 export function parseSheet(table: SheetTable, brandHintOverride?: string | null): SheetParse {
   const warnings: string[] = [];
-  const rows = table.rows.slice(0, LIMITS.maxRows);
-  if (table.rows.length > LIMITS.maxRows) warnings.push(`Sheet truncated at ${LIMITS.maxRows} rows.`);
+  const rows = (table?.rows ?? []).slice(0, LIMITS.maxRows).map((r) => (Array.isArray(r) ? r : []));
+  if ((table?.rows?.length ?? 0) > LIMITS.maxRows) warnings.push(`Sheet truncated at ${LIMITS.maxRows} rows.`);
+
+  const empty = (extra: string[]): SheetParse => ({
+    header: null, brandCandidates: [], productRows: [], blankRows: 0, sectionRows: 0,
+    skippedRowNumbers: [], totalRows: rows.length, warnings: [...warnings, ...extra],
+  });
+  if (rows.length === 0) return empty(["Worksheet is empty."]);
+
   const header = detectHeader(rows);
-  if (!header) return { header: null, brandCandidates: [], productRows: [], blankRows: 0, totalRows: rows.length, warnings: [...warnings, "No Stock ID + Description header row found."] };
+  if (!header) {
+    return empty([
+      "Could not find a table header row. Expected a row containing a Description column (and ideally Stock ID) — any report title or metadata rows above it are ignored automatically.",
+    ]);
+  }
+  warnings.push(...header.warnings);
 
   const brandCandidates = detectBrandCandidates(rows, header.headerRow);
   const brandHint = brandHintOverride ?? (brandCandidates[0]?.text.replace(/\s*[\(\[].*?[\)\]]\s*$/, "").trim() ?? null);
 
   const productRows: ParsedRow[] = [];
+  const skippedRowNumbers: number[] = [];
   let blankRows = 0;
+  let sectionRows = 0;
   for (let r = header.headerRow + 1; r < rows.length; r++) {
-    const parsed = parseRow(rows, header, brandHint, r);
+    let parsed: ParsedRow | null = null;
+    try {
+      parsed = parseRow(rows, header, brandHint, r);
+    } catch (e: any) {
+      skippedRowNumbers.push(r + 1);
+      warnings.push(`Row ${r + 1} could not be read (${e?.message ?? "unexpected value"}) and was skipped.`);
+      continue;
+    }
     if (!parsed) continue;
     if (parsed.isBlank) { blankRows++; continue; }
+    if (parsed.isSection) { sectionRows++; skippedRowNumbers.push(parsed.rowNumber); continue; }
     productRows.push(parsed);
   }
-  return { header, brandCandidates, productRows, blankRows, totalRows: rows.length, warnings };
+  if (sectionRows > 0) warnings.push(`${sectionRows} section/heading or incomplete row(s) were skipped.`);
+  if (productRows.length === 0) warnings.push("Header row found, but no product rows below it could be read.");
+  return { header, brandCandidates, productRows, blankRows, sectionRows, skippedRowNumbers, totalRows: rows.length, warnings };
 }
+
 
 // --------- Digitley Stock Check PDF parser ---------
 // Converts the raw text of a Digitley "Stock Check Sheets" PDF into a SheetTable
