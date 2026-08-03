@@ -218,40 +218,59 @@ export function parseCSV(text: string): string[][] {
 // --------- Header detection ---------
 export type HeaderDetect = {
   headerRow: number;              // 0-based index into rows[]
-  stockCol: number;
+  stockCol: number;               // -1 when the sheet has no Stock ID column
   descCol: number;
   ignoredCols: number[];
   columnNames: string[];
   warnings: string[];
 };
 
+// Loose alias match: exact hit, or the header cell contains/extends a known alias
+// ("stockid#", "itemdescription2", "descriptionofgoods"...).
+function aliasHit(norm: string, aliases: string[]): boolean {
+  if (!norm) return false;
+  if (aliases.includes(norm)) return true;
+  return aliases.some((a) => a.length >= 4 && (norm.startsWith(a) || norm.includes(a)));
+}
+
 export function detectHeader(rows: string[][]): HeaderDetect | null {
-  const scanUpTo = Math.min(rows.length, 40);
+  const scanUpTo = Math.min(rows.length, 60);
+  let fallback: HeaderDetect | null = null;
+
   for (let r = 0; r < scanUpTo; r++) {
     const cells = rows[r];
-    if (!cells || cells.every(c => !c || c.trim() === "")) continue;
+    if (!cells || cells.every((c) => !c || c.trim() === "")) continue;
     let stockCol = -1, descCol = -1;
     const ignored: number[] = [];
     for (let c = 0; c < cells.length; c++) {
       const norm = normHeader(cells[c] ?? "");
       if (!norm) continue;
-      if (stockCol < 0 && STOCK_ID_ALIASES.includes(norm)) stockCol = c;
-      if (descCol < 0 && DESCRIPTION_ALIASES.includes(norm)) descCol = c;
-      if (IGNORED_ALIASES.includes(norm)) ignored.push(c);
+      if (stockCol < 0 && aliasHit(norm, STOCK_ID_ALIASES)) stockCol = c;
+      if (descCol < 0 && aliasHit(norm, DESCRIPTION_ALIASES)) descCol = c;
+      if (aliasHit(norm, IGNORED_ALIASES)) ignored.push(c);
     }
-    if (stockCol >= 0 && descCol >= 0) {
-      return {
-        headerRow: r,
-        stockCol,
-        descCol,
-        ignoredCols: ignored,
-        columnNames: cells.map(x => x ?? ""),
-        warnings: [],
-      };
+    const base = {
+      headerRow: r,
+      stockCol,
+      descCol,
+      ignoredCols: ignored,
+      columnNames: cells.map((x) => x ?? ""),
+      warnings: [] as string[],
+    };
+
+    // Best case — both key columns present.
+    if (stockCol >= 0 && descCol >= 0) return base;
+
+    // Acceptable fallback — a description column plus at least one recognised
+    // stock column (UOM / Quantity / Available ...). Metadata rows above the
+    // real header almost never satisfy this.
+    if (!fallback && descCol >= 0 && ignored.length > 0) {
+      fallback = { ...base, warnings: ["No Stock ID column found — rows will be matched on description only."] };
     }
   }
-  return null;
+  return fallback;
 }
+
 
 // --------- Brand candidate detection ---------
 export type BrandCandidate = { text: string; normalized: string; sourceRow: number; confidence: "high" | "medium" | "low" };
