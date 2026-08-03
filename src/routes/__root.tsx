@@ -114,7 +114,9 @@ function RootComponent() {
         {!isAdmin && <ChatLauncher />}
         {!isAdmin && <MobileActionBar />}
         {!isAdmin && <PWAHost />}
+        <Toaster />
       </div>
     </QueryClientProvider>
+
   );
 }
