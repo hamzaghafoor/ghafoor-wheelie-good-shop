@@ -20,6 +20,7 @@ import { ChatLauncher } from "@/components/chat/ChatLauncher";
 import { ScrollProgress } from "@/components/ui/ScrollProgress";
 import { useCalendlyCompletionTracker } from "@/lib/booking";
 import { PWAHost } from "@/components/pwa/PWAHost";
+import { Toaster } from "@/components/ui/sonner";
 
 
 
