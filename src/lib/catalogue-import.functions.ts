@@ -278,6 +278,7 @@ export const previewCatalogueImport = createServerFn({ method: "POST" })
       totals: {
         candidateRows: parsed.productRows.length,
         blankRows: parsed.blankRows,
+        sectionRows: parsed.sectionRows,
         needsReview: rowPayloads.filter((r) => r.action === "needs_review").length,
         skipped: rowPayloads.filter((r) => r.action === "skip").length,
       },
