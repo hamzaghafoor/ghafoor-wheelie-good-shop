@@ -111,20 +111,45 @@ export const previewCatalogueImport = createServerFn({ method: "POST" })
     } catch (e: any) {
       throw new Error(`Could not read file: ${e?.message ?? "unknown error"}`);
     }
-    if (tables.length === 0) throw new Error("No worksheets found.");
+    if (tables.length === 0) throw new Error("No worksheets found in this file.");
 
 
-    // Parse every sheet; pick the first with a valid header + rows as default.
+    // Parse every sheet defensively; pick the one with the most usable rows.
     const sheetSummaries = tables.map((t) => {
-      const parsed = parseSheet(t);
-      return { name: t.name, parsed, table: t };
+      try {
+        return { name: t.name, parsed: parseSheet(t), table: t };
+      } catch (e: any) {
+        return {
+          name: t.name,
+          parsed: {
+            header: null, brandCandidates: [], productRows: [], blankRows: 0, sectionRows: 0,
+            skippedRowNumbers: [], totalRows: t.rows?.length ?? 0,
+            warnings: [`Sheet could not be parsed: ${e?.message ?? "unexpected layout"}`],
+          } as any,
+          table: t,
+        };
+      }
     });
-    const chosen =
-      sheetSummaries.find((s) => s.parsed.header && s.parsed.productRows.length > 0) ??
-      sheetSummaries[0];
+    const withRows = sheetSummaries
+      .filter((s) => s.parsed.header && s.parsed.productRows.length > 0)
+      .sort((a, b) => b.parsed.productRows.length - a.parsed.productRows.length);
+    const chosen = withRows[0] ?? sheetSummaries.find((s) => s.parsed.header) ?? sheetSummaries[0];
     const parsed = chosen.parsed;
 
-    if (!parsed.header) throw new Error("Could not detect a header row containing Stock ID and Description in any worksheet.");
+    if (!parsed.header) {
+      const detail = sheetSummaries
+        .map((s) => `“${s.name}”: ${s.parsed.warnings[0] ?? "no header row found"}`)
+        .slice(0, 3).join(" · ");
+      throw new Error(
+        `We couldn't read this file's structure. No table header row containing a Description (and ideally a Stock ID) column was found in any worksheet. ${detail}`,
+      );
+    }
+    if (parsed.productRows.length === 0) {
+      throw new Error(
+        `A header row was found on “${chosen.name}” (row ${parsed.header.headerRow + 1}), but no product rows could be read below it. Please check the file has data rows under the headers.`,
+      );
+    }
+
 
     // Existing brand match for each brand candidate
     const norms = parsed.brandCandidates.map((c) => c.normalized).filter(Boolean);
