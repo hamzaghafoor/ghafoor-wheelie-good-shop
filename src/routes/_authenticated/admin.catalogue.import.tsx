@@ -5,7 +5,19 @@ import { useRef, useState } from "react";
 import {
   previewCatalogueImport, listCatalogueBatches, rollbackCatalogueImport,
 } from "@/lib/catalogue-import.functions";
-import { Upload, RotateCcw, Loader2 } from "lucide-react";
+import { Upload, RotateCcw, Loader2, AlertTriangle } from "lucide-react";
+import { toast } from "sonner";
+
+// Server functions surface parse problems as plain Errors; router/runtime faults
+// (e.g. "Invariant failed") are rewritten into something an admin can act on.
+function readableError(e: unknown): string {
+  const raw = (e as any)?.message ? String((e as any).message) : String(e ?? "");
+  if (!raw || /invariant failed/i.test(raw)) {
+    return "We couldn't read this file's structure. Make sure the sheet has a header row with a Description column (and ideally a Stock ID column) above the product rows — report titles and metadata rows above it are fine.";
+  }
+  return raw;
+}
+
 
 export const Route = createFileRoute("/_authenticated/admin/catalogue/import")({
   head: () => ({ meta: [{ title: "Import Catalogue | GMTL Admin" }, { name: "robots", content: "noindex,nofollow" }] }),
