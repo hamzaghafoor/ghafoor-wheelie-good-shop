@@ -3,7 +3,7 @@ import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import {
   parseCSV, parseSheet, sanitizeCell, LIMITS, suggestCategory, suggestTags, parseDigitleyPdfText,
-  type SheetTable, type ParsedRow, type BrandCandidate, type DigitleyMeta,
+  type SheetTable, type SheetParse, type ParsedRow, type BrandCandidate, type DigitleyMeta,
 } from "@/lib/erp-parser";
 
 import * as XLSX from "xlsx";
@@ -111,20 +111,43 @@ export const previewCatalogueImport = createServerFn({ method: "POST" })
     } catch (e: any) {
       throw new Error(`Could not read file: ${e?.message ?? "unknown error"}`);
     }
-    if (tables.length === 0) throw new Error("No worksheets found.");
+    if (tables.length === 0) throw new Error("No worksheets found in this file.");
 
 
-    // Parse every sheet; pick the first with a valid header + rows as default.
-    const sheetSummaries = tables.map((t) => {
-      const parsed = parseSheet(t);
-      return { name: t.name, parsed, table: t };
+    // Parse every sheet defensively; pick the one with the most usable rows.
+    const sheetSummaries: Array<{ name: string; parsed: SheetParse; table: SheetTable }> = tables.map((t) => {
+      try {
+        return { name: t.name, parsed: parseSheet(t), table: t };
+      } catch (e: any) {
+        const parsed: SheetParse = {
+          header: null, brandCandidates: [], productRows: [], blankRows: 0, sectionRows: 0,
+          skippedRowNumbers: [], totalRows: t.rows?.length ?? 0,
+          warnings: [`Sheet could not be parsed: ${e?.message ?? "unexpected layout"}`],
+        };
+        return { name: t.name, parsed, table: t };
+      }
     });
-    const chosen =
-      sheetSummaries.find((s) => s.parsed.header && s.parsed.productRows.length > 0) ??
-      sheetSummaries[0];
+
+    const withRows = sheetSummaries
+      .filter((s) => s.parsed.header && s.parsed.productRows.length > 0)
+      .sort((a, b) => b.parsed.productRows.length - a.parsed.productRows.length);
+    const chosen = withRows[0] ?? sheetSummaries.find((s) => s.parsed.header) ?? sheetSummaries[0];
     const parsed = chosen.parsed;
 
-    if (!parsed.header) throw new Error("Could not detect a header row containing Stock ID and Description in any worksheet.");
+    if (!parsed.header) {
+      const detail = sheetSummaries
+        .map((s) => `“${s.name}”: ${s.parsed.warnings[0] ?? "no header row found"}`)
+        .slice(0, 3).join(" · ");
+      throw new Error(
+        `We couldn't read this file's structure. No table header row containing a Description (and ideally a Stock ID) column was found in any worksheet. ${detail}`,
+      );
+    }
+    if (parsed.productRows.length === 0) {
+      throw new Error(
+        `A header row was found on “${chosen.name}” (row ${parsed.header.headerRow + 1}), but no product rows could be read below it. Please check the file has data rows under the headers.`,
+      );
+    }
+
 
     // Existing brand match for each brand candidate
     const norms = parsed.brandCandidates.map((c) => c.normalized).filter(Boolean);
@@ -215,6 +238,8 @@ export const previewCatalogueImport = createServerFn({ method: "POST" })
           stock_col: parsed.header.stockCol,
           desc_col: parsed.header.descCol,
           blank_rows: parsed.blankRows,
+          section_rows: parsed.sectionRows,
+          skipped_row_numbers: parsed.skippedRowNumbers.slice(0, 100),
           candidate_row_count: parsed.productRows.length,
           brand_candidates: brandMatches,
           brand_decision: null,
@@ -253,6 +278,7 @@ export const previewCatalogueImport = createServerFn({ method: "POST" })
       totals: {
         candidateRows: parsed.productRows.length,
         blankRows: parsed.blankRows,
+        sectionRows: parsed.sectionRows,
         needsReview: rowPayloads.filter((r) => r.action === "needs_review").length,
         skipped: rowPayloads.filter((r) => r.action === "skip").length,
       },

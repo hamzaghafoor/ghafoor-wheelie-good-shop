@@ -5,7 +5,19 @@ import { useRef, useState } from "react";
 import {
   previewCatalogueImport, listCatalogueBatches, rollbackCatalogueImport,
 } from "@/lib/catalogue-import.functions";
-import { Upload, RotateCcw, Loader2 } from "lucide-react";
+import { Upload, RotateCcw, Loader2, AlertTriangle } from "lucide-react";
+import { toast } from "sonner";
+
+// Server functions surface parse problems as plain Errors; router/runtime faults
+// (e.g. "Invariant failed") are rewritten into something an admin can act on.
+function readableError(e: unknown): string {
+  const raw = (e as any)?.message ? String((e as any).message) : String(e ?? "");
+  if (!raw || /invariant failed/i.test(raw)) {
+    return "We couldn't read this file's structure. Make sure the sheet has a header row with a Description column (and ideally a Stock ID column) above the product rows — report titles and metadata rows above it are fine.";
+  }
+  return raw;
+}
+
 
 export const Route = createFileRoute("/_authenticated/admin/catalogue/import")({
   head: () => ({ meta: [{ title: "Import Catalogue | GMTL Admin" }, { name: "robots", content: "noindex,nofollow" }] }),
@@ -32,6 +44,7 @@ function ImportLanding() {
 
   const [file, setFile] = useState<File | null>(null);
   const [msg, setMsg] = useState<string | null>(null);
+  const [err, setErr] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const history = useQuery({ queryKey: ["cat-batches"], queryFn: () => listFn() });
@@ -42,25 +55,41 @@ function ImportLanding() {
       const buf = new Uint8Array(await file.arrayBuffer());
       let bin = ""; for (let i = 0; i < buf.length; i++) bin += String.fromCharCode(buf[i]);
       const b64 = typeof btoa === "function" ? btoa(bin) : Buffer.from(bin, "binary").toString("base64");
-      return previewFn({ data: { filename: file.name, fileB64: b64, mime: file.type } });
+      const res: any = await previewFn({ data: { filename: file.name, fileB64: b64, mime: file.type } });
+      if (!res || typeof res.batchId !== "string" || !res.batchId) {
+        throw new Error("The file was read but no preview could be created. Please check the file structure and try again.");
+      }
+      return res;
     },
     onSuccess: (r: any) => {
       qc.invalidateQueries({ queryKey: ["cat-batches"] });
+      setErr(null);
+      const warn: string[] = r?.warnings ?? [];
+      if (warn.length) toast.warning("Imported with warnings", { description: warn.slice(0, 3).join(" · ") });
+      else toast.success(`Parsed ${r?.totals?.candidateRows ?? 0} rows from “${r?.sheet ?? file?.name}”.`);
       nav({ to: "/admin/catalogue/import/$batchId", params: { batchId: r.batchId } });
     },
-    onError: (e: any) => setMsg(e.message),
+    onError: (e: any) => {
+      const message = readableError(e);
+      setErr(message);
+      toast.error("Couldn't read this file", { description: message });
+    },
   });
 
   const rbMut = useMutation({
     mutationFn: async (id: string) => rbFn({ data: { batchId: id } }),
     onSuccess: (r: any) => { setMsg(`Rollback: ${r.reverted} reverted, ${r.skipped} skipped.`); qc.invalidateQueries({ queryKey: ["cat-batches"] }); },
-    onError: (e: any) => setMsg(e.message),
+    onError: (e: any) => { const m = readableError(e); setErr(m); toast.error("Rollback failed", { description: m }); },
   });
 
+
   function onFile(f: File) {
-    if (f.size > 10_000_000) { setMsg("File too large (max 10 MB)."); return; }
-    if (!/\.(csv|xlsx|xls|pdf)$/i.test(f.name)) { setMsg("Only .csv, .xls, .xlsx or .pdf files are supported."); return; }
-    setFile(f); setMsg(null);
+    if (f.size > 10_000_000) { toast.error("File too large (max 10 MB)."); setErr("File too large (max 10 MB)."); return; }
+    if (!/\.(csv|xlsx|xls|pdf)$/i.test(f.name)) {
+      const m = "Only .csv, .xls, .xlsx or .pdf files are supported.";
+      toast.error(m); setErr(m); return;
+    }
+    setFile(f); setMsg(null); setErr(null);
   }
 
   return (
@@ -77,6 +106,17 @@ function ImportLanding() {
       </div>
 
       {msg && <div className="mt-3 rounded-md bg-blue-50 p-2 text-xs text-blue-800">{msg}</div>}
+      {err && (
+        <div className="mt-3 flex items-start gap-2 rounded-md border border-red-200 bg-red-50 p-3 text-xs text-red-800">
+          <AlertTriangle className="h-4 w-4 flex-none" />
+          <div>
+            <div className="font-medium">This file couldn't be imported</div>
+            <div className="mt-0.5">{err}</div>
+            <div className="mt-1 text-[11px] text-red-700/80">Tip: metadata or report rows above the table are ignored automatically — the sheet just needs a header row with a Description column.</div>
+          </div>
+        </div>
+      )}
+
 
       <div className="card-surface mt-6 bg-white p-6">
         <label

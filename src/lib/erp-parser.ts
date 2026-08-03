@@ -218,40 +218,59 @@ export function parseCSV(text: string): string[][] {
 // --------- Header detection ---------
 export type HeaderDetect = {
   headerRow: number;              // 0-based index into rows[]
-  stockCol: number;
+  stockCol: number;               // -1 when the sheet has no Stock ID column
   descCol: number;
   ignoredCols: number[];
   columnNames: string[];
   warnings: string[];
 };
 
+// Loose alias match: exact hit, or the header cell contains/extends a known alias
+// ("stockid#", "itemdescription2", "descriptionofgoods"...).
+function aliasHit(norm: string, aliases: string[]): boolean {
+  if (!norm) return false;
+  if (aliases.includes(norm)) return true;
+  return aliases.some((a) => a.length >= 4 && (norm.startsWith(a) || norm.includes(a)));
+}
+
 export function detectHeader(rows: string[][]): HeaderDetect | null {
-  const scanUpTo = Math.min(rows.length, 40);
+  const scanUpTo = Math.min(rows.length, 60);
+  let fallback: HeaderDetect | null = null;
+
   for (let r = 0; r < scanUpTo; r++) {
     const cells = rows[r];
-    if (!cells || cells.every(c => !c || c.trim() === "")) continue;
+    if (!cells || cells.every((c) => !c || c.trim() === "")) continue;
     let stockCol = -1, descCol = -1;
     const ignored: number[] = [];
     for (let c = 0; c < cells.length; c++) {
       const norm = normHeader(cells[c] ?? "");
       if (!norm) continue;
-      if (stockCol < 0 && STOCK_ID_ALIASES.includes(norm)) stockCol = c;
-      if (descCol < 0 && DESCRIPTION_ALIASES.includes(norm)) descCol = c;
-      if (IGNORED_ALIASES.includes(norm)) ignored.push(c);
+      if (stockCol < 0 && aliasHit(norm, STOCK_ID_ALIASES)) stockCol = c;
+      if (descCol < 0 && aliasHit(norm, DESCRIPTION_ALIASES)) descCol = c;
+      if (aliasHit(norm, IGNORED_ALIASES)) ignored.push(c);
     }
-    if (stockCol >= 0 && descCol >= 0) {
-      return {
-        headerRow: r,
-        stockCol,
-        descCol,
-        ignoredCols: ignored,
-        columnNames: cells.map(x => x ?? ""),
-        warnings: [],
-      };
+    const base = {
+      headerRow: r,
+      stockCol,
+      descCol,
+      ignoredCols: ignored,
+      columnNames: cells.map((x) => x ?? ""),
+      warnings: [] as string[],
+    };
+
+    // Best case — both key columns present.
+    if (stockCol >= 0 && descCol >= 0) return base;
+
+    // Acceptable fallback — a description column plus at least one recognised
+    // stock column (UOM / Quantity / Available ...). Metadata rows above the
+    // real header almost never satisfy this.
+    if (!fallback && descCol >= 0 && ignored.length > 0) {
+      fallback = { ...base, warnings: ["No Stock ID column found — rows will be matched on description only."] };
     }
   }
-  return null;
+  return fallback;
 }
+
 
 // --------- Brand candidate detection ---------
 export type BrandCandidate = { text: string; normalized: string; sourceRow: number; confidence: "high" | "medium" | "low" };
@@ -351,10 +370,28 @@ export type ParsedRow = {
   pack: PackParseResult;
   isPlaceholder: boolean;
   isBlank: boolean;
+  isSection: boolean;              // section/group heading, e.g. "28 ADDINOL ( GSA 2)"
   warnings: string[];
 };
 
 const PLACEHOLDER_TOKENS = new Set(["xyz", "sample", "test", "demo", "n/a", "na", "-", "---"]);
+
+// A "section" row carries a group heading rather than a product, e.g.
+// "28 ADDINOL ( GSA 2)", "Total", "Sub Total", "Page 3 of 9", "Brand: ADDINOL".
+export function isSectionRow(cells: string[], header: HeaderDetect): boolean {
+  const nonEmpty = cells.map((c) => (c ?? "").trim()).filter(Boolean);
+  if (nonEmpty.length === 0) return false;
+  const joined = nonEmpty.join(" ").trim();
+  if (/^(sub\s*)?total\b/i.test(joined)) return true;
+  if (/^page\s+\d+/i.test(joined)) return true;
+  if (/^(brand|location|print\s*out\s*date|fiscal\s*year|report|generated|printed|as\s*of)\s*[:\-]/i.test(joined)) return true;
+  // Single meaningful cell only → a banner/heading, not a table row.
+  if (nonEmpty.length === 1) return true;
+  // Repeated header row (multi-page exports repeat headers mid-table).
+  const norms = cells.map((c) => normHeader(c ?? ""));
+  if (aliasHit(norms[header.descCol] ?? "", DESCRIPTION_ALIASES)) return true;
+  return false;
+}
 
 export function parseRow(
   rows: string[][],
@@ -363,22 +400,37 @@ export function parseRow(
   rowIndex: number,   // 0-based into rows[]
 ): ParsedRow | null {
   const cells = rows[rowIndex];
-  if (!cells) return null;
-  const stock = (cells[header.stockCol] ?? "").trim();
-  const desc = (cells[header.descCol] ?? "").trim();
+  if (!cells || !Array.isArray(cells)) return null;
+  const stock = header.stockCol >= 0 ? (cells[header.stockCol] ?? "").toString().trim() : "";
+  const desc = header.descCol >= 0 ? (cells[header.descCol] ?? "").toString().trim() : "";
   const rowNumber = rowIndex + 1;
 
+  const empty = (over: Partial<ParsedRow>): ParsedRow => ({
+    rowNumber, erpStockId: stock, erpDescription: desc, brandHint, familyKey: null,
+    suggestedFamilyName: "", viscosity: null,
+    pack: { ok: false, reason: "not a product row" },
+    isPlaceholder: false, isBlank: false, isSection: false, warnings: [], ...over,
+  });
+
   if (!stock && !desc) {
-    return { rowNumber, erpStockId: "", erpDescription: "", brandHint, familyKey: null,
-      suggestedFamilyName: "", viscosity: null,
-      pack: { ok: false, reason: "blank row" },
-      isPlaceholder: false, isBlank: true, warnings: [] };
+    return empty({ erpStockId: "", erpDescription: "", isBlank: true, pack: { ok: false, reason: "blank row" } });
+  }
+
+  if (isSectionRow(cells, header)) {
+    return empty({ isSection: true, warnings: [`Row ${rowNumber} looks like a section heading and was skipped.`] });
+  }
+
+  // Description missing but the row has other content — flag, don't crash.
+  if (!desc) {
+    return empty({ isSection: true, warnings: [`Row ${rowNumber} has no description and was skipped.`] });
   }
 
   const warnings: string[] = [];
   const isPlaceholder =
     !desc || PLACEHOLDER_TOKENS.has(desc.toLowerCase()) ||
     PLACEHOLDER_TOKENS.has(stock.toLowerCase());
+  if (!stock) warnings.push("No Stock ID on this row.");
+
 
   const viscosity = extractViscosity(desc);
   const pack = parsePack(desc);
@@ -406,7 +458,9 @@ export function parseRow(
     pack,
     isPlaceholder,
     isBlank: false,
+    isSection: false,
     warnings,
+
   };
 }
 
@@ -416,30 +470,57 @@ export type SheetParse = {
   brandCandidates: BrandCandidate[];
   productRows: ParsedRow[];
   blankRows: number;
+  sectionRows: number;
+  skippedRowNumbers: number[];
   totalRows: number;
   warnings: string[];
 };
 
 export function parseSheet(table: SheetTable, brandHintOverride?: string | null): SheetParse {
   const warnings: string[] = [];
-  const rows = table.rows.slice(0, LIMITS.maxRows);
-  if (table.rows.length > LIMITS.maxRows) warnings.push(`Sheet truncated at ${LIMITS.maxRows} rows.`);
+  const rows = (table?.rows ?? []).slice(0, LIMITS.maxRows).map((r) => (Array.isArray(r) ? r : []));
+  if ((table?.rows?.length ?? 0) > LIMITS.maxRows) warnings.push(`Sheet truncated at ${LIMITS.maxRows} rows.`);
+
+  const empty = (extra: string[]): SheetParse => ({
+    header: null, brandCandidates: [], productRows: [], blankRows: 0, sectionRows: 0,
+    skippedRowNumbers: [], totalRows: rows.length, warnings: [...warnings, ...extra],
+  });
+  if (rows.length === 0) return empty(["Worksheet is empty."]);
+
   const header = detectHeader(rows);
-  if (!header) return { header: null, brandCandidates: [], productRows: [], blankRows: 0, totalRows: rows.length, warnings: [...warnings, "No Stock ID + Description header row found."] };
+  if (!header) {
+    return empty([
+      "Could not find a table header row. Expected a row containing a Description column (and ideally Stock ID) — any report title or metadata rows above it are ignored automatically.",
+    ]);
+  }
+  warnings.push(...header.warnings);
 
   const brandCandidates = detectBrandCandidates(rows, header.headerRow);
   const brandHint = brandHintOverride ?? (brandCandidates[0]?.text.replace(/\s*[\(\[].*?[\)\]]\s*$/, "").trim() ?? null);
 
   const productRows: ParsedRow[] = [];
+  const skippedRowNumbers: number[] = [];
   let blankRows = 0;
+  let sectionRows = 0;
   for (let r = header.headerRow + 1; r < rows.length; r++) {
-    const parsed = parseRow(rows, header, brandHint, r);
+    let parsed: ParsedRow | null = null;
+    try {
+      parsed = parseRow(rows, header, brandHint, r);
+    } catch (e: any) {
+      skippedRowNumbers.push(r + 1);
+      warnings.push(`Row ${r + 1} could not be read (${e?.message ?? "unexpected value"}) and was skipped.`);
+      continue;
+    }
     if (!parsed) continue;
     if (parsed.isBlank) { blankRows++; continue; }
+    if (parsed.isSection) { sectionRows++; skippedRowNumbers.push(parsed.rowNumber); continue; }
     productRows.push(parsed);
   }
-  return { header, brandCandidates, productRows, blankRows, totalRows: rows.length, warnings };
+  if (sectionRows > 0) warnings.push(`${sectionRows} section/heading or incomplete row(s) were skipped.`);
+  if (productRows.length === 0) warnings.push("Header row found, but no product rows below it could be read.");
+  return { header, brandCandidates, productRows, blankRows, sectionRows, skippedRowNumbers, totalRows: rows.length, warnings };
 }
+
 
 // --------- Digitley Stock Check PDF parser ---------
 // Converts the raw text of a Digitley "Stock Check Sheets" PDF into a SheetTable
