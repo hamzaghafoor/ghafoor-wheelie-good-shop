@@ -42,20 +42,33 @@ function ImportLanding() {
       const buf = new Uint8Array(await file.arrayBuffer());
       let bin = ""; for (let i = 0; i < buf.length; i++) bin += String.fromCharCode(buf[i]);
       const b64 = typeof btoa === "function" ? btoa(bin) : Buffer.from(bin, "binary").toString("base64");
-      return previewFn({ data: { filename: file.name, fileB64: b64, mime: file.type } });
+      const res: any = await previewFn({ data: { filename: file.name, fileB64: b64, mime: file.type } });
+      if (!res || typeof res.batchId !== "string" || !res.batchId) {
+        throw new Error("The file was read but no preview could be created. Please check the file structure and try again.");
+      }
+      return res;
     },
     onSuccess: (r: any) => {
       qc.invalidateQueries({ queryKey: ["cat-batches"] });
+      setErr(null);
+      const warn: string[] = r?.warnings ?? [];
+      if (warn.length) toast.warning("Imported with warnings", { description: warn.slice(0, 3).join(" · ") });
+      else toast.success(`Parsed ${r?.totals?.candidateRows ?? 0} rows from “${r?.sheet ?? file?.name}”.`);
       nav({ to: "/admin/catalogue/import/$batchId", params: { batchId: r.batchId } });
     },
-    onError: (e: any) => setMsg(e.message),
+    onError: (e: any) => {
+      const message = readableError(e);
+      setErr(message);
+      toast.error("Couldn't read this file", { description: message });
+    },
   });
 
   const rbMut = useMutation({
     mutationFn: async (id: string) => rbFn({ data: { batchId: id } }),
     onSuccess: (r: any) => { setMsg(`Rollback: ${r.reverted} reverted, ${r.skipped} skipped.`); qc.invalidateQueries({ queryKey: ["cat-batches"] }); },
-    onError: (e: any) => setMsg(e.message),
+    onError: (e: any) => { const m = readableError(e); setErr(m); toast.error("Rollback failed", { description: m }); },
   });
+
 
   function onFile(f: File) {
     if (f.size > 10_000_000) { setMsg("File too large (max 10 MB)."); return; }
