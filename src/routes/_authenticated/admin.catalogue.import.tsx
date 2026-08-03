@@ -84,9 +84,12 @@ function ImportLanding() {
 
 
   function onFile(f: File) {
-    if (f.size > 10_000_000) { setMsg("File too large (max 10 MB)."); return; }
-    if (!/\.(csv|xlsx|xls|pdf)$/i.test(f.name)) { setMsg("Only .csv, .xls, .xlsx or .pdf files are supported."); return; }
-    setFile(f); setMsg(null);
+    if (f.size > 10_000_000) { toast.error("File too large (max 10 MB)."); setErr("File too large (max 10 MB)."); return; }
+    if (!/\.(csv|xlsx|xls|pdf)$/i.test(f.name)) {
+      const m = "Only .csv, .xls, .xlsx or .pdf files are supported.";
+      toast.error(m); setErr(m); return;
+    }
+    setFile(f); setMsg(null); setErr(null);
   }
 
   return (
@@ -103,6 +106,17 @@ function ImportLanding() {
       </div>
 
       {msg && <div className="mt-3 rounded-md bg-blue-50 p-2 text-xs text-blue-800">{msg}</div>}
+      {err && (
+        <div className="mt-3 flex items-start gap-2 rounded-md border border-red-200 bg-red-50 p-3 text-xs text-red-800">
+          <AlertTriangle className="h-4 w-4 flex-none" />
+          <div>
+            <div className="font-medium">This file couldn't be imported</div>
+            <div className="mt-0.5">{err}</div>
+            <div className="mt-1 text-[11px] text-red-700/80">Tip: metadata or report rows above the table are ignored automatically — the sheet just needs a header row with a Description column.</div>
+          </div>
+        </div>
+      )}
+
 
       <div className="card-surface mt-6 bg-white p-6">
         <label
