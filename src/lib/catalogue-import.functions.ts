@@ -3,7 +3,7 @@ import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import {
   parseCSV, parseSheet, sanitizeCell, LIMITS, suggestCategory, suggestTags, parseDigitleyPdfText,
-  type SheetTable, type ParsedRow, type BrandCandidate, type DigitleyMeta,
+  type SheetTable, type SheetParse, type ParsedRow, type BrandCandidate, type DigitleyMeta,
 } from "@/lib/erp-parser";
 
 import * as XLSX from "xlsx";
