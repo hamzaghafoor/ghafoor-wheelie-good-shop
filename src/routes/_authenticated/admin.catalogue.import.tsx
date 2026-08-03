@@ -44,6 +44,7 @@ function ImportLanding() {
 
   const [file, setFile] = useState<File | null>(null);
   const [msg, setMsg] = useState<string | null>(null);
+  const [err, setErr] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const history = useQuery({ queryKey: ["cat-batches"], queryFn: () => listFn() });
