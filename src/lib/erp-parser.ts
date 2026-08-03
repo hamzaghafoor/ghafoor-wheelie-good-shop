@@ -370,10 +370,28 @@ export type ParsedRow = {
   pack: PackParseResult;
   isPlaceholder: boolean;
   isBlank: boolean;
+  isSection: boolean;              // section/group heading, e.g. "28 ADDINOL ( GSA 2)"
   warnings: string[];
 };
 
 const PLACEHOLDER_TOKENS = new Set(["xyz", "sample", "test", "demo", "n/a", "na", "-", "---"]);
+
+// A "section" row carries a group heading rather than a product, e.g.
+// "28 ADDINOL ( GSA 2)", "Total", "Sub Total", "Page 3 of 9", "Brand: ADDINOL".
+export function isSectionRow(cells: string[], header: HeaderDetect): boolean {
+  const nonEmpty = cells.map((c) => (c ?? "").trim()).filter(Boolean);
+  if (nonEmpty.length === 0) return false;
+  const joined = nonEmpty.join(" ").trim();
+  if (/^(sub\s*)?total\b/i.test(joined)) return true;
+  if (/^page\s+\d+/i.test(joined)) return true;
+  if (/^(brand|location|print\s*out\s*date|fiscal\s*year|report|generated|printed|as\s*of)\s*[:\-]/i.test(joined)) return true;
+  // Single meaningful cell only → a banner/heading, not a table row.
+  if (nonEmpty.length === 1) return true;
+  // Repeated header row (multi-page exports repeat headers mid-table).
+  const norms = cells.map((c) => normHeader(c ?? ""));
+  if (aliasHit(norms[header.descCol] ?? "", DESCRIPTION_ALIASES)) return true;
+  return false;
+}
 
 export function parseRow(
   rows: string[][],
@@ -382,22 +400,37 @@ export function parseRow(
   rowIndex: number,   // 0-based into rows[]
 ): ParsedRow | null {
   const cells = rows[rowIndex];
-  if (!cells) return null;
-  const stock = (cells[header.stockCol] ?? "").trim();
-  const desc = (cells[header.descCol] ?? "").trim();
+  if (!cells || !Array.isArray(cells)) return null;
+  const stock = header.stockCol >= 0 ? (cells[header.stockCol] ?? "").toString().trim() : "";
+  const desc = header.descCol >= 0 ? (cells[header.descCol] ?? "").toString().trim() : "";
   const rowNumber = rowIndex + 1;
 
+  const empty = (over: Partial<ParsedRow>): ParsedRow => ({
+    rowNumber, erpStockId: stock, erpDescription: desc, brandHint, familyKey: null,
+    suggestedFamilyName: "", viscosity: null,
+    pack: { ok: false, reason: "not a product row" },
+    isPlaceholder: false, isBlank: false, isSection: false, warnings: [], ...over,
+  });
+
   if (!stock && !desc) {
-    return { rowNumber, erpStockId: "", erpDescription: "", brandHint, familyKey: null,
-      suggestedFamilyName: "", viscosity: null,
-      pack: { ok: false, reason: "blank row" },
-      isPlaceholder: false, isBlank: true, warnings: [] };
+    return empty({ erpStockId: "", erpDescription: "", isBlank: true, pack: { ok: false, reason: "blank row" } });
+  }
+
+  if (isSectionRow(cells, header)) {
+    return empty({ isSection: true, warnings: [`Row ${rowNumber} looks like a section heading and was skipped.`] });
+  }
+
+  // Description missing but the row has other content — flag, don't crash.
+  if (!desc) {
+    return empty({ isSection: true, warnings: [`Row ${rowNumber} has no description and was skipped.`] });
   }
 
   const warnings: string[] = [];
   const isPlaceholder =
     !desc || PLACEHOLDER_TOKENS.has(desc.toLowerCase()) ||
     PLACEHOLDER_TOKENS.has(stock.toLowerCase());
+  if (!stock) warnings.push("No Stock ID on this row.");
+
 
   const viscosity = extractViscosity(desc);
   const pack = parsePack(desc);
