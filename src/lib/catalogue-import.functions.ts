@@ -238,6 +238,8 @@ export const previewCatalogueImport = createServerFn({ method: "POST" })
           stock_col: parsed.header.stockCol,
           desc_col: parsed.header.descCol,
           blank_rows: parsed.blankRows,
+          section_rows: parsed.sectionRows,
+          skipped_row_numbers: parsed.skippedRowNumbers.slice(0, 100),
           candidate_row_count: parsed.productRows.length,
           brand_candidates: brandMatches,
           brand_decision: null,
