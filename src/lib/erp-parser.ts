@@ -458,7 +458,9 @@ export function parseRow(
     pack,
     isPlaceholder,
     isBlank: false,
+    isSection: false,
     warnings,
+
   };
 }
 
