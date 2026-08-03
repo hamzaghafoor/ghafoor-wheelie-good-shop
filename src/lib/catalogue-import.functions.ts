@@ -115,21 +115,19 @@ export const previewCatalogueImport = createServerFn({ method: "POST" })
 
 
     // Parse every sheet defensively; pick the one with the most usable rows.
-    const sheetSummaries = tables.map((t) => {
+    const sheetSummaries: Array<{ name: string; parsed: SheetParse; table: SheetTable }> = tables.map((t) => {
       try {
         return { name: t.name, parsed: parseSheet(t), table: t };
       } catch (e: any) {
-        return {
-          name: t.name,
-          parsed: {
-            header: null, brandCandidates: [], productRows: [], blankRows: 0, sectionRows: 0,
-            skippedRowNumbers: [], totalRows: t.rows?.length ?? 0,
-            warnings: [`Sheet could not be parsed: ${e?.message ?? "unexpected layout"}`],
-          } as any,
-          table: t,
+        const parsed: SheetParse = {
+          header: null, brandCandidates: [], productRows: [], blankRows: 0, sectionRows: 0,
+          skippedRowNumbers: [], totalRows: t.rows?.length ?? 0,
+          warnings: [`Sheet could not be parsed: ${e?.message ?? "unexpected layout"}`],
         };
+        return { name: t.name, parsed, table: t };
       }
     });
+
     const withRows = sheetSummaries
       .filter((s) => s.parsed.header && s.parsed.productRows.length > 0)
       .sort((a, b) => b.parsed.productRows.length - a.parsed.productRows.length);
